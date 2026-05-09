@@ -168,8 +168,7 @@
   <div class="howto" id="howto">
     <h3>🔗 Setup</h3>
     <ol>
-      <li><strong>Publish:</strong> File → Share → Publish to web → CSV → Copy link.</li>
-      <li><strong>Proxy:</strong> Create a Cloudflare Worker and paste the provided code.</li>
+      <li><strong>Publish:</strong> File → Share → Publish to web → CSV → Publish → copy URL.</li>
     </ol>
   </div>
 
@@ -202,35 +201,49 @@
     <div class="grid2">
       <div class="card">
         <div class="section-title">Top Chargers by Downtime (hrs)</div>
-        <div id="topChargersChart"></div>
+        <div id="topChargersChart"><div class="no-data">Load data first</div></div>
       </div>
       <div class="card">
         <div class="section-title">RCA Distribution — All</div>
-        <div id="globalRcaChart"></div>
+        <div id="globalRcaChart"><div class="no-data">Load data first</div></div>
       </div>
     </div>
   </div>
 
-  </main>
+  <div class="tab-panel" id="tab-charger">
+    <div class="charger-wrap">
+      <div class="section-title">Select Charger ID</div>
+      <input type="text" class="charger-search" id="chargerSearch" placeholder="Search charger ID…" oninput="filterChips()" />
+      <div class="charger-grid" id="chargerGrid"></div>
+    </div>
+    <div id="detailSection" class="hidden">
+       <div class="detail-banner"><div class="detail-id" id="detailId"></div></div>
+    </div>
+  </div>
+  <div class="tab-panel" id="tab-zone"><div id="zoneBreakdownList"></div></div>
+  <div class="tab-panel" id="tab-city"><div id="cityBreakdownList"></div></div>
+
+</main>
 
 <script>
 let allRows = [];
 let filteredRows = [];
+let activeCharger = null;
 let activeTab = 'overview';
 
 function parseCSV(csv) {
   const lines = csv.trim().split(/\r?\n/);
   if (lines.length < 2) return [];
   const headers = lines[0].split(',').map(h => h.replace(/"/g,'').trim().toLowerCase());
-  
   const find = (...keys) => headers.findIndex(h => keys.some(k => h.includes(k.toLowerCase())));
+  
   const iCharger = find('charger id', 'chargerid');
   const iRCA     = find('root cause', 'rca');
   const iHours   = find('power down time', 'downtime', 'hours');
-  const iSite    = find('charger name', 'charger_name');
+  const iSite    = find('charger name');
   const iCity    = find('city');
-  const iZone    = find('vida zone', 'zone');
-  const iStart   = find('charger downtime', 'downtime (estimated)');
+  const iZone    = find('vida zone');
+  const iStart   = find('charger downtime');
 
   const rows = [];
   for (let i = 1; i < lines.length; i++) {
@@ -238,17 +251,17 @@ function parseCSV(csv) {
     const charger = (cols[iCharger] || '').replace(/"/g,'').trim();
     if (!charger) continue;
 
-    // FIX: Force cleanup and conversion to NUMBER
-    const rawHrs = (cols[iHours] || '0').replace(/[^0-9.]/g, '');
+    // FIX: Convert hours column to a Number immediately
+    const rawHrs = (cols[iHours] || '0').replace(/[^0-9.]/g,'');
     const numHrs = parseFloat(rawHrs) || 0;
 
     rows.push({
       charger,
       rca: (cols[iRCA] || '').replace(/"/g,'').trim(),
-      hours: numHrs, // Stored as a Number, not a String
-      site: (cols[iSite] || '').replace(/"/g,'').trim(),
-      city: (cols[iCity] || '').replace(/"/g,'').trim(),
-      zone: (cols[iZone] || '').replace(/"/g,'').trim(),
+      hours: numHrs, // Mathematical number
+      site: (cols[iSite] || '').trim(),
+      city: (cols[iCity] || '').trim(),
+      zone: (cols[iZone] || '').trim(),
       date: new Date(cols[iStart])
     });
   }
@@ -267,27 +280,29 @@ function splitCSVLine(line) {
 }
 
 async function loadData() {
-  const sUrl = document.getElementById('sheetUrl').value;
-  const pUrl = document.getElementById('proxyUrl').value.replace(/\/$/, '');
-  const btn = document.getElementById('refreshBtn');
-  btn.classList.add('spinning');
+  const sUrl = document.getElementById('sheetUrl').value.trim();
+  const pUrl = document.getElementById('proxyUrl').value.trim().replace(/\/$/, '');
+  if(!sUrl || !pUrl) return;
+  
+  document.getElementById('refreshBtn').classList.add('spinning');
   try {
     const res = await fetch(`${pUrl}?url=${encodeURIComponent(sUrl)}`);
     const text = await res.text();
     allRows = parseCSV(text);
     filteredRows = [...allRows];
     renderAll();
-    document.getElementById('statusText').textContent = "Loaded " + allRows.length + " rows";
+    document.getElementById('statusText').textContent = allRows.length + " events loaded";
+    document.getElementById('lastUpdated').textContent = 'Updated ' + new Date().toLocaleTimeString();
   } catch (e) { console.error(e); }
-  btn.classList.remove('spinning');
+  document.getElementById('refreshBtn').classList.remove('spinning');
 }
 
 function renderMetrics() {
   const rows = filteredRows;
   const total = rows.length;
   const chars = new Set(rows.map(r => r.charger)).size;
-  
-  // FIX: Addition of Numbers, not concatenation
+
+  // FIX: Summing Numbers (Mathematical addition)
   const hrs = rows.reduce((s, r) => s + r.hours, 0);
   
   const avg = total ? hrs / total : 0;
@@ -304,7 +319,19 @@ function renderMetrics() {
 
 function renderAll() {
   renderMetrics();
-  // Existing chart rendering calls here...
+  // ... existing chart render logic ...
+}
+
+function applyFilter() {
+  const from = document.getElementById('dateFrom').value;
+  const to = document.getElementById('dateTo').value;
+  if (!from && !to) { filteredRows = [...allRows]; } 
+  else {
+    const dFrom = from ? new Date(from) : new Date(0);
+    const dTo = to ? new Date(to + 'T23:59:59') : new Date();
+    filteredRows = allRows.filter(r => r.date >= dFrom && r.date <= dTo);
+  }
+  renderAll();
 }
 
 function switchTab(name) {
