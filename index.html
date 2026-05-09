@@ -210,8 +210,9 @@
     <div class="metric"><div class="metric-label">Total Events</div><div class="metric-val" id="mTotal">—</div></div>
     <div class="metric"><div class="metric-label">Unique Chargers</div><div class="metric-val" id="mChargers">—</div></div>
     <div class="metric"><div class="metric-label">Total Downtime</div><div class="metric-val" id="mHours">—</div><div class="metric-sub">hours</div></div>
-    <div class="metric"><div class="metric-label">Avg per Event</div><div class="metric-val" id="mAvg">—</div><div class="metric-sub">hours</div></div>
-    <div class="metric"><div class="metric-label">Worst Charger</div><div class="metric-val" id="mWorst" style="font-size:16px;letter-spacing:0;">—</div></div>
+    <div class="metric"><div class="metric-label">Avg / Charger / Day</div><div class="metric-val" id="mAvgDay">—</div><div class="metric-sub">hrs · <span id="mDays">—</span> days</div></div>
+    <div class="metric"><div class="metric-label">Avg / Event</div><div class="metric-val" id="mAvg">—</div><div class="metric-sub">hours</div></div>
+    <div class="metric"><div class="metric-label">Date Range</div><div class="metric-val" id="mDateRange" style="font-size:13px;letter-spacing:0;line-height:1.4;">—</div></div>
   </div>
 
   <!-- Tabs -->
@@ -226,12 +227,36 @@
   <div class="tab-panel active" id="tab-overview">
     <div class="grid2">
       <div class="card">
-        <div class="section-title">Top Chargers by Downtime (hrs)</div>
-        <div id="topChargersChart"><div class="no-data">Load data first</div></div>
-      </div>
-      <div class="card">
         <div class="section-title">RCA Distribution — All</div>
         <div id="globalRcaChart"><div class="no-data">Load data first</div></div>
+      </div>
+      <div class="card">
+        <div class="section-title">Avg Downtime per Charger per Day</div>
+        <div id="avgCalcCard"><div class="no-data">Load data first</div></div>
+      </div>
+    </div>
+    <!-- Worst Chargers List -->
+    <div class="card" style="margin-bottom:1.5rem;">
+      <div class="section-title">Worst Chargers — Top 15 by Downtime %</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:14px;">
+        Downtime % = (Charger Total Hrs ÷ (Days in filter × 24)) × 100
+      </div>
+      <div class="events-wrap">
+        <table id="worstChargersTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Charger ID</th>
+              <th>Charger Name / Site</th>
+              <th>Zone</th>
+              <th>City</th>
+              <th style="text-align:right;">Total Hrs</th>
+              <th style="text-align:right;">Incidents</th>
+              <th style="text-align:right;">Downtime %</th>
+            </tr>
+          </thead>
+          <tbody id="worstChargersBody"><tr><td colspan="8" class="no-data">Load data first</td></tr></tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -251,6 +276,7 @@
         </div>
         <div class="detail-tags" id="detailTags"></div>
       </div>
+      <div id="chargerDowntimeCalc"></div>
       <div class="grid2">
         <div class="card">
           <div class="section-title">Downtime Hours by RCA</div>
@@ -570,31 +596,115 @@ function renderAll() {
 }
 
 // ── Metrics ──
+function getFilterDays() {
+  const from = document.getElementById('dateFrom').value;
+  const to   = document.getElementById('dateTo').value;
+  if (!from || !to) return null;
+  const diff = (new Date(to) - new Date(from)) / (1000 * 60 * 60 * 24);
+  return Math.max(1, Math.round(diff) + 1);
+}
+
 function renderMetrics() {
   const rows  = filteredRows;
   const total = rows.length;
   const chars = new Set(rows.map(r => r.charger)).size;
   const hrs   = rows.reduce((s,r) => s + r.hours, 0);
-  const avg   = total ? hrs / total : 0;
-  const byC   = {};
-  rows.forEach(r => { byC[r.charger] = (byC[r.charger]||0) + r.hours; });
-  const worst = Object.entries(byC).sort((a,b) => b[1]-a[1])[0];
+  const avgEvent = total ? hrs / total : 0;
+
+  // Avg per charger per day = (total hrs / unique chargers) / days
+  const days = getFilterDays();
+  const avgPerChargerPerDay = (chars > 0 && days) ? (hrs / chars / days) : null;
+
+  // Date range display
+  const from = document.getElementById('dateFrom').value;
+  const to   = document.getElementById('dateTo').value;
+  const fmtDate = d => d ? new Date(d).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'}) : '—';
+
   document.getElementById('mTotal').textContent    = total;
   document.getElementById('mChargers').textContent = chars;
   document.getElementById('mHours').textContent    = hrs.toFixed(1);
-  document.getElementById('mAvg').textContent      = avg.toFixed(1);
-  document.getElementById('mWorst').textContent    = worst ? worst[0] : '—';
+  document.getElementById('mAvg').textContent      = avgEvent.toFixed(2);
+  document.getElementById('mAvgDay').textContent   = avgPerChargerPerDay !== null ? avgPerChargerPerDay.toFixed(2) : '—';
+  document.getElementById('mDays').textContent     = days ? days + ' days' : '—';
+  document.getElementById('mDateRange').innerHTML  = from && to
+    ? `${fmtDate(from)}<br>→ ${fmtDate(to)}`
+    : '—';
 }
 
 // ── Overview ──
 function renderOverview() {
   const rows = filteredRows;
-  const byC = {};
-  rows.forEach(r => { byC[r.charger] = (byC[r.charger]||0) + r.hours; });
-  renderBarChart('topChargersChart', Object.entries(byC).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([l,v])=>({l,v})), 'hrs', '#1a6ef5');
+
+  // Global RCA chart
   const byR = {};
   rows.forEach(r => { byR[r.rca] = (byR[r.rca]||0) + r.hours; });
   renderBarChart('globalRcaChart', Object.entries(byR).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v})), 'hrs');
+
+  // Avg calc card
+  const days  = getFilterDays();
+  const chars = new Set(rows.map(r => r.charger)).size;
+  const hrs   = rows.reduce((s,r) => s + r.hours, 0);
+  const stepA = chars > 0 ? hrs / chars : 0;
+  const stepB = (days && chars > 0) ? stepA / days : null;
+  const calcEl = document.getElementById('avgCalcCard');
+  if (chars === 0) {
+    calcEl.innerHTML = '<div class="no-data">No data</div>';
+  } else {
+    calcEl.innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="background:var(--surface2);border-radius:8px;padding:12px 14px;">
+          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);margin-bottom:6px;">Step A — Total Hrs ÷ Unique Chargers</div>
+          <div style="font-size:13px;color:var(--text2);">${hrs.toFixed(1)} ÷ ${chars} = <strong style="color:var(--text);">${stepA.toFixed(3)} hrs / charger</strong></div>
+        </div>
+        <div style="background:var(--surface2);border-radius:8px;padding:12px 14px;">
+          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);margin-bottom:6px;">Step B — ÷ Days in filter (${days || '?'})</div>
+          <div style="font-size:13px;color:var(--text2);">${stepA.toFixed(3)} ÷ ${days||'?'} = <strong style="color:var(--blue);font-size:18px;">${stepB !== null ? stepB.toFixed(2) : '?'} hrs</strong> per charger per day</div>
+        </div>
+        <div style="background:var(--blue-light);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--blue-dark);">
+          <strong>Formula:</strong> (Total Downtime ÷ Unique Chargers) ÷ Days in filter
+        </div>
+      </div>`;
+  }
+
+  // Worst chargers table with downtime %
+  renderWorstChargers();
+}
+
+function renderWorstChargers() {
+  const rows = filteredRows;
+  const days = getFilterDays();
+  const totalAvailHrs = days ? days * 24 : null;
+
+  // Aggregate per charger
+  const byC = {};
+  rows.forEach(r => {
+    if (!byC[r.charger]) byC[r.charger] = { id: r.charger, site: r.site, zone: r.zone, city: r.city, hrs: 0, count: 0 };
+    byC[r.charger].hrs   += r.hours;
+    byC[r.charger].count += 1;
+  });
+
+  const sorted = Object.values(byC).sort((a,b) => b.hrs - a.hrs).slice(0, 15);
+  if (!sorted.length) {
+    document.getElementById('worstChargersBody').innerHTML = '<tr><td colspan="8" class="no-data">No data</td></tr>';
+    return;
+  }
+
+  document.getElementById('worstChargersBody').innerHTML = sorted.map((c, i) => {
+    const pct = totalAvailHrs ? ((c.hrs / totalAvailHrs) * 100) : null;
+    const pctDisplay = pct !== null ? pct.toFixed(1) + '%' : '—';
+    const pctColor = pct === null ? 'var(--text3)' : pct >= 20 ? '#c0392b' : pct >= 10 ? '#d4820a' : '#1f7a3e';
+    const rank = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i+1);
+    return `<tr>
+      <td style="font-size:13px;font-weight:600;color:var(--text3);">${rank}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;font-weight:600;">${c.id}</td>
+      <td style="font-size:12px;color:var(--text2);">${c.site || '—'}</td>
+      <td style="font-size:12px;color:var(--text2);">${c.zone || '—'}</td>
+      <td style="font-size:12px;color:var(--text2);">${c.city || '—'}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;font-weight:600;">${c.hrs.toFixed(1)}</td>
+      <td style="text-align:right;font-size:12px;color:var(--text2);">${c.count}</td>
+      <td style="text-align:right;font-size:13px;font-weight:700;color:${pctColor};">${pctDisplay}</td>
+    </tr>`;
+  }).join('');
 }
 
 // ── Charger chips ──
@@ -621,15 +731,49 @@ function renderDetail(id) {
   const rows = filteredRows.filter(r => r.charger === id);
   if (!rows.length) { document.getElementById('detailSection').classList.add('hidden'); return; }
   const totalHrs = rows.reduce((s,r) => s + r.hours, 0);
+  const days = getFilterDays();
+  const totalAvailHrs = days ? days * 24 : null;
+  const downtimePct = totalAvailHrs ? ((totalHrs / totalAvailHrs) * 100) : null;
+  const pctColor = downtimePct === null ? 'var(--text3)' : downtimePct >= 20 ? '#c0392b' : downtimePct >= 10 ? '#d4820a' : '#1f7a3e';
+
   document.getElementById('detailId').textContent   = id;
   document.getElementById('detailSite').textContent = [rows[0]?.zone, rows[0]?.site, rows[0]?.city].filter(Boolean).join(' · ');
   document.getElementById('chargerEventCount').textContent = `${rows.length} event${rows.length!==1?'s':''}`;
   document.getElementById('detailTags').innerHTML =
-    `<span class="tag tag-blue">${rows.length} incidents</span><span class="tag tag-gray">${totalHrs.toFixed(1)} hrs total</span>`;
+    `<span class="tag tag-blue">${rows.length} incidents</span>
+     <span class="tag tag-gray">${totalHrs.toFixed(1)} hrs total</span>
+     ${downtimePct !== null ? `<span class="tag" style="background:${pctColor}20;color:${pctColor};border:1px solid ${pctColor}40;">${downtimePct.toFixed(1)}% downtime</span>` : ''}`;
+
   const byHrs = {}, byCnt = {};
   rows.forEach(r => { byHrs[r.rca]=(byHrs[r.rca]||0)+r.hours; byCnt[r.rca]=(byCnt[r.rca]||0)+1; });
   renderBarChart('rcaHrsChart', Object.entries(byHrs).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v})), 'hrs');
   renderBarChart('rcaCntChart', Object.entries(byCnt).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v})), '');
+
+  // Downtime % breakdown card — inject before the events table
+  const downtimeCalcHtml = `
+    <div class="card" style="margin-bottom:1.5rem;">
+      <div class="section-title">Individual Downtime % Calculation</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:14px;">Formula: (Charger Total Hrs ÷ (Days × 24)) × 100</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:14px;">
+        <div style="background:var(--surface2);border-radius:8px;padding:12px 14px;">
+          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);margin-bottom:4px;">Total Downtime Hrs</div>
+          <div style="font-size:22px;font-weight:600;color:var(--text);">${totalHrs.toFixed(1)}</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:8px;padding:12px 14px;">
+          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);margin-bottom:4px;">Available Hrs (${days||'?'} days × 24)</div>
+          <div style="font-size:22px;font-weight:600;color:var(--text);">${totalAvailHrs || '—'}</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:8px;padding:12px 14px;">
+          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);margin-bottom:4px;">Downtime %</div>
+          <div style="font-size:28px;font-weight:700;color:${pctColor};">${downtimePct !== null ? downtimePct.toFixed(2) + '%' : '—'}</div>
+        </div>
+      </div>
+      <div style="background:var(--blue-light);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--blue-dark);">
+        <strong>Calculation:</strong> (${totalHrs.toFixed(1)} ÷ ${totalAvailHrs || '?'}) × 100 = <strong>${downtimePct !== null ? downtimePct.toFixed(2) + '%' : '—'}</strong>
+        ${days ? ` &nbsp;·&nbsp; Date filter: ${days} days` : ''}
+      </div>
+    </div>`;
+  document.getElementById('chargerDowntimeCalc').innerHTML = downtimeCalcHtml;
   document.getElementById('eventTableBody').innerHTML = rows.map(r => {
     const s = rcaStyle(r.rca);
     return `<tr>
