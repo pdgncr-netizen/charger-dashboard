@@ -335,26 +335,45 @@ function parseCSV(csv) {
   const lines = csv.trim().split(/\r?\n/);
   if (lines.length < 2) return [];
   const headers = lines[0].split(',').map(h => h.replace(/"/g,'').trim().toLowerCase());
+
+  // Debug: log all headers so we can verify column matching
+  console.log('[Dashboard] CSV headers:', headers);
+
   const find = (...keys) => headers.findIndex(h => keys.some(k => h.includes(k.toLowerCase())));
+
   const iCharger = find('charger id', 'chargerid');
   const iRCA     = find('root cause', 'rca');
-  const iHours   = find('power down time', 'downtime', 'hours');
+  // Be specific: "expected power down time" must match before generic "downtime"
+  // Try exact match first, then fallback
+  let iHours = headers.findIndex(h => h.includes('expected power down time') || h.includes('power down time (hrs)') || h.includes('expected downtime'));
+  if (iHours === -1) iHours = headers.findIndex(h => h.includes('power down time'));
+  if (iHours === -1) iHours = headers.findIndex(h => /\bhrs\b/.test(h) || h.endsWith('(hrs)') || h.endsWith('hours)'));
   const iSite    = find('charger name', 'charger_name');
   const iCity    = find('city');
   const iZone    = find('vida zone', 'zone');
-  const iStart   = find('charger downtime', 'downtime (estimated)', 'downtime_start');
-  const iEnd     = find('charger uptime', 'uptime (estimated)', 'uptime_est');
+  // "Charger Downtime (Estimated)" = start time; "Charger Uptime (Estimated)" = end time
+  const iStart   = headers.findIndex(h => h.includes('charger downtime') || h.includes('downtime (estimated)'));
+  const iEnd     = headers.findIndex(h => h.includes('charger uptime') || h.includes('uptime (estimated)'));
+
+  console.log('[Dashboard] Column indices — charger:', iCharger, 'rca:', iRCA, 'hours:', iHours, 'site:', iSite, 'city:', iCity, 'zone:', iZone, 'start:', iStart, 'end:', iEnd);
+  console.log('[Dashboard] Hours column name:', iHours >= 0 ? headers[iHours] : 'NOT FOUND');
 
   const rows = [];
   for (let i = 1; i < lines.length; i++) {
+    if (!lines[i].trim()) continue; // skip empty lines
     const cols = splitCSVLine(lines[i]);
     const charger = (cols[iCharger] || '').replace(/"/g,'').trim();
-    if (!charger) continue;
+    if (!charger) continue; // skip rows with no charger ID
+
+    // Parse hours: strip "hours"/"hrs" text and whitespace, keep only number
+    const rawHours = iHours >= 0 ? (cols[iHours] || '').replace(/"/g,'').trim() : '';
+    const hoursNum = parseHoursValue(rawHours);
+
     const startRaw = (iStart >= 0 && cols[iStart] ? cols[iStart] : '').replace(/"/g,'').trim();
     rows.push({
       charger,
       rca:   (cols[iRCA]  || '').replace(/"/g,'').trim(),
-      hours: parseFloat((cols[iHours] || '0').replace(/[^0-9.]/g,'')) || 0,
+      hours: hoursNum,
       site:  (cols[iSite] || '').replace(/"/g,'').trim(),
       city:  (cols[iCity] || '').replace(/"/g,'').trim(),
       zone:  (cols[iZone] || '').replace(/"/g,'').trim(),
@@ -363,7 +382,20 @@ function parseCSV(csv) {
       date:  parseEventDate(startRaw),
     });
   }
+  console.log('[Dashboard] Parsed', rows.length, 'rows. Sample hours:', rows.slice(0,5).map(r=>r.hours));
   return rows;
+}
+
+// Safely parse an hours value like "3 hours", "3", "3.5", "0 hours"
+function parseHoursValue(raw) {
+  if (!raw || raw.trim() === '') return 0;
+  // Remove "hours", "hrs", "hour" suffixes and any spaces
+  const cleaned = raw.replace(/hours?/gi, '').replace(/hrs?/gi, '').trim();
+  // Now extract the first number (including decimals)
+  const match = cleaned.match(/^[\d.]+/);
+  if (!match) return 0;
+  const val = parseFloat(match[0]);
+  return isNaN(val) ? 0 : val;
 }
 
 function parseEventDate(str) {
