@@ -152,7 +152,7 @@
     </div>
     <div class="config-row">
       <label>🔁 Proxy URL</label>
-      <input type="text" id="proxyUrl" placeholder="https://sheets-proxy.YOUR-NAME.workers.dev" />
+      <input type="text" id="proxyUrl" placeholder="https://YOUR-WORKER-NAME.workers.dev  ← NOT your github.io URL" />
     </div>
     <div class="config-row">
       <button class="btn btn-primary" id="refreshBtn" onclick="loadData()">
@@ -443,22 +443,39 @@ async function loadData() {
   if (!sheetUrl)  { setStatus('err', 'Paste your Google Sheet CSV URL'); return; }
   if (!proxyBase) { setStatus('err', 'Paste your Cloudflare Proxy URL'); return; }
 
+  // Catch common mistake: pasting GitHub Pages URL as proxy
+  if (proxyBase.includes('github.io') || proxyBase.includes('github.com')) {
+    setStatus('err', 'Proxy URL is wrong — you pasted your GitHub Pages URL. The Proxy URL must be your Cloudflare Worker URL (https://YOUR-WORKER.workers.dev)');
+    return;
+  }
+  if (!proxyBase.includes('workers.dev') && !proxyBase.includes('localhost') && !proxyBase.startsWith('http')) {
+    setStatus('err', 'Proxy URL should be your Cloudflare Worker URL, e.g. https://sheets-proxy.YOUR-NAME.workers.dev');
+    return;
+  }
+
   btn.classList.add('spinning');
   setStatus('loading', 'Fetching via proxy…');
 
-  // Build clean CSV export URL from any Google Sheets URL
+  // Build clean CSV export URL — handle all Google Sheets URL formats
   let csvUrl = sheetUrl;
   if (sheetUrl.includes('docs.google.com/spreadsheets')) {
-    const idMatch = sheetUrl.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
-    if (!idMatch) {
-      setStatus('err', 'Cannot find spreadsheet ID — copy the URL directly from your browser address bar');
-      btn.classList.remove('spinning'); return;
+    // If it already has output=csv (published link), use it directly — don't rewrite
+    if (sheetUrl.includes('output=csv')) {
+      csvUrl = sheetUrl; // already a valid CSV export URL
+    } else {
+      // Convert edit/view URL to export URL
+      const idMatch = sheetUrl.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+      if (!idMatch) {
+        setStatus('err', 'Cannot find spreadsheet ID — copy the full URL from your browser address bar');
+        btn.classList.remove('spinning'); return;
+      }
+      const ssId = idMatch[1];
+      const gidMatch = sheetUrl.match(/[#&?]gid=(\d+)/);
+      const gid = gidMatch ? gidMatch[1] : '0';
+      csvUrl = 'https://docs.google.com/spreadsheets/d/' + ssId + '/export?format=csv&gid=' + gid;
     }
-    const ssId = idMatch[1];
-    const gidMatch = sheetUrl.match(/[#&?]gid=(\d+)/);
-    const gid = gidMatch ? gidMatch[1] : '0';
-    csvUrl = 'https://docs.google.com/spreadsheets/d/' + ssId + '/export?format=csv&gid=' + gid;
   }
+
 
   const proxy = proxyBase.replace(/\/$/, '');
   const fetchUrl = proxy + '?url=' + encodeURIComponent(csvUrl);
