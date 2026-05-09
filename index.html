@@ -148,7 +148,7 @@ function parseCSV(csv) {
     
     rows.push({
       charger: cols[iCharger].replace(/"/g,'').trim(),
-      hours: parseFloat(rawHrs) || 0,
+      hours: Number(rawHrs) || 0,
       city: (cols[iCity] || 'Unknown').replace(/"/g,'').trim(),
       date: new Date(cols[iStart])
     });
@@ -192,7 +192,7 @@ function renderAll() {
   const chars = new Set(filteredRows.map(r => r.charger)).size;
   
   // FIX: Use Number addition in reduce
-  const hrs = filteredRows.reduce((sum, r) => sum + r.hours, 0);
+  const hrs = filteredRows.reduce((sum, r) => {   return sum + Number(r.hours || 0); }, 0);
   
   const byC = {};
   filteredRows.forEach(r => { byC[r.charger] = (byC[r.charger] || 0) + r.hours; });
