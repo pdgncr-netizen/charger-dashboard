@@ -1,132 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Charger Downtime Dashboard</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg: #f5f4f0; --surface: #ffffff; --surface2: #f0efe9;
-      --border: rgba(0,0,0,0.10); --border2: rgba(0,0,0,0.18);
-      --text: #1a1a18; --text2: #6b6b63; --text3: #9e9e94;
-      --blue: #1a6ef5; --blue-light: #e8f0fe; --blue-dark: #0d47b5;
-      --amber: #d4820a; --amber-light: #fef3d7;
-      --green: #1f7a3e; --green-light: #e6f5ec;
-      --teal: #0f7a7a; --teal-light: #e0f5f5;
-      --purple: #6c3fc4; --purple-light: #f0ebfd;
-      --red: #c0392b; --red-light: #fde8e6;
-      --gray: #5f5e5a; --gray-light: #f1efe8;
-      --radius: 10px; --radius-lg: 14px;
-      --shadow: 0 1px 4px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(0,0,0,0.08);
-    }
-    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Charger Downtime Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f4f0;--surface:#fff;--surface2:#f0efe9;
+  --border:rgba(0,0,0,.10);--border2:rgba(0,0,0,.18);
+  --text:#1a1a18;--text2:#6b6b63;--text3:#9e9e94;
+  --blue:#1a6ef5;--blue-light:#e8f0fe;--blue-dark:#0d47b5;
+  --amber:#d4820a;--amber-light:#fef3d7;
+  --green:#1f7a3e;--green-light:#e6f5ec;
+  --teal:#0f7a7a;--teal-light:#e0f5f5;
+  --purple:#6c3fc4;--purple-light:#f0ebfd;
+  --red:#c0392b;--red-light:#fde8e6;
+  --orange:#e05d00;--orange-light:#fff0e6;
+  --gray:#5f5e5a;--gray-light:#f1efe8;
+  --radius:10px;--radius-lg:14px;
+  --shadow:0 1px 4px rgba(0,0,0,.06),0 0 0 .5px rgba(0,0,0,.08)
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
-    .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
-    .header-brand { display: flex; align-items: center; gap: 10px; }
-    .header-brand svg { width: 28px; height: 28px; }
-    .header-brand span { font-size: 16px; font-weight: 600; letter-spacing: -0.3px; }
-    .last-updated { font-size: 12px; color: var(--text3); font-family: 'DM Mono', monospace; }
-    .main { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+/* Header */
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 2rem;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.header-brand{display:flex;align-items:center;gap:10px}
+.header-brand svg{width:28px;height:28px}
+.header-brand span{font-size:16px;font-weight:600;letter-spacing:-.3px}
+.last-updated{font-size:12px;color:var(--text3);font-family:'DM Mono',monospace}
+.main{max-width:1240px;margin:0 auto;padding:2rem 1.5rem}
 
-    .config-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 10px; box-shadow: var(--shadow); }
-    .config-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .config-row label { font-size: 13px; font-weight: 500; color: var(--text2); min-width: 130px; }
-    .config-row input[type=text] { flex: 1; min-width: 220px; font-size: 13px; font-family: 'DM Mono', monospace; padding: 8px 12px; border: 1px solid var(--border2); border-radius: var(--radius); background: var(--surface2); color: var(--text); outline: none; transition: border-color 0.15s; }
-    .config-row input[type=text]:focus { border-color: var(--blue); background: var(--surface); }
-    .config-row input[type=text]::placeholder { color: var(--text3); }
+/* Config */
+.config-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin-bottom:1rem;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow)}
+.config-section-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:2px}
+.config-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.config-row label{font-size:13px;font-weight:500;color:var(--text2);min-width:150px}
+.config-row input[type=text]{flex:1;min-width:220px;font-size:13px;font-family:'DM Mono',monospace;padding:8px 12px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;transition:border-color .15s}
+.config-row input[type=text]:focus{border-color:var(--blue);background:var(--surface)}
+.config-row input[type=text]::placeholder{color:var(--text3)}
+.config-divider{border:none;border-top:1px solid var(--border);margin:4px 0}
 
-    .filter-bar { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; box-shadow: var(--shadow); }
-    .filter-bar label { font-size: 13px; font-weight: 500; color: var(--text2); white-space: nowrap; }
-    .filter-bar input[type=date] { font-size: 13px; font-family: 'DM Sans', sans-serif; padding: 7px 10px; border: 1px solid var(--border2); border-radius: var(--radius); background: var(--surface2); color: var(--text); outline: none; cursor: pointer; }
-    .filter-bar input[type=date]:focus { border-color: var(--blue); background: var(--surface); }
-    .filter-sep { font-size: 13px; color: var(--text3); }
-    .filter-active-badge { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 99px; background: var(--amber-light); color: var(--amber); border: 1px solid rgba(212,130,10,0.25); }
-    .btn-clear { font-size: 12px; color: var(--text3); background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: 6px; }
-    .btn-clear:hover { background: var(--surface2); color: var(--text2); }
-    .filter-count { font-size: 12px; color: var(--text3); margin-left: auto; }
+/* Filter */
+.filter-bar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.5rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap;box-shadow:var(--shadow)}
+.filter-bar label{font-size:13px;font-weight:500;color:var(--text2);white-space:nowrap}
+.filter-bar input[type=date]{font-size:13px;font-family:'DM Sans',sans-serif;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;cursor:pointer}
+.filter-bar input[type=date]:focus{border-color:var(--blue);background:var(--surface)}
+.filter-sep{font-size:13px;color:var(--text3)}
+.filter-active-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:99px;background:var(--amber-light);color:var(--amber);border:1px solid rgba(212,130,10,.25)}
+.btn-clear{font-size:12px;color:var(--text3);background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:6px}
+.btn-clear:hover{background:var(--surface2);color:var(--text2)}
+.filter-count{font-size:12px;color:var(--text3);margin-left:auto}
 
-    .tabs { display: flex; gap: 4px; background: var(--surface2); border-radius: var(--radius); padding: 4px; margin-bottom: 1.5rem; width: fit-content; flex-wrap: wrap; }
-    .tab { font-size: 13px; font-weight: 500; padding: 7px 18px; border-radius: 8px; border: none; background: none; cursor: pointer; color: var(--text2); transition: all 0.15s; white-space: nowrap; }
-    .tab:hover { color: var(--text); background: rgba(255,255,255,0.6); }
-    .tab.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+/* Tabs */
+.tab-group{display:flex;gap:4px;background:var(--surface2);border-radius:var(--radius);padding:4px;margin-bottom:1.5rem;flex-wrap:wrap}
+.tab{font-size:13px;font-weight:500;padding:7px 14px;border-radius:8px;border:none;background:none;cursor:pointer;color:var(--text2);transition:all .15s;white-space:nowrap}
+.tab:hover{color:var(--text);background:rgba(255,255,255,.6)}
+.tab.active{background:var(--surface);color:var(--text);box-shadow:var(--shadow)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
 
-    .btn { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 500; font-family: 'DM Sans', sans-serif; padding: 8px 16px; border-radius: var(--radius); border: 1px solid var(--border2); cursor: pointer; transition: all 0.15s; background: var(--surface); color: var(--text); white-space: nowrap; }
-    .btn:hover { background: var(--surface2); }
-    .btn-primary { background: var(--blue); color: #fff; border-color: var(--blue-dark); }
-    .btn-primary:hover { background: var(--blue-dark); }
-    .btn svg { width: 16px; height: 16px; flex-shrink: 0; }
-    .btn.spinning svg { animation: spin 0.7s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+/* Btn */
+.btn{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;padding:8px 16px;border-radius:var(--radius);border:1px solid var(--border2);cursor:pointer;transition:all .15s;background:var(--surface);color:var(--text);white-space:nowrap}
+.btn:hover{background:var(--surface2)}
+.btn-primary{background:var(--blue);color:#fff;border-color:var(--blue-dark)}
+.btn-primary:hover{background:var(--blue-dark)}
+.btn-sm{padding:5px 11px;font-size:12px}
+.btn svg{width:16px;height:16px;flex-shrink:0}
+.btn.spinning svg{animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-    .status-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 4px 10px; border-radius: 99px; background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
-    .status-pill.ok  { background: var(--green-light);  color: var(--green);  border-color: rgba(31,122,62,0.2); }
-    .status-pill.err { background: var(--red-light);    color: var(--red);    border-color: rgba(192,57,43,0.2); }
-    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+/* Status */
+.status-pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:4px 10px;border-radius:99px;background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
+.status-pill.ok{background:var(--green-light);color:var(--green);border-color:rgba(31,122,62,.2)}
+.status-pill.err{background:var(--red-light);color:var(--red);border-color:rgba(192,57,43,.2)}
+.status-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
 
-    .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
-    .metric { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.1rem 1.25rem; box-shadow: var(--shadow); }
-    .metric-label { font-size: 12px; color: var(--text3); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
-    .metric-val { font-size: 28px; font-weight: 600; color: var(--text); letter-spacing: -1px; line-height: 1; }
-    .metric-sub { font-size: 12px; color: var(--text3); margin-top: 4px; }
+/* Metrics */
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px;margin-bottom:1.5rem}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.1rem 1.25rem;box-shadow:var(--shadow)}
+.metric-label{font-size:11px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
+.metric-val{font-size:26px;font-weight:600;color:var(--text);letter-spacing:-1px;line-height:1}
+.metric-sub{font-size:12px;color:var(--text3);margin-top:4px}
 
-    .section-title { font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+/* Section */
+.section-title{font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
 
-    .charger-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow); }
-    .charger-search { width: 100%; max-width: 280px; font-size: 13px; padding: 7px 12px; border: 1px solid var(--border2); border-radius: var(--radius); background: var(--surface2); color: var(--text); margin-bottom: 14px; outline: none; font-family: 'DM Sans', sans-serif; }
-    .charger-search:focus { border-color: var(--blue); background: var(--surface); }
-    .charger-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-    .chip { font-size: 12px; font-family: 'DM Mono', monospace; font-weight: 500; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border2); cursor: pointer; background: var(--surface2); color: var(--text2); transition: all 0.12s; user-select: none; }
-    .chip:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
-    .chip.active { background: var(--blue); color: #fff; border-color: var(--blue-dark); box-shadow: 0 2px 8px rgba(26,110,245,0.3); }
+/* Chips */
+.charger-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin-bottom:1.5rem;box-shadow:var(--shadow)}
+.charger-search{width:100%;max-width:280px;font-size:13px;padding:7px 12px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);margin-bottom:14px;outline:none;font-family:'DM Sans',sans-serif}
+.charger-search:focus{border-color:var(--blue);background:var(--surface)}
+.chip-grid{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:12px;font-family:'DM Mono',monospace;font-weight:500;padding:6px 12px;border-radius:8px;border:1px solid var(--border2);cursor:pointer;background:var(--surface2);color:var(--text2);transition:all .12s;user-select:none}
+.chip:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-light)}
+.chip.active{background:var(--blue);color:#fff;border-color:var(--blue-dark);box-shadow:0 2px 8px rgba(26,110,245,.3)}
 
-    .detail-banner { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; box-shadow: var(--shadow); }
-    .detail-id { font-size: 24px; font-weight: 600; font-family: 'DM Mono', monospace; letter-spacing: -0.5px; }
-    .detail-tags { display: flex; gap: 8px; flex-wrap: wrap; }
-    .tag { font-size: 12px; padding: 4px 10px; border-radius: 6px; font-weight: 500; }
-    .tag-blue { background: var(--blue-light); color: var(--blue-dark); }
-    .tag-gray { background: var(--gray-light); color: var(--gray); }
+/* Cards */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:1.5rem}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:1.5rem}
+@media(max-width:900px){.grid3{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){.grid2,.grid3{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;box-shadow:var(--shadow)}
+.card-mb{margin-bottom:1.5rem}
 
-    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 1.5rem; }
-    @media (max-width: 700px) { .grid2 { grid-template-columns: 1fr; } }
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; box-shadow: var(--shadow); }
+/* Detail */
+.detail-banner{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;box-shadow:var(--shadow)}
+.detail-id{font-size:22px;font-weight:600;font-family:'DM Mono',monospace;letter-spacing:-.5px}
+.detail-tags{display:flex;gap:8px;flex-wrap:wrap}
+.tag{font-size:12px;padding:4px 10px;border-radius:6px;font-weight:500}
+.tag-blue{background:var(--blue-light);color:var(--blue-dark)}
+.tag-gray{background:var(--gray-light);color:var(--gray)}
 
-    .group-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; box-shadow: var(--shadow); margin-bottom: 12px; }
-    .group-header { display: flex; align-items: flex-start; justify-content: space-between; cursor: pointer; user-select: none; }
-    .group-name { font-size: 15px; font-weight: 600; }
-    .group-chevron { font-size: 12px; color: var(--text3); transition: transform 0.2s; margin-top: 2px; }
-    .group-chevron.open { transform: rotate(180deg); }
-    .group-body { overflow: hidden; transition: max-height 0.35s ease; }
+/* Group expand */
+.group-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;box-shadow:var(--shadow);margin-bottom:12px}
+.group-header{display:flex;align-items:flex-start;justify-content:space-between;cursor:pointer;user-select:none}
+.group-name{font-size:15px;font-weight:600}
+.group-chevron{font-size:12px;color:var(--text3);transition:transform .2s;margin-top:2px}
+.group-chevron.open{transform:rotate(180deg)}
+.group-body{overflow:hidden;transition:max-height .35s ease}
 
-    .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-    .bar-row:last-child { margin-bottom: 0; }
-    .bar-label { font-size: 12px; color: var(--text2); width: 180px; min-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .bar-label.narrow { width: 140px; min-width: 140px; }
-    .bar-track { flex: 1; height: 20px; background: var(--surface2); border-radius: 5px; overflow: hidden; }
-    .bar-fill { height: 100%; border-radius: 5px; transition: width 0.5s cubic-bezier(.4,0,.2,1); min-width: 4px; }
-    .bar-num { font-size: 12px; font-weight: 600; font-family: 'DM Mono', monospace; min-width: 52px; text-align: right; color: var(--text); }
+/* Bar chart */
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.bar-row:last-child{margin-bottom:0}
+.bar-label{font-size:12px;color:var(--text2);width:170px;min-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-label.narrow{width:130px;min-width:130px}
+.bar-track{flex:1;height:20px;background:var(--surface2);border-radius:5px;overflow:hidden}
+.bar-fill{height:100%;border-radius:5px;transition:width .5s cubic-bezier(.4,0,.2,1);min-width:4px}
+.bar-num{font-size:12px;font-weight:600;font-family:'DM Mono',monospace;min-width:52px;text-align:right;color:var(--text)}
 
-    .events-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    th { text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); padding: 8px 12px; border-bottom: 1px solid var(--border); }
-    td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: var(--surface2); }
-    .badge { display: inline-flex; align-items: center; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 6px; }
+/* Table */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);padding:8px 12px;border-bottom:1px solid var(--border)}
+td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface2)}
+.badge{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px}
 
-    .no-data { text-align: center; padding: 2rem 0; color: var(--text3); font-size: 14px; }
-    .hidden { display: none; }
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
+.no-data{text-align:center;padding:2rem 0;color:var(--text3);font-size:14px}
+.hidden{display:none}
 
-    .howto { background: var(--blue-light); border: 1px solid rgba(26,110,245,0.15); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; }
-    .howto h3 { font-size: 14px; font-weight: 600; color: var(--blue-dark); margin-bottom: 10px; }
-    .howto ol { padding-left: 1.2rem; }
-    .howto li { font-size: 13px; color: var(--blue-dark); margin-bottom: 6px; line-height: 1.6; }
-    .howto code { font-family: 'DM Mono', monospace; background: rgba(26,110,245,0.12); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
-  </style>
+/* Howto */
+.howto{background:var(--blue-light);border:1px solid rgba(26,110,245,.15);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin-bottom:1.5rem}
+.howto h3{font-size:14px;font-weight:600;color:var(--blue-dark);margin-bottom:10px}
+.howto ol{padding-left:1.2rem}
+.howto li{font-size:13px;color:var(--blue-dark);margin-bottom:6px;line-height:1.6}
+.howto code{font-family:'DM Mono',monospace;background:rgba(26,110,245,.12);padding:1px 5px;border-radius:4px;font-size:12px}
+
+/* Repeat offender highlight */
+.repeat-high{background:#fde8e6;color:#7a1f1a}
+.repeat-med{background:#fef3d7;color:#7a4c00}
+</style>
 </head>
 <body>
 
@@ -137,779 +163,1020 @@
       <path d="M8 20 L14 8 L20 20" stroke="white" stroke-width="2" stroke-linejoin="round" fill="none"/>
       <path d="M10 16 L18 16" stroke="white" stroke-width="2" stroke-linecap="round"/>
     </svg>
-    <span>Charger Downtime Dashboard</span>
+    <span>Charger Operations Dashboard</span>
   </div>
   <span class="last-updated" id="lastUpdated">Not loaded yet</span>
 </header>
 
 <main class="main">
 
-  <!-- Config -->
-  <div class="config-card">
-    <div class="config-row">
-      <label>📊 Sheet CSV URL</label>
-      <input type="text" id="sheetUrl" placeholder="https://docs.google.com/spreadsheets/d/…/pub?output=csv" />
+<!-- ── Config ── -->
+<div class="config-card">
+  <div class="config-section-label">Sheet 1 — Downtime / Power Cut Data</div>
+  <div class="config-row">
+    <label>📊 Sheet 1 CSV URL</label>
+    <input type="text" id="sheetUrl" placeholder="https://docs.google.com/spreadsheets/d/…/pub?output=csv"/>
+  </div>
+  <hr class="config-divider"/>
+  <div class="config-section-label">Sheet 2 — Field Visits / Tickets Data</div>
+  <div class="config-row">
+    <label>📋 Sheet 2 CSV URL</label>
+    <input type="text" id="sheet2Url" placeholder="https://docs.google.com/spreadsheets/d/…/pub?output=csv (tickets sheet)"/>
+  </div>
+  <hr class="config-divider"/>
+  <div class="config-row">
+    <label>🔁 Proxy URL</label>
+    <input type="text" id="proxyUrl" placeholder="https://YOUR-WORKER.workers.dev"/>
+  </div>
+  <div class="config-row">
+    <button class="btn btn-primary" id="refreshBtn" onclick="loadAll()">
+      <svg id="refreshIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M1 4v6h6"/><path d="M23 20v-6h-6"/>
+        <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"/>
+      </svg>
+      Refresh All Data
+    </button>
+    <div id="statusPill" class="status-pill"><span class="status-dot"></span><span id="statusText">Awaiting URLs</span></div>
+    <div id="statusPill2" class="status-pill hidden"><span class="status-dot"></span><span id="statusText2">Sheet 2</span></div>
+  </div>
+</div>
+
+<!-- Howto -->
+<div class="howto" id="howto">
+  <h3>🔗 Setup</h3>
+  <ol>
+    <li>Publish <strong>both</strong> Google Sheets: File → Share → Publish to web → select tab → CSV → Publish → copy URL</li>
+    <li>Paste Sheet 1 URL (downtime data) and Sheet 2 URL (tickets/visits data) above</li>
+    <li>Paste your Cloudflare Worker URL in Proxy URL (see previous setup steps)</li>
+    <li>Click <strong>Refresh All Data</strong></li>
+  </ol>
+  <p style="font-size:12px;color:var(--blue-dark);margin-top:8px;">
+    Sheet 2 expected columns: <code>Airtable id</code>, <code>Charger name</code>, <code>City</code>, <code>Ticket close time</code>, <code>Resolution hrs</code>, <code>Emp name</code>, <code>Activite</code>, <code>Damage List</code>, <code>Rca</code>
+  </p>
+</div>
+
+<!-- Date filter -->
+<div class="filter-bar">
+  <label>📅 Date range</label>
+  <input type="date" id="dateFrom" onchange="applyFilter()"/>
+  <span class="filter-sep">→</span>
+  <input type="date" id="dateTo" onchange="applyFilter()"/>
+  <button class="btn-clear" onclick="clearFilter()">✕ Clear</button>
+  <span class="filter-active-badge hidden" id="filterBadge">Filtered</span>
+  <span class="filter-count" id="filterCount"></span>
+</div>
+
+<!-- Metrics -->
+<div class="metrics">
+  <div class="metric"><div class="metric-label">Total Events (S1)</div><div class="metric-val" id="mTotal">—</div></div>
+  <div class="metric"><div class="metric-label">Unique Chargers</div><div class="metric-val" id="mChargers">—</div></div>
+  <div class="metric"><div class="metric-label">Total Downtime</div><div class="metric-val" id="mHours">—</div><div class="metric-sub">hours</div></div>
+  <div class="metric"><div class="metric-label">Avg/Charger/Day</div><div class="metric-val" id="mAvgDay">—</div><div class="metric-sub">hrs · <span id="mDays">—</span> days</div></div>
+  <div class="metric"><div class="metric-label">Total Tickets (S2)</div><div class="metric-val" id="mTickets">—</div></div>
+  <div class="metric"><div class="metric-label">Avg Resolution</div><div class="metric-val" id="mAvgRes">—</div><div class="metric-sub">hours</div></div>
+</div>
+
+<!-- Tabs -->
+<div class="tab-group">
+  <button class="tab active"  onclick="switchTab('overview')">Overview</button>
+  <button class="tab"         onclick="switchTab('charger')">By Charger</button>
+  <button class="tab"         onclick="switchTab('zone')">By Zone</button>
+  <button class="tab"         onclick="switchTab('city')">By City</button>
+  <button class="tab"         onclick="switchTab('complaint')" style="border-left:2px solid var(--border);margin-left:4px;">🔧 Daily Complaint</button>
+  <button class="tab"         onclick="switchTab('maintenance')">🔩 Maintenance</button>
+  <button class="tab"         onclick="switchTab('replacement')">🔄 Replacement</button>
+</div>
+
+<!-- ══ TAB: Overview ══ -->
+<div class="tab-panel active" id="tab-overview">
+  <div class="grid2">
+    <div class="card">
+      <div class="section-title">RCA Distribution — All Chargers</div>
+      <div id="globalRcaChart"><div class="no-data">Load data first</div></div>
     </div>
-    <div class="config-row">
-      <label>🔁 Proxy URL</label>
-      <input type="text" id="proxyUrl" placeholder="https://YOUR-WORKER-NAME.workers.dev  ← NOT your github.io URL" />
-    </div>
-    <div class="config-row">
-      <button class="btn btn-primary" id="refreshBtn" onclick="loadData()">
-        <svg id="refreshIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M1 4v6h6"/><path d="M23 20v-6h-6"/>
-          <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"/>
-        </svg>
-        Refresh Data
-      </button>
-      <div id="statusPill" class="status-pill"><span class="status-dot"></span><span id="statusText">Awaiting URL</span></div>
+    <div class="card">
+      <div class="section-title">Avg Downtime per Charger per Day</div>
+      <div id="avgCalcCard"><div class="no-data">Load data first</div></div>
     </div>
   </div>
-
-  <!-- Howto -->
-  <div class="howto" id="howto">
-    <h3>🔗 Setup (one-time, ~5 mins)</h3>
-    <ol>
-      <li><strong>Publish your sheet:</strong> Google Sheet → <strong>File → Share → Publish to web</strong> → select tab → <code>CSV</code> → Publish → copy URL → paste in Sheet CSV URL above</li>
-      <li><strong>Create free proxy</strong> (fixes CORS): <a href="https://cloudflare.com" target="_blank" style="color:var(--blue-dark);">cloudflare.com</a> → Workers &amp; Pages → Create Worker → name it <code>sheets-proxy</code> → Deploy → Edit code → paste worker code below → Deploy again</li>
-      <li>Copy worker URL (e.g. <code>https://sheets-proxy.YOUR-NAME.workers.dev</code>) → paste in Proxy URL above → click <strong>Refresh Data</strong></li>
-    </ol>
-    <details style="margin-top:10px;">
-      <summary style="font-size:12px;font-weight:600;color:var(--blue-dark);cursor:pointer;">▶ Cloudflare Worker code (click to expand)</summary>
-      <pre style="margin-top:8px;font-size:11px;font-family:'DM Mono',monospace;background:rgba(26,110,245,0.08);padding:10px;border-radius:8px;overflow-x:auto;color:var(--blue-dark);">export default {
-  async fetch(request) {
-    const url = new URL(request.url);
-    const target = url.searchParams.get("url");
-    if (!target) return new Response("Missing ?url=", { status: 400 });
-    const res = await fetch(target);
-    const text = await res.text();
-    return new Response(text, {
-      headers: { "Content-Type": "text/csv", "Access-Control-Allow-Origin": "*" },
-    });
-  }
-};</pre>
-    </details>
-    <p style="font-size:12px;color:var(--blue-dark);margin-top:10px;">
-      ⚡ Expected columns: <code>Vida Zone (from Site Name)</code>, <code>City</code>, <code>Charger Name</code>, <code>Charger ID</code>, <code>Root Cause Analysis(RCA)</code>, <code>Charger Downtime (Estimated)</code>, <code>Expected Power Down Time (HRS)</code>
-    </p>
+  <div class="card card-mb">
+    <div class="section-title">Worst Chargers — Top 15 by Downtime %</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:14px;">Downtime % = (Charger hrs ÷ (Days × 24)) × 100</div>
+    <div class="tbl-wrap">
+      <table><thead><tr><th>#</th><th>Charger ID</th><th>Site Name</th><th>Zone</th><th>City</th><th style="text-align:right">Total Hrs</th><th style="text-align:right">Incidents</th><th style="text-align:right">Downtime %</th></tr></thead>
+      <tbody id="worstChargersBody"><tr><td colspan="8" class="no-data">Load data first</td></tr></tbody></table>
+    </div>
   </div>
+</div>
 
-  <!-- Date filter -->
-  <div class="filter-bar">
-    <label>📅 Date range</label>
-    <input type="date" id="dateFrom" onchange="applyFilter()" />
-    <span class="filter-sep">→</span>
-    <input type="date" id="dateTo" onchange="applyFilter()" />
-    <button class="btn-clear" onclick="clearFilter()">✕ Clear</button>
-    <span class="filter-active-badge hidden" id="filterBadge">Filtered</span>
-    <span class="filter-count" id="filterCount"></span>
+<!-- ══ TAB: By Charger ══ -->
+<div class="tab-panel" id="tab-charger">
+  <div class="charger-wrap">
+    <div class="section-title">Select Charger ID</div>
+    <input type="text" class="charger-search" id="chargerSearch" placeholder="Search charger ID…" oninput="renderChargerChips()"/>
+    <div class="chip-grid" id="chargerGrid"><div class="no-data">Load data first</div></div>
   </div>
-
-  <!-- Metrics -->
-  <div class="metrics">
-    <div class="metric"><div class="metric-label">Total Events</div><div class="metric-val" id="mTotal">—</div></div>
-    <div class="metric"><div class="metric-label">Unique Chargers</div><div class="metric-val" id="mChargers">—</div></div>
-    <div class="metric"><div class="metric-label">Total Downtime</div><div class="metric-val" id="mHours">—</div><div class="metric-sub">hours</div></div>
-    <div class="metric"><div class="metric-label">Avg / Charger / Day</div><div class="metric-val" id="mAvgDay">—</div><div class="metric-sub">hrs · <span id="mDays">—</span> days</div></div>
-    <div class="metric"><div class="metric-label">Avg / Event</div><div class="metric-val" id="mAvg">—</div><div class="metric-sub">hours</div></div>
-    <div class="metric"><div class="metric-label">Date Range</div><div class="metric-val" id="mDateRange" style="font-size:13px;letter-spacing:0;line-height:1.4;">—</div></div>
-  </div>
-
-  <!-- Tabs -->
-  <div class="tabs">
-    <button class="tab active" onclick="switchTab('overview')">Overview</button>
-    <button class="tab"        onclick="switchTab('charger')">By Charger</button>
-    <button class="tab"        onclick="switchTab('zone')">By Zone</button>
-    <button class="tab"        onclick="switchTab('city')">By City</button>
-  </div>
-
-  <!-- Overview tab -->
-  <div class="tab-panel active" id="tab-overview">
+  <div id="detailSection" class="hidden">
+    <div class="detail-banner">
+      <div><div class="detail-id" id="detailId"></div><div style="font-size:13px;color:var(--text2);margin-top:4px" id="detailSite"></div></div>
+      <div class="detail-tags" id="detailTags"></div>
+    </div>
+    <div id="chargerDowntimeCalc"></div>
     <div class="grid2">
-      <div class="card">
-        <div class="section-title">RCA Distribution — All</div>
-        <div id="globalRcaChart"><div class="no-data">Load data first</div></div>
-      </div>
-      <div class="card">
-        <div class="section-title">Avg Downtime per Charger per Day</div>
-        <div id="avgCalcCard"><div class="no-data">Load data first</div></div>
+      <div class="card"><div class="section-title">Downtime Hrs by RCA</div><div id="rcaHrsChart"></div></div>
+      <div class="card"><div class="section-title">Incident Count by RCA</div><div id="rcaCntChart"></div></div>
+    </div>
+    <div class="card card-mb">
+      <div class="section-title">All Events — <span id="chargerEventCount"></span></div>
+      <div class="tbl-wrap">
+        <table><thead><tr><th>RCA</th><th>Start</th><th>End</th><th style="text-align:right">Hrs</th></tr></thead>
+        <tbody id="eventTableBody"></tbody></table>
       </div>
     </div>
-    <!-- Worst Chargers List -->
-    <div class="card" style="margin-bottom:1.5rem;">
-      <div class="section-title">Worst Chargers — Top 15 by Downtime %</div>
-      <div style="font-size:12px;color:var(--text3);margin-bottom:14px;">
-        Downtime % = (Charger Total Hrs ÷ (Days in filter × 24)) × 100
-      </div>
-      <div class="events-wrap">
-        <table id="worstChargersTable">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Charger ID</th>
-              <th>Charger Name / Site</th>
-              <th>Zone</th>
-              <th>City</th>
-              <th style="text-align:right;">Total Hrs</th>
-              <th style="text-align:right;">Incidents</th>
-              <th style="text-align:right;">Downtime %</th>
-            </tr>
-          </thead>
-          <tbody id="worstChargersBody"><tr><td colspan="8" class="no-data">Load data first</td></tr></tbody>
-        </table>
-      </div>
+  </div>
+</div>
+
+<!-- ══ TAB: By Zone ══ -->
+<div class="tab-panel" id="tab-zone">
+  <div class="grid2" style="margin-bottom:1rem">
+    <div class="card"><div class="section-title">Total Downtime by Zone</div><div id="zoneHrsChart"><div class="no-data">Load data first</div></div></div>
+    <div class="card"><div class="section-title">RCA across all Zones</div><div id="zoneGlobalRcaChart"><div class="no-data">Load data first</div></div></div>
+  </div>
+  <div class="section-title">Zone-by-Zone RCA Breakdown</div>
+  <div id="zoneBreakdownList"></div>
+</div>
+
+<!-- ══ TAB: By City ══ -->
+<div class="tab-panel" id="tab-city">
+  <div class="grid2" style="margin-bottom:1rem">
+    <div class="card"><div class="section-title">Total Downtime by City</div><div id="cityHrsChart"><div class="no-data">Load data first</div></div></div>
+    <div class="card"><div class="section-title">RCA across all Cities</div><div id="cityGlobalRcaChart"><div class="no-data">Load data first</div></div></div>
+  </div>
+  <div class="section-title">City-by-City RCA Breakdown</div>
+  <div id="cityBreakdownList"></div>
+</div>
+
+<!-- ══ TAB: Daily Complaint ══ -->
+<div class="tab-panel" id="tab-complaint">
+  <!-- KPI row -->
+  <div class="metrics" style="margin-bottom:1.5rem">
+    <div class="metric"><div class="metric-label">Total Complaints</div><div class="metric-val" id="cTotal">—</div></div>
+    <div class="metric"><div class="metric-label">Avg Resolution</div><div class="metric-val" id="cAvgRes">—</div><div class="metric-sub">hours</div></div>
+    <div class="metric"><div class="metric-label">Unique Chargers</div><div class="metric-val" id="cChargers">—</div></div>
+    <div class="metric"><div class="metric-label">Repeat Offenders</div><div class="metric-val" id="cRepeat">—</div><div class="metric-sub">chargers ≥3 visits</div></div>
+    <div class="metric"><div class="metric-label">Unique Employees</div><div class="metric-val" id="cEmps">—</div></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card"><div class="section-title">RCA Breakdown — Complaint Count</div><div id="cRcaChart"><div class="no-data">Load data first</div></div></div>
+    <div class="card"><div class="section-title">Avg Resolution Hrs by RCA</div><div id="cRcaAvgChart"><div class="no-data">Load data first</div></div></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><div class="section-title">Complaints by Zone</div><div id="cZoneChart"><div class="no-data">Load data first</div></div></div>
+    <div class="card"><div class="section-title">Complaints by City</div><div id="cCityChart"><div class="no-data">Load data first</div></div></div>
+  </div>
+
+  <!-- Repeat offenders -->
+  <div class="card card-mb">
+    <div class="section-title">Repeat Offenders — Same RCA, Multiple Visits</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:14px">Chargers that had the same RCA on 3+ separate visits</div>
+    <div class="tbl-wrap">
+      <table><thead><tr><th>Charger Name</th><th>City</th><th>RCA</th><th style="text-align:right">Visits</th><th style="text-align:right">Avg Res Hrs</th></tr></thead>
+      <tbody id="repeatOffendersBody"><tr><td colspan="5" class="no-data">Load data first</td></tr></tbody></table>
     </div>
   </div>
 
-  <!-- Charger tab -->
-  <div class="tab-panel" id="tab-charger">
-    <div class="charger-wrap">
-      <div class="section-title">Select Charger ID</div>
-      <input type="text" class="charger-search" id="chargerSearch" placeholder="Search charger ID…" oninput="filterChips()" />
-      <div class="charger-grid" id="chargerGrid"><div class="no-data">Load data to see chargers</div></div>
-    </div>
-    <div id="detailSection" class="hidden">
-      <div class="detail-banner">
-        <div>
-          <div class="detail-id" id="detailId"></div>
-          <div style="font-size:13px;color:var(--text2);margin-top:4px;" id="detailSite"></div>
-        </div>
-        <div class="detail-tags" id="detailTags"></div>
-      </div>
-      <div id="chargerDowntimeCalc"></div>
-      <div class="grid2">
-        <div class="card">
-          <div class="section-title">Downtime Hours by RCA</div>
-          <div id="rcaHrsChart"></div>
-        </div>
-        <div class="card">
-          <div class="section-title">Incident Count by RCA</div>
-          <div id="rcaCntChart"></div>
-        </div>
-      </div>
-      <div class="card" style="margin-bottom:1.5rem;">
-        <div class="section-title">All Events — <span id="chargerEventCount"></span></div>
-        <div class="events-wrap">
-          <table>
-            <thead><tr><th>Root Cause Analysis</th><th>Downtime Start</th><th>Downtime End</th><th style="text-align:right;">Hours</th></tr></thead>
-            <tbody id="eventTableBody"></tbody>
-          </table>
-        </div>
-      </div>
+  <!-- Worst chargers by complaint count -->
+  <div class="card card-mb">
+    <div class="section-title">Most Complained Chargers — Top 15</div>
+    <div class="tbl-wrap">
+      <table><thead><tr><th>#</th><th>Charger Name</th><th>City</th><th style="text-align:right">Visits</th><th style="text-align:right">Avg Res Hrs</th><th>Top RCA</th></tr></thead>
+      <tbody id="worstComplaintBody"><tr><td colspan="6" class="no-data">Load data first</td></tr></tbody></table>
     </div>
   </div>
 
-  <!-- Zone tab -->
-  <div class="tab-panel" id="tab-zone">
-    <div class="grid2" style="margin-bottom:1rem;">
-      <div class="card">
-        <div class="section-title">Total Downtime hrs by Zone</div>
-        <div id="zoneHrsChart"><div class="no-data">Load data first</div></div>
-      </div>
-      <div class="card">
-        <div class="section-title">RCA Distribution across all Zones</div>
-        <div id="zoneGlobalRcaChart"><div class="no-data">Load data first</div></div>
-      </div>
-    </div>
-    <div style="margin-bottom:10px;">
-      <div class="section-title">Zone-by-Zone RCA Breakdown</div>
-    </div>
-    <div id="zoneBreakdownList"></div>
+  <!-- Employee performance -->
+  <div class="card card-mb">
+    <div class="section-title">Employee — Tickets Resolved</div>
+    <div id="empChart"><div class="no-data">Load data first</div></div>
+  </div>
+</div>
+
+<!-- ══ TAB: Maintenance ══ -->
+<div class="tab-panel" id="tab-maintenance">
+  <div class="metrics" style="margin-bottom:1.5rem">
+    <div class="metric"><div class="metric-label">Total Activities</div><div class="metric-val" id="mntTotal">—</div></div>
+    <div class="metric"><div class="metric-label">Chargers Serviced</div><div class="metric-val" id="mntChargers">—</div></div>
+    <div class="metric"><div class="metric-label">With Damage</div><div class="metric-val" id="mntDamage">—</div></div>
+    <div class="metric"><div class="metric-label">Avg Aux Battery V</div><div class="metric-val" id="mntAvgBatt">—</div><div class="metric-sub">volts</div></div>
   </div>
 
-  <!-- City tab -->
-  <div class="tab-panel" id="tab-city">
-    <div class="grid2" style="margin-bottom:1rem;">
-      <div class="card">
-        <div class="section-title">Total Downtime hrs by City</div>
-        <div id="cityHrsChart"><div class="no-data">Load data first</div></div>
-      </div>
-      <div class="card">
-        <div class="section-title">RCA Distribution across all Cities</div>
-        <div id="cityGlobalRcaChart"><div class="no-data">Load data first</div></div>
-      </div>
-    </div>
-    <div style="margin-bottom:10px;">
-      <div class="section-title">City-by-City RCA Breakdown</div>
-    </div>
-    <div id="cityBreakdownList"></div>
+  <div class="grid2">
+    <div class="card"><div class="section-title">Activities by Zone</div><div id="mntZoneChart"><div class="no-data">Load data first</div></div></div>
+    <div class="card"><div class="section-title">Activities by City</div><div id="mntCityChart"><div class="no-data">Load data first</div></div></div>
   </div>
+
+  <!-- Damage list -->
+  <div class="card card-mb">
+    <div class="section-title">Damaged Chargers List</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:14px">Maintenance visits where Damage List was recorded</div>
+    <div class="tbl-wrap">
+      <table><thead><tr><th>Charger Name</th><th>City</th><th>Damage Description</th><th>Remarks</th><th>Emp</th><th>Date</th></tr></thead>
+      <tbody id="damageListBody"><tr><td colspan="6" class="no-data">Load data first</td></tr></tbody></table>
+    </div>
+  </div>
+
+  <!-- All maintenance activity log -->
+  <div class="card card-mb">
+    <div class="section-title">All Maintenance Activities — <span id="mntActivityCount"></span></div>
+    <div class="tbl-wrap">
+      <table><thead><tr><th>Airtable ID</th><th>Charger Name</th><th>City</th><th>Emp</th><th>Remarks</th><th>Aux Battery V</th><th>Date</th></tr></thead>
+      <tbody id="mntActivityBody"><tr><td colspan="7" class="no-data">Load data first</td></tr></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TAB: Replacement ══ -->
+<div class="tab-panel" id="tab-replacement">
+  <div class="metrics" style="margin-bottom:1.5rem">
+    <div class="metric"><div class="metric-label">Total Replacements</div><div class="metric-val" id="repTotal">—</div></div>
+    <div class="metric"><div class="metric-label">Chargers Replaced</div><div class="metric-val" id="repChargers">—</div></div>
+    <div class="metric"><div class="metric-label">Part Types</div><div class="metric-val" id="repPartTypes">—</div></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card"><div class="section-title">Parts Replaced — Count</div><div id="repPartsChart"><div class="no-data">Load data first</div></div></div>
+    <div class="card"><div class="section-title">Replacements by City</div><div id="repCityChart"><div class="no-data">Load data first</div></div></div>
+  </div>
+
+  <!-- Most replaced chargers -->
+  <div class="card card-mb">
+    <div class="section-title">Most Replaced Chargers — Top 15</div>
+    <div class="tbl-wrap">
+      <table><thead><tr><th>#</th><th>Charger Name</th><th>City</th><th>Parts Replaced</th><th style="text-align:right">Count</th></tr></thead>
+      <tbody id="repWorstBody"><tr><td colspan="5" class="no-data">Load data first</td></tr></tbody></table>
+    </div>
+  </div>
+
+  <!-- Full replacement log -->
+  <div class="card card-mb">
+    <div class="section-title">All Replacement Records</div>
+    <div class="tbl-wrap">
+      <table><thead><tr><th>ID</th><th>Charger Name</th><th>City</th><th>Damage/Part</th><th>Emp</th><th>Date</th></tr></thead>
+      <tbody id="repLogBody"><tr><td colspan="6" class="no-data">Load data first</td></tr></tbody></table>
+    </div>
+  </div>
+</div>
 
 </main>
 
 <script>
-let allRows = [];
+// ════════════════════════════════
+//  STATE
+// ════════════════════════════════
+let allRows = [];       // Sheet 1: downtime
 let filteredRows = [];
+let allTickets = [];    // Sheet 2: tickets
+let filteredTickets = [];
 let activeCharger = null;
 let activeTab = 'overview';
 
-const RCA_COLORS = [
-  { match: ['power cut night'],      bg: '#fef3d7', text: '#7a4c00', bar: '#d4820a' },
-  { match: ['power cut', 'discoms'], bg: '#fde8e6', text: '#7a1f1a', bar: '#c0392b' },
-  { match: ['network', 'carrier'],   bg: '#e8f0fe', text: '#0d47b5', bar: '#1a6ef5' },
-  { match: ['cms'],                  bg: '#e6f5ec', text: '#0f4d26', bar: '#1f7a3e' },
+// ════════════════════════════════
+//  RCA COLOURS
+// ════════════════════════════════
+const RCA_DEFS = [
+  { match:['power cut night'],      bg:'#fef3d7',text:'#7a4c00',bar:'#d4820a' },
+  { match:['power cut','discoms'],  bg:'#fde8e6',text:'#7a1f1a',bar:'#c0392b' },
+  { match:['power cut by host'],    bg:'#ffe8d6',text:'#7a3300',bar:'#e05d00' },
+  { match:['network','carrier','networking'], bg:'#e8f0fe',text:'#0d47b5',bar:'#1a6ef5' },
+  { match:['cms'],                  bg:'#e6f5ec',text:'#0f4d26',bar:'#1f7a3e' },
+  { match:['mcb trip','mcb'],       bg:'#f0ebfd',text:'#3c1a8a',bar:'#6c3fc4' },
+  { match:['emergency press'],      bg:'#e0f5f5',text:'#054040',bar:'#0f7a7a' },
+  { match:['part failure','burnt'], bg:'#fde8e6',text:'#7a1f1a',bar:'#a93226' },
+  { match:['connector'],            bg:'#fef3d7',text:'#5a3800',bar:'#b8860b' },
 ];
-const DEFAULT_COLOR = { bg: '#f1efe8', text: '#3a3a36', bar: '#888780' };
+const DEF_COLOR = { bg:'#f1efe8',text:'#3a3a36',bar:'#888780' };
+function rcaStyle(rca){
+  const r=(rca||'').toLowerCase();
+  for(const c of RCA_DEFS) if(c.match.some(m=>r.includes(m))) return c;
+  return DEF_COLOR;
+}
+const PALETTE=['#1a6ef5','#6c3fc4','#0f7a7a','#d4820a','#c0392b','#1f7a3e','#e05d00','#888780','#0d47b5','#854F0B'];
+function palColor(i){return PALETTE[i%PALETTE.length]}
 
-function rcaStyle(rca) {
-  const r = (rca || '').toLowerCase();
-  for (const c of RCA_COLORS) if (c.match.some(m => r.includes(m))) return c;
-  return DEFAULT_COLOR;
+// ════════════════════════════════
+//  CSV PARSING
+// ════════════════════════════════
+function splitCSVLine(line){
+  const r=[];let cur='',inQ=false;
+  for(let i=0;i<line.length;i++){
+    if(line[i]==='"'){inQ=!inQ;continue}
+    if(line[i]===','&&!inQ){r.push(cur);cur='';continue}
+    cur+=line[i];
+  }
+  r.push(cur);return r;
+}
+function parseHoursValue(raw){
+  if(!raw||raw.trim()==='') return 0;
+  const c=raw.replace(/hours?/gi,'').replace(/hrs?/gi,'').trim();
+  const m=c.match(/^[\d.]+/);
+  if(!m) return 0;
+  const v=parseFloat(m[0]);
+  return isNaN(v)?0:v;
+}
+function parseEventDate(str){
+  if(!str) return null;
+  const d=new Date(str);
+  return isNaN(d.getTime())?null:d;
 }
 
-function parseCSV(csv) {
-  const lines = csv.trim().split(/\r?\n/);
-  if (lines.length < 2) return [];
-  const headers = lines[0].split(',').map(h => h.replace(/"/g,'').trim().toLowerCase());
-
-  // Debug: log all headers so we can verify column matching
-  console.log('[Dashboard] CSV headers:', headers);
-
-  const find = (...keys) => headers.findIndex(h => keys.some(k => h.includes(k.toLowerCase())));
-
-  const iCharger = find('charger id', 'chargerid');
-  const iRCA     = find('root cause', 'rca');
-  // Be specific: "expected power down time" must match before generic "downtime"
-  // Try exact match first, then fallback
-  let iHours = headers.findIndex(h => h.includes('expected power down time') || h.includes('power down time (hrs)') || h.includes('expected downtime'));
-  if (iHours === -1) iHours = headers.findIndex(h => h.includes('power down time'));
-  if (iHours === -1) iHours = headers.findIndex(h => /\bhrs\b/.test(h) || h.endsWith('(hrs)') || h.endsWith('hours)'));
-  const iSite    = find('charger name', 'charger_name');
-  const iCity    = find('city');
-  const iZone    = find('vida zone', 'zone');
-  // "Charger Downtime (Estimated)" = start time; "Charger Uptime (Estimated)" = end time
-  const iStart   = headers.findIndex(h => h.includes('charger downtime') || h.includes('downtime (estimated)'));
-  const iEnd     = headers.findIndex(h => h.includes('charger uptime') || h.includes('uptime (estimated)'));
-
-  console.log('[Dashboard] Column indices — charger:', iCharger, 'rca:', iRCA, 'hours:', iHours, 'site:', iSite, 'city:', iCity, 'zone:', iZone, 'start:', iStart, 'end:', iEnd);
-  console.log('[Dashboard] Hours column name:', iHours >= 0 ? headers[iHours] : 'NOT FOUND');
-
-  const rows = [];
-  for (let i = 1; i < lines.length; i++) {
-    if (!lines[i].trim()) continue; // skip empty lines
-    const cols = splitCSVLine(lines[i]);
-    const charger = (cols[iCharger] || '').replace(/"/g,'').trim();
-    if (!charger) continue; // skip rows with no charger ID
-
-    // Parse hours: strip "hours"/"hrs" text and whitespace, keep only number
-    const rawHours = iHours >= 0 ? (cols[iHours] || '').replace(/"/g,'').trim() : '';
-    const hoursNum = parseHoursValue(rawHours);
-
-    const startRaw = (iStart >= 0 && cols[iStart] ? cols[iStart] : '').replace(/"/g,'').trim();
+// Sheet 1: downtime/power-cut data
+function parseSheet1(csv){
+  const lines=csv.trim().split(/\r?\n/);
+  if(lines.length<2) return[];
+  const headers=lines[0].split(',').map(h=>h.replace(/"/g,'').trim().toLowerCase());
+  console.log('[S1] headers:',headers);
+  const find=(...keys)=>headers.findIndex(h=>keys.some(k=>h.includes(k.toLowerCase())));
+  const iCharger=find('charger id','chargerid');
+  const iRCA=find('root cause','rca');
+  let iHours=headers.findIndex(h=>h.includes('expected power down time')||h.includes('power down time (hrs)'));
+  if(iHours===-1) iHours=headers.findIndex(h=>h.includes('power down time'));
+  if(iHours===-1) iHours=headers.findIndex(h=>/\bhrs\b/.test(h)||h.endsWith('(hrs)')||h.endsWith('hours)'));
+  const iSite=find('charger name','charger_name');
+  const iCity=find('city');
+  const iZone=find('vida zone','zone');
+  const iStart=headers.findIndex(h=>h.includes('charger downtime')||h.includes('downtime (estimated)'));
+  const iEnd=headers.findIndex(h=>h.includes('charger uptime')||h.includes('uptime (estimated)'));
+  console.log('[S1] hours col:',iHours>=0?headers[iHours]:'NOT FOUND');
+  const rows=[];
+  for(let i=1;i<lines.length;i++){
+    if(!lines[i].trim()) continue;
+    const cols=splitCSVLine(lines[i]);
+    const charger=(cols[iCharger]||'').replace(/"/g,'').trim();
+    if(!charger) continue;
+    const startRaw=(iStart>=0&&cols[iStart]?cols[iStart]:'').replace(/"/g,'').trim();
     rows.push({
       charger,
-      rca:   (cols[iRCA]  || '').replace(/"/g,'').trim(),
-      hours: hoursNum,
-      site:  (cols[iSite] || '').replace(/"/g,'').trim(),
-      city:  (cols[iCity] || '').replace(/"/g,'').trim(),
-      zone:  (cols[iZone] || '').replace(/"/g,'').trim(),
-      start: startRaw,
-      end:   (iEnd >= 0 && cols[iEnd] ? cols[iEnd] : '').replace(/"/g,'').trim(),
-      date:  parseEventDate(startRaw),
+      rca:(cols[iRCA]||'').replace(/"/g,'').trim(),
+      hours:parseHoursValue(iHours>=0?(cols[iHours]||''):''),
+      site:(cols[iSite]||'').replace(/"/g,'').trim(),
+      city:(cols[iCity]||'').replace(/"/g,'').trim(),
+      zone:(cols[iZone]||'').replace(/"/g,'').trim(),
+      start:startRaw,
+      end:(iEnd>=0&&cols[iEnd]?cols[iEnd]:'').replace(/"/g,'').trim(),
+      date:parseEventDate(startRaw),
     });
   }
-  console.log('[Dashboard] Parsed', rows.length, 'rows. Sample hours:', rows.slice(0,5).map(r=>r.hours));
   return rows;
 }
 
-// Safely parse an hours value like "3 hours", "3", "3.5", "0 hours"
-function parseHoursValue(raw) {
-  if (!raw || raw.trim() === '') return 0;
-  // Remove "hours", "hrs", "hour" suffixes and any spaces
-  const cleaned = raw.replace(/hours?/gi, '').replace(/hrs?/gi, '').trim();
-  // Now extract the first number (including decimals)
-  const match = cleaned.match(/^[\d.]+/);
-  if (!match) return 0;
-  const val = parseFloat(match[0]);
-  return isNaN(val) ? 0 : val;
-}
-
-function parseEventDate(str) {
-  if (!str) return null;
-  const d = new Date(str);
-  return isNaN(d.getTime()) ? null : d;
-}
-
-function splitCSVLine(line) {
-  const result = []; let cur = '', inQ = false;
-  for (let i = 0; i < line.length; i++) {
-    if (line[i] === '"') { inQ = !inQ; continue; }
-    if (line[i] === ',' && !inQ) { result.push(cur); cur = ''; continue; }
-    cur += line[i];
-  }
-  result.push(cur);
-  return result;
-}
-
-// ── Date filter ──
-function applyFilter() {
-  const from = document.getElementById('dateFrom').value;
-  const to   = document.getElementById('dateTo').value;
-  const badge = document.getElementById('filterBadge');
-
-  if (!from && !to) {
-    filteredRows = [...allRows];
-    badge.classList.add('hidden');
-  } else {
-    const fromD = from ? new Date(from) : null;
-    const toD   = to   ? new Date(to + 'T23:59:59') : null;
-    filteredRows = allRows.filter(r => {
-      if (!r.date) return true;
-      if (fromD && r.date < fromD) return false;
-      if (toD   && r.date > toD)   return false;
-      return true;
+// Sheet 2: tickets/field-visit data
+function parseSheet2(csv){
+  const lines=csv.trim().split(/\r?\n/);
+  if(lines.length<2) return[];
+  const headers=lines[0].split(',').map(h=>h.replace(/"/g,'').trim().toLowerCase());
+  console.log('[S2] headers:',headers);
+  const find=(...keys)=>headers.findIndex(h=>keys.some(k=>h.includes(k.toLowerCase())));
+  const iId=find('airtable id','ticket id','id');
+  const iName=find('charger name','charger_name','site name');
+  const iCity=find('city');
+  const iClose=find('ticket close','close time','closed');
+  const iResHrs=find('resolution hrs','resolution_hrs','res hrs');
+  const iReach=find('reach time','reached');
+  const iEmp=find('emp name','employee','technician');
+  const iRemarks=find('remrks','remarks','notes');
+  const iWeather=find('wether','weather');
+  const iActivity=find('activite','activity','type');
+  const iDamage=find('damage list','damage');
+  const iRca=find('rca','root cause');
+  const iAuxV=find('aux bat','aux_bat','battery voltage');
+  const iZone=find('zone');
+  const rows=[];
+  for(let i=1;i<lines.length;i++){
+    if(!lines[i].trim()) continue;
+    const cols=splitCSVLine(lines[i]);
+    const name=(cols[iName]||'').replace(/"/g,'').trim();
+    if(!name) continue;
+    const closeRaw=(iClose>=0&&cols[iClose]?cols[iClose]:'').replace(/"/g,'').trim();
+    const resHrsRaw=(iResHrs>=0&&cols[iResHrs]?cols[iResHrs]:'').replace(/"/g,'').trim();
+    const activityRaw=(iActivity>=0&&cols[iActivity]?cols[iActivity]:'').replace(/"/g,'').trim();
+    // Classify activity
+    const act=activityRaw.toLowerCase();
+    let type='other';
+    if(act.includes('daily complaint')) type='complaint';
+    else if(act.includes('monthly maintenance')||act.includes('maintenance')) type='maintenance';
+    else if(act.includes('replacement')) type='replacement';
+    rows.push({
+      id:(cols[iId]||'').replace(/"/g,'').trim(),
+      name:name.replace(/\n/g,' '),
+      city:(cols[iCity]||'').replace(/"/g,'').trim(),
+      zone:(cols[iZone]||'').replace(/"/g,'').trim(),
+      closeRaw,
+      date:parseEventDate(closeRaw),
+      resHrs:resHrsRaw==='NaN'||resHrsRaw===''?null:parseFloat(resHrsRaw),
+      emp:(cols[iEmp]||'').replace(/"/g,'').trim().replace(/\n/g,' '),
+      remarks:(cols[iRemarks]||'').replace(/"/g,'').trim().replace(/\n/g,' '),
+      weather:(cols[iWeather]||'').replace(/"/g,'').trim(),
+      activity:activityRaw.replace(/\n/g,' '),
+      type,
+      damage:(cols[iDamage]||'').replace(/"/g,'').trim().replace(/\n/g,' '),
+      rca:(cols[iRca]||'').replace(/"/g,'').trim(),
+      auxV:(cols[iAuxV]||'').replace(/"/g,'').trim(),
     });
-    badge.classList.remove('hidden');
   }
-
-  document.getElementById('filterCount').textContent =
-    filteredRows.length !== allRows.length
-      ? `${filteredRows.length} of ${allRows.length} events`
-      : `${allRows.length} events`;
-
-  renderAll();
+  return rows;
 }
 
-function clearFilter() {
-  document.getElementById('dateFrom').value = '';
-  document.getElementById('dateTo').value   = '';
-  document.getElementById('filterBadge').classList.add('hidden');
-  filteredRows = [...allRows];
-  document.getElementById('filterCount').textContent = `${allRows.length} events`;
-  renderAll();
+// ════════════════════════════════
+//  FETCH
+// ════════════════════════════════
+async function fetchCSV(url,proxy){
+  let csvUrl=url;
+  if(url.includes('docs.google.com/spreadsheets')){
+    if(!url.includes('output=csv')){
+      const m=url.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+      if(!m) throw new Error('Cannot find spreadsheet ID');
+      const gm=url.match(/[#&?]gid=(\d+)/);
+      csvUrl=`https://docs.google.com/spreadsheets/d/${m[1]}/export?format=csv&gid=${gm?gm[1]:'0'}`;
+    }
+  }
+  const fetchUrl=proxy.replace(/\/$/,'')+'?url='+encodeURIComponent(csvUrl);
+  const res=await fetch(fetchUrl,{cache:'no-store'});
+  if(res.status===404) throw new Error('Worker not found (404)');
+  if(!res.ok) throw new Error('Proxy error HTTP '+res.status);
+  const text=await res.text();
+  if(!text.trim()) throw new Error('Empty response — sheet not published?');
+  if(text.trim().toLowerCase().startsWith('<')) throw new Error('Got HTML/login page — publish sheet as CSV first');
+  return text;
 }
 
-// ── Tabs ──
-function switchTab(name) {
-  activeTab = name;
-  const names = ['overview','charger','zone','city'];
-  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', names[i] === name));
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  if (name === 'overview') renderOverview();
-  if (name === 'charger')  { renderChargerChips(); if (activeCharger) renderDetail(activeCharger); }
-  if (name === 'zone')     renderZone();
-  if (name === 'city')     renderCity();
-}
+async function loadAll(){
+  const s1url=document.getElementById('sheetUrl').value.trim();
+  const s2url=document.getElementById('sheet2Url').value.trim();
+  const proxy=document.getElementById('proxyUrl').value.trim();
+  const btn=document.getElementById('refreshBtn');
 
-// ── Load ──
-async function loadData() {
-  const sheetUrl  = document.getElementById('sheetUrl').value.trim();
-  const proxyBase = document.getElementById('proxyUrl').value.trim();
-  const btn = document.getElementById('refreshBtn');
-
-  if (!sheetUrl)  { setStatus('err', 'Paste your Google Sheet CSV URL'); return; }
-  if (!proxyBase) { setStatus('err', 'Paste your Cloudflare Proxy URL'); return; }
-
-  // Catch common mistake: pasting GitHub Pages URL as proxy
-  if (proxyBase.includes('github.io') || proxyBase.includes('github.com')) {
-    setStatus('err', 'Proxy URL is wrong — you pasted your GitHub Pages URL. The Proxy URL must be your Cloudflare Worker URL (https://YOUR-WORKER.workers.dev)');
-    return;
-  }
-  if (!proxyBase.includes('workers.dev') && !proxyBase.includes('localhost') && !proxyBase.startsWith('http')) {
-    setStatus('err', 'Proxy URL should be your Cloudflare Worker URL, e.g. https://sheets-proxy.YOUR-NAME.workers.dev');
-    return;
-  }
+  if(!s1url){setStatus1('err','Paste Sheet 1 CSV URL');return}
+  if(!proxy){setStatus1('err','Paste Proxy URL');return}
+  if(proxy.includes('github.io')){setStatus1('err','Proxy URL must be Cloudflare Worker, not GitHub Pages');return}
 
   btn.classList.add('spinning');
-  setStatus('loading', 'Fetching via proxy…');
+  setStatus1('loading','Loading Sheet 1…');
 
-  // Build clean CSV export URL — handle all Google Sheets URL formats
-  let csvUrl = sheetUrl;
-  if (sheetUrl.includes('docs.google.com/spreadsheets')) {
-    // If it already has output=csv (published link), use it directly — don't rewrite
-    if (sheetUrl.includes('output=csv')) {
-      csvUrl = sheetUrl; // already a valid CSV export URL
-    } else {
-      // Convert edit/view URL to export URL
-      const idMatch = sheetUrl.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
-      if (!idMatch) {
-        setStatus('err', 'Cannot find spreadsheet ID — copy the full URL from your browser address bar');
-        btn.classList.remove('spinning'); return;
-      }
-      const ssId = idMatch[1];
-      const gidMatch = sheetUrl.match(/[#&?]gid=(\d+)/);
-      const gid = gidMatch ? gidMatch[1] : '0';
-      csvUrl = 'https://docs.google.com/spreadsheets/d/' + ssId + '/export?format=csv&gid=' + gid;
+  try{
+    const csv1=await fetchCSV(s1url,proxy);
+    allRows=parseSheet1(csv1);
+    filteredRows=[...allRows];
+    setStatus1('ok',allRows.length+' events loaded');
+
+    // Auto date range from sheet 1
+    const dates=allRows.map(r=>r.date).filter(Boolean);
+    if(dates.length){
+      const minD=new Date(Math.min(...dates));
+      const maxD=new Date(Math.max(...dates));
+      document.getElementById('dateFrom').value=minD.toISOString().slice(0,10);
+      document.getElementById('dateTo').value=maxD.toISOString().slice(0,10);
     }
+  }catch(e){setStatus1('err',e.message);btn.classList.remove('spinning');return}
+
+  // Sheet 2 (optional)
+  if(s2url){
+    setStatus2('loading','Loading Sheet 2…');
+    document.getElementById('statusPill2').classList.remove('hidden');
+    try{
+      const csv2=await fetchCSV(s2url,proxy);
+      allTickets=parseSheet2(csv2);
+      filteredTickets=[...allTickets];
+      setStatus2('ok',allTickets.length+' tickets loaded');
+    }catch(e){setStatus2('err','Sheet 2: '+e.message)}
   }
 
+  document.getElementById('howto').classList.add('hidden');
+  document.getElementById('lastUpdated').textContent='Updated '+new Date().toLocaleTimeString();
+  document.getElementById('filterCount').textContent=(filteredRows.length+' events, '+(filteredTickets.length)+' tickets');
 
-  const proxy = proxyBase.replace(/\/$/, '');
-  const fetchUrl = proxy + '?url=' + encodeURIComponent(csvUrl);
-  console.log('[Dashboard] Fetching:', fetchUrl);
+  saveURLs();
+  renderAll();
+  btn.classList.remove('spinning');
+}
 
-  try {
-    const res = await fetch(fetchUrl, { cache: 'no-store' });
+function setStatus1(type,msg){
+  const p=document.getElementById('statusPill');
+  p.className='status-pill'+(type==='ok'?' ok':type==='err'?' err':'');
+  document.getElementById('statusText').textContent=msg;
+}
+function setStatus2(type,msg){
+  const p=document.getElementById('statusPill2');
+  p.className='status-pill'+(type==='ok'?' ok':type==='err'?' err':'');
+  document.getElementById('statusText2').textContent=msg;
+}
 
-    if (res.status === 404) throw new Error('Worker not found (404). Check your Proxy URL — should be https://sheets-proxy.YOUR-NAME.workers.dev');
-    if (res.status === 403) throw new Error('Worker blocked (403). Check Cloudflare → Workers → sheets-proxy → make sure it is deployed.');
-    if (res.status === 500) throw new Error('Worker error (500). Re-paste the worker code in Cloudflare and click Deploy.');
-    if (!res.ok) throw new Error('Proxy returned HTTP ' + res.status + '. Open browser Console (F12) for more details.');
+// ════════════════════════════════
+//  DATE FILTER
+// ════════════════════════════════
+function getFilterDays(){
+  const f=document.getElementById('dateFrom').value;
+  const t=document.getElementById('dateTo').value;
+  if(!f||!t) return null;
+  return Math.max(1,Math.round((new Date(t)-new Date(f))/(864e5))+1);
+}
 
-    const text = await res.text();
-    if (!text || text.trim() === '') throw new Error('Empty response. Publish sheet first: File → Share → Publish to web → select tab → CSV → Publish.');
-    if (text.trim().toLowerCase().startsWith('<!doctype') || text.trim().toLowerCase().startsWith('<html')) {
-      throw new Error('Got login page instead of CSV. Sheet must be published publicly: File → Share → Publish to web → CSV.');
-    }
-    if (text.includes('missing ?url=')) throw new Error('Worker code issue — make sure you pasted the full worker code exactly as shown in Setup.');
-
-    const rows = parseCSV(text);
-    if (!rows.length) throw new Error('Parsed 0 rows — check sheet has data and column headers include "Charger ID" and "Root Cause Analysis".');
-
-    allRows = rows;
-    filteredRows = [...allRows];
-
-    // Auto-set date pickers to data range
-    const dates = rows.map(r => r.date).filter(Boolean);
-    if (dates.length) {
-      const minD = new Date(Math.min(...dates));
-      const maxD = new Date(Math.max(...dates));
-      document.getElementById('dateFrom').value = minD.toISOString().slice(0,10);
-      document.getElementById('dateTo').value   = maxD.toISOString().slice(0,10);
-    }
-
-    document.getElementById('howto').classList.add('hidden');
-    setStatus('ok', rows.length + ' events loaded');
-    document.getElementById('lastUpdated').textContent = 'Updated ' + new Date().toLocaleTimeString();
-    document.getElementById('filterCount').textContent = rows.length + ' events';
-    renderAll();
-  } catch (e) {
-    setStatus('err', e.message);
-    console.error('[Dashboard] Error:', e);
-  } finally {
-    btn.classList.remove('spinning');
+function applyFilter(){
+  const f=document.getElementById('dateFrom').value;
+  const t=document.getElementById('dateTo').value;
+  const badge=document.getElementById('filterBadge');
+  if(!f&&!t){
+    filteredRows=[...allRows];
+    filteredTickets=[...allTickets];
+    badge.classList.add('hidden');
+  }else{
+    const fd=f?new Date(f):null;
+    const td=t?new Date(t+'T23:59:59'):null;
+    const inRange=d=>{
+      if(!d) return true;
+      if(fd&&d<fd) return false;
+      if(td&&d>td) return false;
+      return true;
+    };
+    filteredRows=allRows.filter(r=>inRange(r.date));
+    filteredTickets=allTickets.filter(r=>inRange(r.date));
+    badge.classList.remove('hidden');
   }
+  const fc=document.getElementById('filterCount');
+  fc.textContent=filteredRows.length+' events, '+filteredTickets.length+' tickets';
+  renderAll();
+}
+function clearFilter(){
+  document.getElementById('dateFrom').value='';
+  document.getElementById('dateTo').value='';
+  document.getElementById('filterBadge').classList.add('hidden');
+  filteredRows=[...allRows];
+  filteredTickets=[...allTickets];
+  document.getElementById('filterCount').textContent=allRows.length+' events, '+allTickets.length+' tickets';
+  renderAll();
 }
 
-function setStatus(type, msg) {
-  document.getElementById('statusPill').className = 'status-pill' + (type==='ok' ? ' ok' : type==='err' ? ' err' : '');
-  document.getElementById('statusText').textContent = msg;
+// ════════════════════════════════
+//  TABS
+// ════════════════════════════════
+const TAB_NAMES=['overview','charger','zone','city','complaint','maintenance','replacement'];
+function switchTab(name){
+  activeTab=name;
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',TAB_NAMES[i]===name));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  const fns={overview:renderOverview,charger:()=>{renderChargerChips();if(activeCharger)renderDetail(activeCharger)},
+    zone:renderZone,city:renderCity,complaint:renderComplaint,maintenance:renderMaintenance,replacement:renderReplacement};
+  if(fns[name]) fns[name]();
 }
 
-function renderAll() {
+// ════════════════════════════════
+//  RENDER ALL
+// ════════════════════════════════
+function renderAll(){
   renderMetrics();
-  if (activeTab === 'overview') renderOverview();
-  if (activeTab === 'charger')  { renderChargerChips(); if (activeCharger && filteredRows.some(r => r.charger === activeCharger)) renderDetail(activeCharger); }
-  if (activeTab === 'zone')     renderZone();
-  if (activeTab === 'city')     renderCity();
+  const fns={overview:renderOverview,charger:()=>{renderChargerChips();if(activeCharger&&filteredRows.some(r=>r.charger===activeCharger))renderDetail(activeCharger)},
+    zone:renderZone,city:renderCity,complaint:renderComplaint,maintenance:renderMaintenance,replacement:renderReplacement};
+  if(fns[activeTab]) fns[activeTab]();
 }
 
-// ── Metrics ──
-function getFilterDays() {
-  const from = document.getElementById('dateFrom').value;
-  const to   = document.getElementById('dateTo').value;
-  if (!from || !to) return null;
-  const diff = (new Date(to) - new Date(from)) / (1000 * 60 * 60 * 24);
-  return Math.max(1, Math.round(diff) + 1);
+// ════════════════════════════════
+//  METRICS BAR (TOP)
+// ════════════════════════════════
+function renderMetrics(){
+  const rows=filteredRows;
+  const tkts=filteredTickets;
+  const total=rows.length;
+  const chars=new Set(rows.map(r=>r.charger)).size;
+  const hrs=rows.reduce((s,r)=>s+r.hours,0);
+  const days=getFilterDays();
+  const avgDay=(chars>0&&days)?(hrs/chars/days):null;
+  const complaints=tkts.filter(t=>t.type==='complaint'&&t.resHrs!==null);
+  const avgRes=complaints.length?complaints.reduce((s,t)=>s+(t.resHrs||0),0)/complaints.length:null;
+  document.getElementById('mTotal').textContent=total;
+  document.getElementById('mChargers').textContent=chars;
+  document.getElementById('mHours').textContent=hrs.toFixed(1);
+  document.getElementById('mAvgDay').textContent=avgDay!==null?avgDay.toFixed(2):'—';
+  document.getElementById('mDays').textContent=days?days+' days':'—';
+  document.getElementById('mTickets').textContent=tkts.length;
+  document.getElementById('mAvgRes').textContent=avgRes!==null?avgRes.toFixed(1):'—';
 }
 
-function renderMetrics() {
-  const rows  = filteredRows;
-  const total = rows.length;
-  const chars = new Set(rows.map(r => r.charger)).size;
-  const hrs   = rows.reduce((s,r) => s + r.hours, 0);
-  const avgEvent = total ? hrs / total : 0;
-
-  // Avg per charger per day = (total hrs / unique chargers) / days
-  const days = getFilterDays();
-  const avgPerChargerPerDay = (chars > 0 && days) ? (hrs / chars / days) : null;
-
-  // Date range display
-  const from = document.getElementById('dateFrom').value;
-  const to   = document.getElementById('dateTo').value;
-  const fmtDate = d => d ? new Date(d).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'}) : '—';
-
-  document.getElementById('mTotal').textContent    = total;
-  document.getElementById('mChargers').textContent = chars;
-  document.getElementById('mHours').textContent    = hrs.toFixed(1);
-  document.getElementById('mAvg').textContent      = avgEvent.toFixed(2);
-  document.getElementById('mAvgDay').textContent   = avgPerChargerPerDay !== null ? avgPerChargerPerDay.toFixed(2) : '—';
-  document.getElementById('mDays').textContent     = days ? days + ' days' : '—';
-  document.getElementById('mDateRange').innerHTML  = from && to
-    ? `${fmtDate(from)}<br>→ ${fmtDate(to)}`
-    : '—';
-}
-
-// ── Overview ──
-function renderOverview() {
-  const rows = filteredRows;
-
-  // Global RCA chart
-  const byR = {};
-  rows.forEach(r => { byR[r.rca] = (byR[r.rca]||0) + r.hours; });
-  renderBarChart('globalRcaChart', Object.entries(byR).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v})), 'hrs');
+// ════════════════════════════════
+//  OVERVIEW TAB
+// ════════════════════════════════
+function renderOverview(){
+  const rows=filteredRows;
+  const byR={};rows.forEach(r=>{byR[r.rca]=(byR[r.rca]||0)+r.hours});
+  renderBarChart('globalRcaChart',Object.entries(byR).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v})),'hrs');
 
   // Avg calc card
-  const days  = getFilterDays();
-  const chars = new Set(rows.map(r => r.charger)).size;
-  const hrs   = rows.reduce((s,r) => s + r.hours, 0);
-  const stepA = chars > 0 ? hrs / chars : 0;
-  const stepB = (days && chars > 0) ? stepA / days : null;
-  const calcEl = document.getElementById('avgCalcCard');
-  if (chars === 0) {
-    calcEl.innerHTML = '<div class="no-data">No data</div>';
-  } else {
-    calcEl.innerHTML = `
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        <div style="background:var(--surface2);border-radius:8px;padding:12px 14px;">
-          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);margin-bottom:6px;">Step A — Total Hrs ÷ Unique Chargers</div>
-          <div style="font-size:13px;color:var(--text2);">${hrs.toFixed(1)} ÷ ${chars} = <strong style="color:var(--text);">${stepA.toFixed(3)} hrs / charger</strong></div>
-        </div>
-        <div style="background:var(--surface2);border-radius:8px;padding:12px 14px;">
-          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);margin-bottom:6px;">Step B — ÷ Days in filter (${days || '?'})</div>
-          <div style="font-size:13px;color:var(--text2);">${stepA.toFixed(3)} ÷ ${days||'?'} = <strong style="color:var(--blue);font-size:18px;">${stepB !== null ? stepB.toFixed(2) : '?'} hrs</strong> per charger per day</div>
-        </div>
-        <div style="background:var(--blue-light);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--blue-dark);">
-          <strong>Formula:</strong> (Total Downtime ÷ Unique Chargers) ÷ Days in filter
-        </div>
-      </div>`;
-  }
+  const days=getFilterDays();
+  const chars=new Set(rows.map(r=>r.charger)).size;
+  const hrs=rows.reduce((s,r)=>s+r.hours,0);
+  const stepA=chars>0?hrs/chars:0;
+  const stepB=(days&&chars>0)?stepA/days:null;
+  const el=document.getElementById('avgCalcCard');
+  if(!chars){el.innerHTML='<div class="no-data">No data</div>';}
+  else{el.innerHTML=`
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="background:var(--surface2);border-radius:8px;padding:12px 14px">
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);margin-bottom:4px">Step A — Total Hrs ÷ Unique Chargers</div>
+        <div style="font-size:13px;color:var(--text2)">${hrs.toFixed(1)} ÷ ${chars} = <strong style="color:var(--text)">${stepA.toFixed(3)} hrs/charger</strong></div>
+      </div>
+      <div style="background:var(--surface2);border-radius:8px;padding:12px 14px">
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);margin-bottom:4px">Step B — ÷ Days in filter (${days||'?'})</div>
+        <div style="font-size:13px;color:var(--text2)">${stepA.toFixed(3)} ÷ ${days||'?'} = <strong style="color:var(--blue);font-size:18px">${stepB!==null?stepB.toFixed(2):'?'} hrs</strong> per charger/day</div>
+      </div>
+      <div style="background:var(--blue-light);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--blue-dark)">
+        <strong>Formula:</strong> (Total hrs ÷ Unique chargers) ÷ Days in filter
+      </div>
+    </div>`;}
 
-  // Worst chargers table with downtime %
   renderWorstChargers();
 }
 
-function renderWorstChargers() {
-  const rows = filteredRows;
-  const days = getFilterDays();
-  const totalAvailHrs = days ? days * 24 : null;
-
-  // Aggregate per charger
-  const byC = {};
-  rows.forEach(r => {
-    if (!byC[r.charger]) byC[r.charger] = { id: r.charger, site: r.site, zone: r.zone, city: r.city, hrs: 0, count: 0 };
-    byC[r.charger].hrs   += r.hours;
-    byC[r.charger].count += 1;
+function renderWorstChargers(){
+  const rows=filteredRows;
+  const days=getFilterDays();
+  const avail=days?days*24:null;
+  const byC={};
+  rows.forEach(r=>{
+    if(!byC[r.charger]) byC[r.charger]={id:r.charger,site:r.site,zone:r.zone,city:r.city,hrs:0,count:0};
+    byC[r.charger].hrs+=r.hours;byC[r.charger].count+=1;
   });
-
-  const sorted = Object.values(byC).sort((a,b) => b.hrs - a.hrs).slice(0, 15);
-  if (!sorted.length) {
-    document.getElementById('worstChargersBody').innerHTML = '<tr><td colspan="8" class="no-data">No data</td></tr>';
-    return;
-  }
-
-  document.getElementById('worstChargersBody').innerHTML = sorted.map((c, i) => {
-    const pct = totalAvailHrs ? ((c.hrs / totalAvailHrs) * 100) : null;
-    const pctDisplay = pct !== null ? pct.toFixed(1) + '%' : '—';
-    const pctColor = pct === null ? 'var(--text3)' : pct >= 20 ? '#c0392b' : pct >= 10 ? '#d4820a' : '#1f7a3e';
-    const rank = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i+1);
-    return `<tr>
-      <td style="font-size:13px;font-weight:600;color:var(--text3);">${rank}</td>
-      <td style="font-family:'DM Mono',monospace;font-size:12px;font-weight:600;">${c.id}</td>
-      <td style="font-size:12px;color:var(--text2);">${c.site || '—'}</td>
-      <td style="font-size:12px;color:var(--text2);">${c.zone || '—'}</td>
-      <td style="font-size:12px;color:var(--text2);">${c.city || '—'}</td>
-      <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;font-weight:600;">${c.hrs.toFixed(1)}</td>
-      <td style="text-align:right;font-size:12px;color:var(--text2);">${c.count}</td>
-      <td style="text-align:right;font-size:13px;font-weight:700;color:${pctColor};">${pctDisplay}</td>
+  const sorted=Object.values(byC).sort((a,b)=>b.hrs-a.hrs).slice(0,15);
+  if(!sorted.length){document.getElementById('worstChargersBody').innerHTML='<tr><td colspan="8" class="no-data">No data</td></tr>';return}
+  document.getElementById('worstChargersBody').innerHTML=sorted.map((c,i)=>{
+    const pct=avail?(c.hrs/avail*100):null;
+    const pd=pct!==null?pct.toFixed(1)+'%':'—';
+    const pc=pct===null?'var(--text3)':pct>=20?'#c0392b':pct>=10?'#d4820a':'#1f7a3e';
+    const rank=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
+    return`<tr>
+      <td style="font-size:13px;font-weight:600;color:var(--text3)">${rank}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;font-weight:600">${c.id}</td>
+      <td style="font-size:12px;color:var(--text2)">${c.site||'—'}</td>
+      <td style="font-size:12px;color:var(--text2)">${c.zone||'—'}</td>
+      <td style="font-size:12px;color:var(--text2)">${c.city||'—'}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;font-weight:600">${c.hrs.toFixed(1)}</td>
+      <td style="text-align:right;font-size:12px;color:var(--text2)">${c.count}</td>
+      <td style="text-align:right;font-size:13px;font-weight:700;color:${pc}">${pd}</td>
     </tr>`;
   }).join('');
 }
 
-// ── Charger chips ──
-function renderChargerChips() {
-  const ids   = [...new Set(filteredRows.map(r => r.charger))].sort();
-  const query = (document.getElementById('chargerSearch').value || '').toLowerCase();
-  const shown = ids.filter(id => !query || id.toLowerCase().includes(query));
-  const grid  = document.getElementById('chargerGrid');
-  if (!shown.length) { grid.innerHTML = '<div class="no-data">No chargers match</div>'; return; }
-  grid.innerHTML = shown.map(id =>
-    `<div class="chip ${id===activeCharger?'active':''}" onclick="selectCharger('${id}')">${id}</div>`
-  ).join('');
+// ════════════════════════════════
+//  CHARGER TAB
+// ════════════════════════════════
+function renderChargerChips(){
+  const ids=[...new Set(filteredRows.map(r=>r.charger))].sort();
+  const q=(document.getElementById('chargerSearch').value||'').toLowerCase();
+  const shown=ids.filter(id=>!q||id.toLowerCase().includes(q));
+  const g=document.getElementById('chargerGrid');
+  if(!shown.length){g.innerHTML='<div class="no-data">No chargers match</div>';return}
+  g.innerHTML=shown.map(id=>`<div class="chip ${id===activeCharger?'active':''}" onclick="selectCharger('${id}')">${id}</div>`).join('');
 }
-function filterChips() { renderChargerChips(); }
-function selectCharger(id) {
-  activeCharger = id;
-  renderChargerChips();
-  renderDetail(id);
-  document.getElementById('detailSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+function selectCharger(id){
+  activeCharger=id;renderChargerChips();renderDetail(id);
+  document.getElementById('detailSection').scrollIntoView({behavior:'smooth',block:'start'});
 }
-
-// ── Charger detail ──
-function renderDetail(id) {
-  const rows = filteredRows.filter(r => r.charger === id);
-  if (!rows.length) { document.getElementById('detailSection').classList.add('hidden'); return; }
-  const totalHrs = rows.reduce((s,r) => s + r.hours, 0);
-  const days = getFilterDays();
-  const totalAvailHrs = days ? days * 24 : null;
-  const downtimePct = totalAvailHrs ? ((totalHrs / totalAvailHrs) * 100) : null;
-  const pctColor = downtimePct === null ? 'var(--text3)' : downtimePct >= 20 ? '#c0392b' : downtimePct >= 10 ? '#d4820a' : '#1f7a3e';
-
-  document.getElementById('detailId').textContent   = id;
-  document.getElementById('detailSite').textContent = [rows[0]?.zone, rows[0]?.site, rows[0]?.city].filter(Boolean).join(' · ');
-  document.getElementById('chargerEventCount').textContent = `${rows.length} event${rows.length!==1?'s':''}`;
-  document.getElementById('detailTags').innerHTML =
+function renderDetail(id){
+  const rows=filteredRows.filter(r=>r.charger===id);
+  if(!rows.length){document.getElementById('detailSection').classList.add('hidden');return}
+  const totalHrs=rows.reduce((s,r)=>s+r.hours,0);
+  const days=getFilterDays();const avail=days?days*24:null;
+  const pct=avail?(totalHrs/avail*100):null;
+  const pc=pct===null?'var(--text3)':pct>=20?'#c0392b':pct>=10?'#d4820a':'#1f7a3e';
+  document.getElementById('detailId').textContent=id;
+  document.getElementById('detailSite').textContent=[rows[0]?.zone,rows[0]?.site,rows[0]?.city].filter(Boolean).join(' · ');
+  document.getElementById('chargerEventCount').textContent=rows.length+' event'+(rows.length!==1?'s':'');
+  document.getElementById('detailTags').innerHTML=
     `<span class="tag tag-blue">${rows.length} incidents</span>
      <span class="tag tag-gray">${totalHrs.toFixed(1)} hrs total</span>
-     ${downtimePct !== null ? `<span class="tag" style="background:${pctColor}20;color:${pctColor};border:1px solid ${pctColor}40;">${downtimePct.toFixed(1)}% downtime</span>` : ''}`;
-
-  const byHrs = {}, byCnt = {};
-  rows.forEach(r => { byHrs[r.rca]=(byHrs[r.rca]||0)+r.hours; byCnt[r.rca]=(byCnt[r.rca]||0)+1; });
-  renderBarChart('rcaHrsChart', Object.entries(byHrs).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v})), 'hrs');
-  renderBarChart('rcaCntChart', Object.entries(byCnt).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v})), '');
-
-  // Downtime % breakdown card — inject before the events table
-  const downtimeCalcHtml = `
-    <div class="card" style="margin-bottom:1.5rem;">
+     ${pct!==null?`<span class="tag" style="background:${pc}20;color:${pc};border:1px solid ${pc}40">${pct.toFixed(1)}% downtime</span>`:''}`;
+  const byHrs={},byCnt={};
+  rows.forEach(r=>{byHrs[r.rca]=(byHrs[r.rca]||0)+r.hours;byCnt[r.rca]=(byCnt[r.rca]||0)+1});
+  renderBarChart('rcaHrsChart',Object.entries(byHrs).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v})),'hrs');
+  renderBarChart('rcaCntChart',Object.entries(byCnt).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v})),'');
+  document.getElementById('chargerDowntimeCalc').innerHTML=`
+    <div class="card card-mb">
       <div class="section-title">Individual Downtime % Calculation</div>
-      <div style="font-size:12px;color:var(--text3);margin-bottom:14px;">Formula: (Charger Total Hrs ÷ (Days × 24)) × 100</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:14px;">
-        <div style="background:var(--surface2);border-radius:8px;padding:12px 14px;">
-          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);margin-bottom:4px;">Total Downtime Hrs</div>
-          <div style="font-size:22px;font-weight:600;color:var(--text);">${totalHrs.toFixed(1)}</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:14px">Formula: (Charger Hrs ÷ (Days × 24)) × 100</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:14px">
+        <div style="background:var(--surface2);border-radius:8px;padding:12px 14px">
+          <div class="metric-label">Total Downtime Hrs</div><div class="metric-val">${totalHrs.toFixed(1)}</div>
         </div>
-        <div style="background:var(--surface2);border-radius:8px;padding:12px 14px;">
-          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);margin-bottom:4px;">Available Hrs (${days||'?'} days × 24)</div>
-          <div style="font-size:22px;font-weight:600;color:var(--text);">${totalAvailHrs || '—'}</div>
+        <div style="background:var(--surface2);border-radius:8px;padding:12px 14px">
+          <div class="metric-label">Available Hrs (${days||'?'} × 24)</div><div class="metric-val">${avail||'—'}</div>
         </div>
-        <div style="background:var(--surface2);border-radius:8px;padding:12px 14px;">
-          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);margin-bottom:4px;">Downtime %</div>
-          <div style="font-size:28px;font-weight:700;color:${pctColor};">${downtimePct !== null ? downtimePct.toFixed(2) + '%' : '—'}</div>
+        <div style="background:var(--surface2);border-radius:8px;padding:12px 14px">
+          <div class="metric-label">Downtime %</div><div class="metric-val" style="color:${pc}">${pct!==null?pct.toFixed(2)+'%':'—'}</div>
         </div>
       </div>
-      <div style="background:var(--blue-light);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--blue-dark);">
-        <strong>Calculation:</strong> (${totalHrs.toFixed(1)} ÷ ${totalAvailHrs || '?'}) × 100 = <strong>${downtimePct !== null ? downtimePct.toFixed(2) + '%' : '—'}</strong>
-        ${days ? ` &nbsp;·&nbsp; Date filter: ${days} days` : ''}
+      <div style="background:var(--blue-light);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--blue-dark)">
+        <strong>Calc:</strong> (${totalHrs.toFixed(1)} ÷ ${avail||'?'}) × 100 = <strong>${pct!==null?pct.toFixed(2)+'%':'—'}</strong>${days?' · '+days+' day filter':''}
       </div>
     </div>`;
-  document.getElementById('chargerDowntimeCalc').innerHTML = downtimeCalcHtml;
-  document.getElementById('eventTableBody').innerHTML = rows.map(r => {
-    const s = rcaStyle(r.rca);
-    return `<tr>
-      <td><span class="badge" style="background:${s.bg};color:${s.text};">${r.rca||'—'}</span></td>
-      <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2);">${r.start||'—'}</td>
-      <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2);">${r.end||'—'}</td>
-      <td style="text-align:right;font-weight:600;font-family:'DM Mono',monospace;">${r.hours}</td>
+  document.getElementById('eventTableBody').innerHTML=rows.map(r=>{
+    const s=rcaStyle(r.rca);
+    return`<tr>
+      <td><span class="badge" style="background:${s.bg};color:${s.text}">${r.rca||'—'}</span></td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${r.start||'—'}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${r.end||'—'}</td>
+      <td style="text-align:right;font-weight:600;font-family:'DM Mono',monospace">${r.hours}</td>
     </tr>`;
   }).join('');
   document.getElementById('detailSection').classList.remove('hidden');
 }
 
-// ── Zone tab ──
-function renderZone() {
-  const rows = filteredRows;
-  const byZone = {};
-  rows.forEach(r => { const k = r.zone||'(no zone)'; byZone[k]=(byZone[k]||0)+r.hours; });
-  renderBarChart('zoneHrsChart', Object.entries(byZone).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v})), 'hrs', '#6c3fc4');
-  const byRca = {};
-  rows.forEach(r => { byRca[r.rca]=(byRca[r.rca]||0)+r.hours; });
-  renderBarChart('zoneGlobalRcaChart', Object.entries(byRca).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v})), 'hrs');
-  renderGroupBreakdown('zoneBreakdownList', rows, 'zone', '#6c3fc4');
+// ════════════════════════════════
+//  ZONE & CITY TABS
+// ════════════════════════════════
+function renderZone(){
+  const rows=filteredRows;
+  const byZ={};rows.forEach(r=>{const k=r.zone||'(no zone)';byZ[k]=(byZ[k]||0)+r.hours});
+  renderBarChart('zoneHrsChart',Object.entries(byZ).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v})),'hrs','#6c3fc4');
+  const byR={};rows.forEach(r=>{byR[r.rca]=(byR[r.rca]||0)+r.hours});
+  renderBarChart('zoneGlobalRcaChart',Object.entries(byR).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v})),'hrs');
+  renderGroupBreakdown('zoneBreakdownList',rows,'zone','#6c3fc4');
+}
+function renderCity(){
+  const rows=filteredRows;
+  const byC={};rows.forEach(r=>{const k=r.city||'(no city)';byC[k]=(byC[k]||0)+r.hours});
+  renderBarChart('cityHrsChart',Object.entries(byC).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v})),'hrs','#0f7a7a');
+  const byR={};rows.forEach(r=>{byR[r.rca]=(byR[r.rca]||0)+r.hours});
+  renderBarChart('cityGlobalRcaChart',Object.entries(byR).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v})),'hrs');
+  renderGroupBreakdown('cityBreakdownList',rows,'city','#0f7a7a');
 }
 
-// ── City tab ──
-function renderCity() {
-  const rows = filteredRows;
-  const byCity = {};
-  rows.forEach(r => { const k = r.city||'(no city)'; byCity[k]=(byCity[k]||0)+r.hours; });
-  renderBarChart('cityHrsChart', Object.entries(byCity).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v})), 'hrs', '#0f7a7a');
-  const byRca = {};
-  rows.forEach(r => { byRca[r.rca]=(byRca[r.rca]||0)+r.hours; });
-  renderBarChart('cityGlobalRcaChart', Object.entries(byRca).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v})), 'hrs');
-  renderGroupBreakdown('cityBreakdownList', rows, 'city', '#0f7a7a');
+// ════════════════════════════════
+//  DAILY COMPLAINT TAB
+// ════════════════════════════════
+function renderComplaint(){
+  const tkts=filteredTickets.filter(t=>t.type==='complaint');
+  const withRes=tkts.filter(t=>t.resHrs!==null&&t.resHrs>=0);
+  const totalRes=withRes.reduce((s,t)=>s+(t.resHrs||0),0);
+  const avgRes=withRes.length?totalRes/withRes.length:0;
+  const chars=new Set(tkts.map(t=>t.name)).size;
+
+  // Repeat offenders: same charger + same RCA ≥3 times
+  const repeats={};
+  tkts.forEach(t=>{const k=t.name+'||'+t.rca;if(!repeats[k])repeats[k]={name:t.name,city:t.city,rca:t.rca,count:0,res:[]};repeats[k].count++;if(t.resHrs!==null)repeats[k].res.push(t.resHrs)});
+  const repeatList=Object.values(repeats).filter(r=>r.count>=3).sort((a,b)=>b.count-a.count);
+  const repeatChargers=new Set(repeatList.map(r=>r.name)).size;
+
+  document.getElementById('cTotal').textContent=tkts.length;
+  document.getElementById('cAvgRes').textContent=avgRes.toFixed(1);
+  document.getElementById('cChargers').textContent=chars;
+  document.getElementById('cRepeat').textContent=repeatChargers;
+  document.getElementById('cEmps').textContent=new Set(tkts.map(t=>t.emp).filter(Boolean)).size;
+
+  // RCA count chart
+  const byRca={};tkts.forEach(t=>{byRca[t.rca]=(byRca[t.rca]||0)+1});
+  renderBarChart('cRcaChart',Object.entries(byRca).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v})),'');
+
+  // Avg resolution by RCA
+  const rcaRes={};
+  tkts.forEach(t=>{if(t.resHrs!==null){if(!rcaRes[t.rca])rcaRes[t.rca]={sum:0,cnt:0};rcaRes[t.rca].sum+=t.resHrs;rcaRes[t.rca].cnt++}});
+  const rcaAvgArr=Object.entries(rcaRes).map(([l,v])=>({l,v:parseFloat((v.sum/v.cnt).toFixed(2))})).sort((a,b)=>b.v-a.v);
+  renderBarChart('cRcaAvgChart',rcaAvgArr,'hrs','#d4820a');
+
+  // Zone chart
+  const byZone={};tkts.forEach(t=>{const k=t.city||'(no city)';byZone[k]=(byZone[k]||0)+1});
+  renderBarChart('cZoneChart',Object.entries(byZone).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v})),'','#6c3fc4');
+
+  // City chart
+  const byCity={};tkts.forEach(t=>{const k=t.city||'(no city)';byCity[k]=(byCity[k]||0)+1});
+  renderBarChart('cCityChart',Object.entries(byCity).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v})),'','#0f7a7a');
+
+  // Repeat offenders table
+  document.getElementById('repeatOffendersBody').innerHTML=repeatList.length
+    ?repeatList.map(r=>{
+      const avgR=r.res.length?r.res.reduce((a,b)=>a+b,0)/r.res.length:null;
+      const cls=r.count>=5?'repeat-high':'repeat-med';
+      return`<tr>
+        <td style="font-weight:600">${r.name}</td>
+        <td style="color:var(--text2);font-size:12px">${r.city||'—'}</td>
+        <td><span class="badge" style="background:${rcaStyle(r.rca).bg};color:${rcaStyle(r.rca).text}">${r.rca||'—'}</span></td>
+        <td style="text-align:right"><span class="badge ${cls}">${r.count}</span></td>
+        <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px">${avgR!==null?avgR.toFixed(1)+'h':'—'}</td>
+      </tr>`;
+    }).join('')
+    :'<tr><td colspan="5" class="no-data">No repeat offenders (need ≥3 visits with same RCA)</td></tr>';
+
+  // Worst charger by complaint count
+  const byCharger={};
+  tkts.forEach(t=>{if(!byCharger[t.name])byCharger[t.name]={name:t.name,city:t.city,count:0,res:[],rcas:{}};
+    byCharger[t.name].count++;if(t.resHrs!==null)byCharger[t.name].res.push(t.resHrs);
+    byCharger[t.name].rcas[t.rca]=(byCharger[t.name].rcas[t.rca]||0)+1});
+  const worst=Object.values(byCharger).sort((a,b)=>b.count-a.count).slice(0,15);
+  document.getElementById('worstComplaintBody').innerHTML=worst.length
+    ?worst.map((c,i)=>{
+      const avgR=c.res.length?c.res.reduce((a,b)=>a+b,0)/c.res.length:null;
+      const topRca=Object.entries(c.rcas).sort((a,b)=>b[1]-a[1])[0];
+      const rank=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
+      return`<tr>
+        <td style="font-size:13px;font-weight:600;color:var(--text3)">${rank}</td>
+        <td style="font-weight:600">${c.name}</td>
+        <td style="color:var(--text2);font-size:12px">${c.city||'—'}</td>
+        <td style="text-align:right;font-weight:700;font-size:14px">${c.count}</td>
+        <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px">${avgR!==null?avgR.toFixed(1)+'h':'—'}</td>
+        <td><span class="badge" style="background:${rcaStyle(topRca?topRca[0]:'').bg};color:${rcaStyle(topRca?topRca[0]:'').text};font-size:11px">${topRca?topRca[0]+' ('+topRca[1]+')':'—'}</span></td>
+      </tr>`;
+    }).join('')
+    :'<tr><td colspan="6" class="no-data">No data</td></tr>';
+
+  // Employee chart
+  const byEmp={};tkts.forEach(t=>{if(t.emp){const k=t.emp.replace(/ PD Global/i,'').trim();byEmp[k]=(byEmp[k]||0)+1}});
+  renderBarChart('empChart',Object.entries(byEmp).sort((a,b)=>b[1]-a[1]).slice(0,15).map(([l,v])=>({l,v})),'tickets','#1a6ef5');
 }
 
-// ── Expandable group breakdown ──
-function renderGroupBreakdown(containerId, rows, groupKey, accentColor) {
-  const container = document.getElementById(containerId);
-  const groups = {};
-  rows.forEach(r => {
-    const k = r[groupKey] || ('(no ' + groupKey + ')');
-    if (!groups[k]) groups[k] = [];
-    groups[k].push(r);
-  });
-  const sorted = Object.entries(groups).sort((a,b) =>
-    b[1].reduce((s,r)=>s+r.hours,0) - a[1].reduce((s,r)=>s+r.hours,0)
-  );
-  if (!sorted.length) { container.innerHTML = '<div class="no-data">No data</div>'; return; }
+// ════════════════════════════════
+//  MAINTENANCE TAB
+// ════════════════════════════════
+function renderMaintenance(){
+  const tkts=filteredTickets.filter(t=>t.type==='maintenance');
+  const withDamage=tkts.filter(t=>t.damage&&t.damage.trim()!=='');
+  const auxVs=tkts.map(t=>parseFloat(t.auxV)).filter(v=>!isNaN(v)&&v>0);
+  const avgV=auxVs.length?auxVs.reduce((a,b)=>a+b,0)/auxVs.length:null;
 
-  container.innerHTML = sorted.map(([name, gRows], idx) => {
-    const totalHrs  = gRows.reduce((s,r) => s+r.hours, 0);
-    const totalEvts = gRows.length;
-    const byRca = {};
-    gRows.forEach(r => { byRca[r.rca]=(byRca[r.rca]||0)+r.hours; });
-    const rcaEntries = Object.entries(byRca).sort((a,b)=>b[1]-a[1]);
-    const maxV = Math.max(...rcaEntries.map(([,v])=>v));
+  document.getElementById('mntTotal').textContent=tkts.length;
+  document.getElementById('mntChargers').textContent=new Set(tkts.map(t=>t.name)).size;
+  document.getElementById('mntDamage').textContent=withDamage.length;
+  document.getElementById('mntAvgBatt').textContent=avgV!==null?avgV.toFixed(1):'—';
+  document.getElementById('mntActivityCount').textContent=tkts.length+' records';
 
-    const barsHtml = rcaEntries.map(([rca, hrs]) => {
-      const s   = rcaStyle(rca);
-      const pct = maxV > 0 ? Math.round(hrs/maxV*100) : 0;
-      const disp = Number.isInteger(hrs) ? hrs : hrs.toFixed(1);
-      return `<div class="bar-row">
-        <div class="bar-label narrow" title="${rca}">${rca}</div>
-        <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${s.bar};"></div></div>
-        <div class="bar-num">${disp} hrs</div>
-      </div>`;
+  // Zone & city charts
+  const byZone={};tkts.forEach(t=>{const k=t.city||'(no city)';byZone[k]=(byZone[k]||0)+1});
+  renderBarChart('mntZoneChart',Object.entries(byZone).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v})),'','#6c3fc4');
+  const byCity={};tkts.forEach(t=>{const k=t.city||'(no city)';byCity[k]=(byCity[k]||0)+1});
+  renderBarChart('mntCityChart',Object.entries(byCity).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v})),'','#0f7a7a');
+
+  // Damage list
+  document.getElementById('damageListBody').innerHTML=withDamage.length
+    ?withDamage.map(t=>`<tr>
+        <td style="font-weight:600">${t.name}</td>
+        <td style="color:var(--text2);font-size:12px">${t.city||'—'}</td>
+        <td><span class="badge" style="background:var(--red-light);color:var(--red)">${t.damage}</span></td>
+        <td style="font-size:12px;color:var(--text2)">${t.remarks||'—'}</td>
+        <td style="font-size:12px;color:var(--text2)">${(t.emp||'').replace(/ PD Global/i,'').trim()||'—'}</td>
+        <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)">${t.closeRaw?new Date(t.closeRaw).toLocaleDateString('en-IN'):'—'}</td>
+      </tr>`).join('')
+    :'<tr><td colspan="6" class="no-data">No damage recorded in this period</td></tr>';
+
+  // All activity log
+  document.getElementById('mntActivityBody').innerHTML=tkts.length
+    ?tkts.map(t=>`<tr>
+        <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)">${t.id||'—'}</td>
+        <td style="font-weight:600;font-size:12px">${t.name}</td>
+        <td style="font-size:12px;color:var(--text2)">${t.city||'—'}</td>
+        <td style="font-size:12px;color:var(--text2)">${(t.emp||'').replace(/ PD Global/i,'').trim()||'—'}</td>
+        <td style="font-size:12px;color:var(--text2)">${t.remarks||'—'}</td>
+        <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px">${t.auxV||'—'}</td>
+        <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)">${t.closeRaw?new Date(t.closeRaw).toLocaleDateString('en-IN'):'—'}</td>
+      </tr>`).join('')
+    :'<tr><td colspan="7" class="no-data">No maintenance records in this period</td></tr>';
+}
+
+// ════════════════════════════════
+//  REPLACEMENT TAB
+// ════════════════════════════════
+function renderReplacement(){
+  const tkts=filteredTickets.filter(t=>t.type==='replacement');
+  const withParts=tkts.filter(t=>t.damage&&t.damage.trim()!=='');
+  const partTypes=new Set(withParts.map(t=>t.damage.trim())).size;
+
+  document.getElementById('repTotal').textContent=tkts.length;
+  document.getElementById('repChargers').textContent=new Set(tkts.map(t=>t.name)).size;
+  document.getElementById('repPartTypes').textContent=partTypes;
+
+  // Parts replaced chart
+  const byPart={};
+  withParts.forEach(t=>{const k=t.damage.trim();byPart[k]=(byPart[k]||0)+1});
+  renderBarChart('repPartsChart',Object.entries(byPart).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v})),'','#e05d00');
+
+  // City chart
+  const byCity={};tkts.forEach(t=>{const k=t.city||'(no city)';byCity[k]=(byCity[k]||0)+1});
+  renderBarChart('repCityChart',Object.entries(byCity).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v})),'','#0f7a7a');
+
+  // Most replaced chargers
+  const byC={};
+  tkts.forEach(t=>{if(!byC[t.name])byC[t.name]={name:t.name,city:t.city,count:0,parts:[]};byC[t.name].count++;if(t.damage)byC[t.name].parts.push(t.damage)});
+  const worst=Object.values(byC).sort((a,b)=>b.count-a.count).slice(0,15);
+  document.getElementById('repWorstBody').innerHTML=worst.length
+    ?worst.map((c,i)=>{
+      const rank=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
+      const uniqueParts=[...new Set(c.parts)].join(', ');
+      return`<tr>
+        <td style="font-size:13px;font-weight:600;color:var(--text3)">${rank}</td>
+        <td style="font-weight:600">${c.name}</td>
+        <td style="color:var(--text2);font-size:12px">${c.city||'—'}</td>
+        <td style="font-size:12px;color:var(--text2)">${uniqueParts||'—'}</td>
+        <td style="text-align:right;font-weight:700;font-size:14px">${c.count}</td>
+      </tr>`;
+    }).join('')
+    :'<tr><td colspan="5" class="no-data">No replacement data</td></tr>';
+
+  // Full log
+  document.getElementById('repLogBody').innerHTML=tkts.length
+    ?tkts.map(t=>`<tr>
+        <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)">${t.id||'—'}</td>
+        <td style="font-weight:600;font-size:12px">${t.name}</td>
+        <td style="font-size:12px;color:var(--text2)">${t.city||'—'}</td>
+        <td><span class="badge" style="background:var(--orange-light);color:var(--orange)">${t.damage||'—'}</span></td>
+        <td style="font-size:12px;color:var(--text2)">${(t.emp||'').replace(/ PD Global/i,'').trim()||'—'}</td>
+        <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)">${t.closeRaw?new Date(t.closeRaw).toLocaleDateString('en-IN'):'—'}</td>
+      </tr>`).join('')
+    :'<tr><td colspan="6" class="no-data">No replacement records in this period</td></tr>';
+}
+
+// ════════════════════════════════
+//  GROUP BREAKDOWN (zone/city expandable)
+// ════════════════════════════════
+function renderGroupBreakdown(containerId,rows,groupKey,accent){
+  const el=document.getElementById(containerId);
+  const groups={};
+  rows.forEach(r=>{const k=r[groupKey]||'(no '+groupKey+')';if(!groups[k])groups[k]=[];groups[k].push(r)});
+  const sorted=Object.entries(groups).sort((a,b)=>b[1].reduce((s,r)=>s+r.hours,0)-a[1].reduce((s,r)=>s+r.hours,0));
+  if(!sorted.length){el.innerHTML='<div class="no-data">No data</div>';return}
+  el.innerHTML=sorted.map(([name,gRows],idx)=>{
+    const totalHrs=gRows.reduce((s,r)=>s+r.hours,0);
+    const byRca={};gRows.forEach(r=>{byRca[r.rca]=(byRca[r.rca]||0)+r.hours});
+    const rcaEntries=Object.entries(byRca).sort((a,b)=>b[1]-a[1]);
+    const maxV=Math.max(...rcaEntries.map(([,v])=>v));
+    const bars=rcaEntries.map(([rca,hrs])=>{
+      const s=rcaStyle(rca);const pct=maxV>0?Math.round(hrs/maxV*100):0;
+      const d=Number.isInteger(hrs)?hrs:hrs.toFixed(1);
+      return`<div class="bar-row"><div class="bar-label narrow" title="${rca}">${rca}</div><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${s.bar}"></div></div><div class="bar-num">${d} hrs</div></div>`;
     }).join('');
-
-    const chargers = [...new Set(gRows.map(r => r.charger))];
-    const chargerBadges = chargers.slice(0,8).map(c =>
-      `<span style="font-size:11px;font-family:'DM Mono',monospace;background:var(--surface2);border:1px solid var(--border);padding:2px 8px;border-radius:5px;color:var(--text2);">${c}</span>`
-    ).join('') + (chargers.length > 8 ? `<span style="font-size:11px;color:var(--text3);">+${chargers.length-8} more</span>` : '');
-
-    const isOpen = idx === 0;
-    return `<div class="group-card">
+    const chargers=[...new Set(gRows.map(r=>r.charger))];
+    const cBadges=chargers.slice(0,8).map(c=>`<span style="font-size:11px;font-family:'DM Mono',monospace;background:var(--surface2);border:1px solid var(--border);padding:2px 8px;border-radius:5px;color:var(--text2)">${c}</span>`).join('')
+      +(chargers.length>8?`<span style="font-size:11px;color:var(--text3)">+${chargers.length-8} more</span>`:'');
+    const isOpen=idx===0;
+    return`<div class="group-card">
       <div class="group-header" onclick="toggleGroup(this)">
-        <div>
-          <div class="group-name" style="color:${accentColor};">${name}</div>
-          <div style="display:flex;gap:14px;margin-top:5px;">
-            <span style="font-size:12px;color:var(--text3);">${totalEvts} events</span>
-            <span style="font-size:12px;font-weight:600;font-family:'DM Mono',monospace;color:var(--text2);">${totalHrs.toFixed(1)} hrs</span>
-            <span style="font-size:12px;color:var(--text3);">${chargers.length} charger${chargers.length!==1?'s':''}</span>
+        <div><div class="group-name" style="color:${accent}">${name}</div>
+          <div style="display:flex;gap:14px;margin-top:5px">
+            <span style="font-size:12px;color:var(--text3)">${gRows.length} events</span>
+            <span style="font-size:12px;font-weight:600;font-family:'DM Mono',monospace;color:var(--text2)">${totalHrs.toFixed(1)} hrs</span>
+            <span style="font-size:12px;color:var(--text3)">${chargers.length} charger${chargers.length!==1?'s':''}</span>
           </div>
         </div>
         <span class="group-chevron ${isOpen?'open':''}">▼</span>
       </div>
-      <div class="group-body" style="max-height:${isOpen?'700px':'0'};">
-        <div style="padding-top:12px;border-top:1px solid var(--border);margin-top:10px;">
-          <div class="section-title" style="margin-bottom:10px;">RCA Breakdown — Hours</div>
-          ${barsHtml}
-          <div style="margin-top:16px;">
-            <div class="section-title" style="margin-bottom:8px;">Chargers in this ${groupKey}</div>
-            <div style="display:flex;flex-wrap:wrap;gap:6px;">${chargerBadges}</div>
-          </div>
+      <div class="group-body" style="max-height:${isOpen?'700px':'0'}">
+        <div style="padding-top:12px;border-top:1px solid var(--border);margin-top:10px">
+          <div class="section-title" style="margin-bottom:10px">RCA Breakdown</div>${bars}
+          <div style="margin-top:16px"><div class="section-title" style="margin-bottom:8px">Chargers</div><div style="display:flex;flex-wrap:wrap;gap:6px">${cBadges}</div></div>
         </div>
       </div>
     </div>`;
   }).join('');
 }
-
-function toggleGroup(header) {
-  const body    = header.nextElementSibling;
-  const chevron = header.querySelector('.group-chevron');
-  const isOpen  = chevron.classList.contains('open');
-  body.style.maxHeight    = isOpen ? '0' : '700px';
-  chevron.classList.toggle('open', !isOpen);
+function toggleGroup(h){
+  const b=h.nextElementSibling,c=h.querySelector('.group-chevron'),open=c.classList.contains('open');
+  b.style.maxHeight=open?'0':'700px';c.classList.toggle('open',!open);
 }
 
-// ── Bar chart ──
-function renderBarChart(containerId, entries, unit, overrideColor) {
-  const el = document.getElementById(containerId);
-  if (!entries.length) { el.innerHTML = '<div class="no-data">No data</div>'; return; }
-  const max = Math.max(...entries.map(e => e.v));
-  el.innerHTML = entries.map(e => {
-    const pct   = max > 0 ? Math.round(e.v/max*100) : 0;
-    const color = overrideColor || rcaStyle(e.l).bar;
-    const disp  = Number.isInteger(e.v) ? e.v : e.v.toFixed(1);
-    return `<div class="bar-row">
+// ════════════════════════════════
+//  BAR CHART
+// ════════════════════════════════
+function renderBarChart(id,entries,unit,override){
+  const el=document.getElementById(id);
+  if(!entries.length){el.innerHTML='<div class="no-data">No data</div>';return}
+  const max=Math.max(...entries.map(e=>e.v));
+  el.innerHTML=entries.map((e,i)=>{
+    const pct=max>0?Math.round(e.v/max*100):0;
+    const color=override||rcaStyle(e.l).bar;
+    const d=Number.isInteger(e.v)?e.v:(typeof e.v==='number'?e.v.toFixed(1):e.v);
+    return`<div class="bar-row">
       <div class="bar-label" title="${e.l}">${e.l}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color};"></div></div>
-      <div class="bar-num">${disp}${unit?' '+unit:''}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      <div class="bar-num">${d}${unit?' '+unit:''}</div>
     </div>`;
   }).join('');
 }
 
-// ── Persist ──
-window.addEventListener('load', () => {
-  const s = localStorage.getItem('chargerDashUrl');
-  const p = localStorage.getItem('chargerProxyUrl');
-  if (s) document.getElementById('sheetUrl').value = s;
-  if (p) document.getElementById('proxyUrl').value = p;
-  if (s && p) loadData();
+// ════════════════════════════════
+//  PERSIST URLs
+// ════════════════════════════════
+function saveURLs(){
+  localStorage.setItem('cdUrl1',document.getElementById('sheetUrl').value);
+  localStorage.setItem('cdUrl2',document.getElementById('sheet2Url').value);
+  localStorage.setItem('cdProxy',document.getElementById('proxyUrl').value);
+}
+window.addEventListener('load',()=>{
+  const u1=localStorage.getItem('cdUrl1');
+  const u2=localStorage.getItem('cdUrl2');
+  const pr=localStorage.getItem('cdProxy');
+  if(u1) document.getElementById('sheetUrl').value=u1;
+  if(u2) document.getElementById('sheet2Url').value=u2;
+  if(pr) document.getElementById('proxyUrl').value=pr;
+  if(u1&&pr) loadAll();
 });
-document.getElementById('sheetUrl').addEventListener('change', e => localStorage.setItem('chargerDashUrl', e.target.value));
-document.getElementById('proxyUrl').addEventListener('change', e => localStorage.setItem('chargerProxyUrl', e.target.value));
+document.getElementById('sheetUrl').addEventListener('change',saveURLs);
+document.getElementById('sheet2Url').addEventListener('change',saveURLs);
+document.getElementById('proxyUrl').addEventListener('change',saveURLs);
 </script>
 </body>
 </html>
