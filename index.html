@@ -413,84 +413,51 @@ tbody tr:hover td{background:var(--surface2)}
   </ol>
   <details style="margin-top:10px">
     <summary style="font-size:13px;font-weight:700;color:var(--blue);cursor:pointer">▶ Updated Cloudflare Worker code (click to expand — must update this)</summary>
-    <pre style="margin-top:8px;font-size:11px;font-family:'JetBrains Mono',monospace;background:rgba(37,99,235,.08);padding:12px;border-radius:8px;overflow-x:auto;color:var(--blue);white-space:pre">export default {
-  async fetch(request) {
-    const url = new URL(request.url);
+    <pre style="margin-top:8px;font-size:11px;font-family:'JetBrains Mono',monospace;background:rgba(37,99,235,.08);padding:12px;border-radius:8px;overflow-x:auto;color:var(--blue);white-space:pre-wrap;word-break:break-all">addEventListener('fetch', event => {
+  event.respondWith(handleRequest(event.request));
+});
 
-    // Handle CORS preflight
-    if (request.method === "OPTIONS") {
-      return new Response(null, {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, OPTIONS",
-          "Access-Control-Allow-Headers": "*",
-        },
-      });
-    }
+async function handleRequest(request) {
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
+    'Access-Control-Allow-Headers': '*',
+  };
 
-    let target = url.searchParams.get("url");
-    if (!target) return new Response("Missing ?url= parameter", { status: 400 });
+  if (request.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
 
-    const HEADERS = {
-      "Access-Control-Allow-Origin": "*",
-      "Content-Type": "text/csv; charset=utf-8",
-    };
+  const url = new URL(request.url);
+  const target = url.searchParams.get('url');
 
-    // Helper: fetch with redirect follow
-    async function doFetch(fetchUrl) {
-      return fetch(fetchUrl, {
-        redirect: "follow",
-        headers: {
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-          "Accept": "text/csv,text/plain,*/*",
-        },
-      });
-    }
+  if (!target) {
+    return new Response('Missing ?url= parameter', {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
 
-    // Try the URL as-is first
-    let res = await doFetch(target);
-    let text = await res.text();
-
-    // If we got HTML (Google login/redirect), try converting to export URL
-    if (text.trim().toLowerCase().startsWith("<!doctype") ||
-        text.trim().toLowerCase().startsWith("<html")) {
-
-      // Convert pub URL to export URL
-      const pubMatch = target.match(/\/spreadsheets\/d\/e\/([A-Za-z0-9_-]+)/);
-      const keyMatch = target.match(/\/spreadsheets\/d\/([A-Za-z0-9_-]+)/);
-      const gidM = target.match(/[?&]gid=(\d+)/);
-      const gid = gidM ? gidM[1] : "0";
-
-      let altUrl = null;
-      if (pubMatch) {
-        // Try export via published ID  
-        altUrl = "https://docs.google.com/spreadsheets/d/e/" + pubMatch[1] +
-                 "/pub?gid=" + gid + "&single=true&output=csv";
-      } else if (keyMatch) {
-        altUrl = "https://docs.google.com/spreadsheets/d/" + keyMatch[1] +
-                 "/export?format=csv&gid=" + gid;
-      }
-
-      if (altUrl && altUrl !== target) {
-        const res2 = await doFetch(altUrl);
-        const text2 = await res2.text();
-        if (!text2.trim().toLowerCase().startsWith("<")) {
-          return new Response(text2, { headers: HEADERS });
-        }
-      }
-
-      // Still HTML — return it with an error note
-      return new Response("ERROR: Google returned HTML instead of CSV. " +
-        "Make sure the specific sheet TAB is published as CSV (not Entire Document). " +
-        "Original URL: " + target, {
-        status: 422,
-        headers: { "Access-Control-Allow-Origin": "*", "Content-Type": "text/plain" },
-      });
-    }
-
-    return new Response(text, { headers: HEADERS });
-  },
-};</pre>
+  try {
+    const response = await fetch(target, {
+      redirect: 'follow',
+      cf: { cacheTtl: 0 },
+    });
+    const text = await response.text();
+    return new Response(text, {
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'text/csv; charset=utf-8',
+        'Cache-Control': 'no-cache',
+      },
+    });
+  } catch (err) {
+    return new Response('Fetch error: ' + err.message, {
+      status: 500,
+      headers: corsHeaders,
+    });
+  }
+}</pre>
     <p style="font-size:12px;color:var(--blue);margin-top:8px">Go to <strong>dash.cloudflare.com → Workers & Pages → your worker → Edit code</strong> → paste above → Deploy</p>
   </details>
 </div>
@@ -808,32 +775,19 @@ function parseS2(csv){
 }
 
 // ════════ FETCH ════════
-// Converts ANY Google Sheets URL into a direct download CSV link.
-// Uses the /export endpoint which does NOT require cookies or redirects.
 function toDirectCsvUrl(url) {
-  url = url.trim();
+  url = (url || '').trim();
   if (!url.includes('docs.google.com/spreadsheets')) return url;
-
-  // Extract gid from any format
   const gidM = url.match(/[?&]gid=(\d+)/);
   const gid = gidM ? gidM[1] : '0';
-
-  // Format 1: /spreadsheets/d/e/PUBLISHED_ID/pub  (long published ID with /d/e/)
-  const pubMatch = url.match(/\/spreadsheets\/d\/e\/([A-Za-z0-9_-]+)/);
-  if (pubMatch) {
-    // Convert published ID back to export — we need the spreadsheet key
-    // Use the pub URL but force output=csv with no html redirect
-    return 'https://docs.google.com/spreadsheets/d/e/' + pubMatch[1] +
-           '/pub?gid=' + gid + '&single=true&output=csv&rm=minimal';
-  }
-
-  // Format 2: /spreadsheets/d/SPREADSHEET_KEY/  (edit/view URL)
-  const keyMatch = url.match(/\/spreadsheets\/d\/([A-Za-z0-9_-]+)/);
-  if (keyMatch) {
-    return 'https://docs.google.com/spreadsheets/d/' + keyMatch[1] +
-           '/export?format=csv&gid=' + gid + '&rm=minimal';
-  }
-
+  // Already a proper pub CSV URL — return as-is
+  if (url.includes('output=csv')) return url;
+  // /d/e/ published format
+  const pubM = url.match(/\/spreadsheets\/d\/e\/([A-Za-z0-9_-]+)/);
+  if (pubM) return 'https://docs.google.com/spreadsheets/d/e/'+pubM[1]+'/pub?gid='+gid+'&single=true&output=csv';
+  // /d/ edit format
+  const keyM = url.match(/\/spreadsheets\/d\/([A-Za-z0-9_-]+)/);
+  if (keyM) return 'https://docs.google.com/spreadsheets/d/'+keyM[1]+'/export?format=csv&gid='+gid;
   return url;
 }
 
@@ -841,39 +795,49 @@ async function fetchCSV(url, proxy) {
   const csvUrl = toDirectCsvUrl(url);
   const proxyClean = proxy.replace(/\/$/, '');
   const fetchUrl = proxyClean + '?url=' + encodeURIComponent(csvUrl);
+  console.log('[MDOC] csv:', csvUrl);
+  console.log('[MDOC] fetch:', fetchUrl);
 
-  console.log('[MDOC] Converted URL:', csvUrl);
-  console.log('[MDOC] Fetching via:', fetchUrl);
-
-  let res;
+  let res, text;
   try {
-    res = await fetch(fetchUrl, { cache: 'no-store' });
+    res = await fetch(fetchUrl, {
+      method: 'GET',
+      mode: 'cors',
+      cache: 'no-store',
+    });
   } catch(e) {
-    throw new Error('Cannot reach proxy: ' + e.message + '. Check Proxy URL is correct and Worker is deployed.');
+    // "Failed to fetch" = CORS blocked or network error
+    // Most likely the Worker doesn't have CORS headers
+    throw new Error(
+      'NETWORK ERROR — Worker is blocking the request.\n\n' +
+      'YOUR WORKER CODE MUST BE UPDATED.\n' +
+      'Go to dash.cloudflare.com → Workers & Pages → manish → Edit code\n' +
+      'Replace ALL code with the NEW version shown in Quick Setup below, then click Deploy.\n\n' +
+      'The new Worker code adds CORS headers that allow browser requests.'
+    );
   }
 
-  if (res.status === 404) throw new Error('Worker not found (404). Your Proxy URL may be wrong. Check https://manish.pdgncr.workers.dev/ is the correct worker.');
-  if (res.status === 403) throw new Error('Worker blocked (403). Check Cloudflare dashboard — Worker may be paused or rate limited.');
-  if (res.status === 500) throw new Error('Worker crashed (500). Check Cloudflare Worker logs.');
-  if (!res.ok) throw new Error('Proxy HTTP error ' + res.status + '. Check Worker is deployed correctly.');
-
-  const text = await res.text();
-  console.log('[MDOC] Response length:', text.length, '| First 100 chars:', JSON.stringify(text.substring(0, 100)));
-
-  if (!text || text.trim().length === 0) {
-    throw new Error('Got empty response. The Google Sheet URL may be wrong or the sheet is not published publicly.');
+  if (!res.ok) {
+    throw new Error('Proxy returned HTTP ' + res.status + '. Worker may not be deployed correctly.');
   }
 
-  // Check for HTML — means Google is returning a login page
+  text = await res.text();
+  console.log('[MDOC] Got', text.length, 'chars. First 80:', JSON.stringify(text.substring(0,80)));
+
+  if (!text || !text.trim()) {
+    throw new Error('Empty response. Sheet may not be publicly published.');
+  }
   const t = text.trim().toLowerCase();
-  if (t.startsWith('<!doctype') || t.startsWith('<html') || t.startsWith('<?xml')) {
-    // Try to give a helpful message
-    if (text.includes('accounts.google.com') || text.includes('signin')) {
-      throw new Error('Google is asking for login — the sheet is not publicly published. Go to File → Share → Publish to web → select the correct tab → CSV → Publish → copy the URL → paste it here.');
-    }
-    throw new Error('Got an HTML page instead of CSV data. Make sure: (1) The sheet tab is published as CSV, (2) You copied the correct published CSV URL (ends with output=csv), (3) The Worker code is updated with the redirect:follow version.');
+  if (t.startsWith('<!') || t.startsWith('<html')) {
+    throw new Error(
+      'Google returned HTML instead of CSV.\n\n' +
+      'The sheet tab is not published publicly.\n' +
+      'Fix: open Google Sheet → File → Share → Publish to web\n' +
+      '→ first dropdown: select the SPECIFIC TAB (not Entire Document)\n' +
+      '→ second dropdown: Comma-separated values (.csv)\n' +
+      '→ click Publish → copy the URL → paste it here.'
+    );
   }
-
   return text;
 }
 
@@ -1219,21 +1183,9 @@ function obj2arr(o){return Object.entries(o).sort((a,b)=>b[1]-a[1]).map(([l,v])=
 async function testWorker() {
   const proxy = document.getElementById('proxyUrl').value.trim();
   if (!proxy) { alert('Paste your Proxy URL first'); return; }
-
-  const testUrl = 'https://httpbin.org/get';
-  const fetchUrl = proxy.replace(/\/$/, '') + '?url=' + encodeURIComponent(testUrl);
-
-  try {
-    const res = await fetch(fetchUrl, { cache: 'no-store' });
-    const text = await res.text();
-    if (res.ok && text.includes('httpbin')) {
-      alert('✅ Worker is working correctly!\n\nIf sheets still fail, the issue is the Google Sheet URL.\nMake sure you copied the published CSV link (ends with output=csv) for EACH sheet tab separately.');
-    } else {
-      alert('⚠️ Worker responded but with unexpected content.\nStatus: ' + res.status + '\nResponse: ' + text.substring(0, 200));
-    }
-  } catch(e) {
-    alert('❌ Worker test FAILED: ' + e.message + '\n\nCheck:\n1. Proxy URL is correct (https://manish.pdgncr.workers.dev/)\n2. Worker is deployed in Cloudflare\n3. No typo in URL');
-  }
+  // Open worker URL directly in new tab so user can verify it responds
+  const testUrl = proxy.replace(/\/$/, '') + '?url=' + encodeURIComponent('https://www.google.com');
+  window.open(testUrl, '_blank');
 }
 
 // ════════ PERSIST ════════
