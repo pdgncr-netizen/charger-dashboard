@@ -375,7 +375,7 @@ tbody tr:hover td{background:var(--surface2)}
   <div class="config-section">Sheet 1 — Charger Downtime / Power Cut Data</div>
   <div class="config-row">
     <label>📊 Sheet 1 CSV URL</label>
-    <input class="config-input" id="sheetUrl" placeholder="https://docs.google.com/spreadsheets/d/…/pub?output=csv"/>
+    <input class="config-input" id="sheetUrl" value="https://docs.google.com/spreadsheets/d/e/2PACX-1vSTKNuGvYzhNxzMCOrKcxmvIrA_EmV23Sg5rApansliK7kRSHhoK62-3KgVeo1V2xxU8CamlIoJ4Cd4/pub?gid=0&single=true&output=csv"/>
   </div>
   <div class="config-sep"></div>
   <div class="config-section">Sheet 2 — Field Visits / Tickets Data</div>
@@ -413,50 +413,37 @@ tbody tr:hover td{background:var(--surface2)}
   </ol>
   <details style="margin-top:10px">
     <summary style="font-size:13px;font-weight:700;color:var(--blue);cursor:pointer">▶ Updated Cloudflare Worker code (click to expand — must update this)</summary>
-    <pre style="margin-top:8px;font-size:11px;font-family:'JetBrains Mono',monospace;background:rgba(37,99,235,.08);padding:12px;border-radius:8px;overflow-x:auto;color:var(--blue);white-space:pre-wrap;word-break:break-all">addEventListener('fetch', event => {
+    <pre style="margin-top:8px;font-size:12px;font-family:'JetBrains Mono',monospace;background:#0f172a;padding:16px;border-radius:8px;overflow-x:auto;color:#7dd3fc;white-space:pre;border:1px solid rgba(125,211,252,.2)">addEventListener('fetch', event =&gt; {
   event.respondWith(handleRequest(event.request));
 });
 
 async function handleRequest(request) {
-  const corsHeaders = {
+  const CORS = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
     'Access-Control-Allow-Headers': '*',
   };
 
   if (request.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { status: 204, headers: CORS });
   }
 
-  const url = new URL(request.url);
-  const target = url.searchParams.get('url');
-
+  const { searchParams } = new URL(request.url);
+  const target = searchParams.get('url');
   if (!target) {
-    return new Response('Missing ?url= parameter', {
-      status: 400,
-      headers: corsHeaders,
-    });
+    return new Response('Missing ?url= param', { status: 400, headers: CORS });
   }
 
-  try {
-    const response = await fetch(target, {
-      redirect: 'follow',
-      cf: { cacheTtl: 0 },
-    });
-    const text = await response.text();
-    return new Response(text, {
-      headers: {
-        ...corsHeaders,
-        'Content-Type': 'text/csv; charset=utf-8',
-        'Cache-Control': 'no-cache',
-      },
-    });
-  } catch (err) {
-    return new Response('Fetch error: ' + err.message, {
-      status: 500,
-      headers: corsHeaders,
-    });
-  }
+  const resp = await fetch(target, { redirect: 'follow' });
+  const body = await resp.arrayBuffer();
+  return new Response(body, {
+    status: resp.status,
+    headers: {
+      ...CORS,
+      'Content-Type': 'text/csv; charset=utf-8',
+      'Cache-Control': 'no-cache, no-store',
+    },
+  });
 }</pre>
     <p style="font-size:12px;color:var(--blue);margin-top:8px">Go to <strong>dash.cloudflare.com → Workers & Pages → your worker → Edit code</strong> → paste above → Deploy</p>
   </details>
@@ -775,146 +762,141 @@ function parseS2(csv){
 }
 
 // ════════ FETCH ════════
+// Both sheet URLs are hardcoded and correct.
+// We try 3 strategies in order:
+//   1. User's Cloudflare Worker (best, handles all cases)
+//   2. allorigins.win public proxy (backup, free)
+//   3. corsproxy.io (second backup)
+
 function toDirectCsvUrl(url) {
   url = (url || '').trim();
   if (!url.includes('docs.google.com/spreadsheets')) return url;
   const gidM = url.match(/[?&]gid=(\d+)/);
   const gid = gidM ? gidM[1] : '0';
-  // Already a proper pub CSV URL — return as-is
   if (url.includes('output=csv')) return url;
-  // /d/e/ published format
   const pubM = url.match(/\/spreadsheets\/d\/e\/([A-Za-z0-9_-]+)/);
   if (pubM) return 'https://docs.google.com/spreadsheets/d/e/'+pubM[1]+'/pub?gid='+gid+'&single=true&output=csv';
-  // /d/ edit format
   const keyM = url.match(/\/spreadsheets\/d\/([A-Za-z0-9_-]+)/);
   if (keyM) return 'https://docs.google.com/spreadsheets/d/'+keyM[1]+'/export?format=csv&gid='+gid;
   return url;
 }
 
-async function fetchCSV(url, proxy) {
-  const csvUrl = toDirectCsvUrl(url);
-  const proxyClean = proxy.replace(/\/$/, '');
-  const fetchUrl = proxyClean + '?url=' + encodeURIComponent(csvUrl);
-  console.log('[MDOC] csv:', csvUrl);
-  console.log('[MDOC] fetch:', fetchUrl);
-
-  let res, text;
-  try {
-    res = await fetch(fetchUrl, {
-      method: 'GET',
-      mode: 'cors',
-      cache: 'no-store',
-    });
-  } catch(e) {
-    // "Failed to fetch" = CORS blocked or network error
-    // Most likely the Worker doesn't have CORS headers
-    throw new Error(
-      'NETWORK ERROR — Worker is blocking the request.\n\n' +
-      'YOUR WORKER CODE MUST BE UPDATED.\n' +
-      'Go to dash.cloudflare.com → Workers & Pages → manish → Edit code\n' +
-      'Replace ALL code with the NEW version shown in Quick Setup below, then click Deploy.\n\n' +
-      'The new Worker code adds CORS headers that allow browser requests.'
-    );
-  }
-
-  if (!res.ok) {
-    throw new Error('Proxy returned HTTP ' + res.status + '. Worker may not be deployed correctly.');
-  }
-
-  text = await res.text();
-  console.log('[MDOC] Got', text.length, 'chars. First 80:', JSON.stringify(text.substring(0,80)));
-
-  if (!text || !text.trim()) {
-    throw new Error('Empty response. Sheet may not be publicly published.');
-  }
+async function tryFetch(fetchUrl) {
+  const res = await fetch(fetchUrl, { cache: 'no-store' });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const text = await res.text();
+  if (!text || !text.trim()) throw new Error('empty response');
   const t = text.trim().toLowerCase();
-  if (t.startsWith('<!') || t.startsWith('<html')) {
-    throw new Error(
-      'Google returned HTML instead of CSV.\n\n' +
-      'The sheet tab is not published publicly.\n' +
-      'Fix: open Google Sheet → File → Share → Publish to web\n' +
-      '→ first dropdown: select the SPECIFIC TAB (not Entire Document)\n' +
-      '→ second dropdown: Comma-separated values (.csv)\n' +
-      '→ click Publish → copy the URL → paste it here.'
-    );
-  }
+  if (t.startsWith('<!') || t.startsWith('<html') || t.startsWith('<?xml')) throw new Error('got HTML not CSV');
   return text;
 }
 
+async function fetchCSV(url, proxy) {
+  const csvUrl = toDirectCsvUrl(url);
+  console.log('[MDOC] Target CSV URL:', csvUrl);
+
+  // Strategy 1: User's Cloudflare Worker
+  if (proxy && proxy.trim()) {
+    const proxyClean = proxy.replace(/\/$/, '');
+    const workerUrl = proxyClean + '?url=' + encodeURIComponent(csvUrl);
+    console.log('[MDOC] Strategy 1 - Worker:', workerUrl);
+    try {
+      const text = await tryFetch(workerUrl);
+      console.log('[MDOC] Worker SUCCESS, got', text.length, 'chars');
+      return text;
+    } catch(e) {
+      console.warn('[MDOC] Worker failed:', e.message, '— trying backup proxy...');
+    }
+  }
+
+  // Strategy 2: allorigins.win (free public CORS proxy)
+  const ao = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(csvUrl);
+  console.log('[MDOC] Strategy 2 - allorigins:', ao);
+  try {
+    const text = await tryFetch(ao);
+    console.log('[MDOC] allorigins SUCCESS, got', text.length, 'chars');
+    return text;
+  } catch(e) {
+    console.warn('[MDOC] allorigins failed:', e.message, '— trying corsproxy...');
+  }
+
+  // Strategy 3: corsproxy.io
+  const cp = 'https://corsproxy.io/?' + encodeURIComponent(csvUrl);
+  console.log('[MDOC] Strategy 3 - corsproxy:', cp);
+  try {
+    const text = await tryFetch(cp);
+    console.log('[MDOC] corsproxy SUCCESS, got', text.length, 'chars');
+    return text;
+  } catch(e) {
+    console.warn('[MDOC] corsproxy failed:', e.message);
+  }
+
+  // All failed
+  throw new Error(
+    'All 3 fetch methods failed. Please update your Cloudflare Worker code:\n' +
+    '1. Go to dash.cloudflare.com → Workers & Pages → manish → Edit code\n' +
+    '2. Select ALL → Delete → Paste the worker code shown in Quick Setup\n' +
+    '3. Click Deploy\n\n' +
+    'OR check your internet connection.'
+  );
+}
+
 async function loadAll(){
-  const s1=document.getElementById('sheetUrl').value.trim();
-  const s2=document.getElementById('sheet2Url').value.trim();
-  const proxy=document.getElementById('proxyUrl').value.trim();
-  if(!s1){setPill(1,'err','Paste Sheet 1 URL');return}
-  if(!proxy){setPill(1,'err','Paste Proxy URL');return}
-  if(proxy.includes('github.io')){setPill(1,'err','Proxy must be Cloudflare Worker, not GitHub Pages');return}
-  const btn=document.getElementById('refreshBtn');
+  const s1 = document.getElementById('sheetUrl').value.trim();
+  const s2 = document.getElementById('sheet2Url').value.trim();
+  const proxy = document.getElementById('proxyUrl').value.trim();
+  const btn = document.getElementById('refreshBtn');
+
+  if (!s1) { setPill(1,'err','Paste Sheet 1 URL'); return; }
+  if (!proxy) { setPill(1,'err','Paste Cloudflare Worker URL'); return; }
+  if (proxy.includes('github.io') || proxy.includes('github.com')) {
+    setPill(1,'err','Proxy must be your Cloudflare Worker URL (ends in .workers.dev), not GitHub'); return;
+  }
+
   btn.classList.add('spinning');
   setPill(1,'loading','Loading Sheet 1…');
-  try{
-    const csv1=await fetchCSV(s1,proxy);
-    allRows=parseS1(csv1);filteredRows=[...allRows];
-    setPill(1,'ok',allRows.length+' events');
-    const dates=allRows.map(r=>r.date).filter(Boolean);
-    if(dates.length){
-      const mn=new Date(Math.min(...dates)),mx=new Date(Math.max(...dates));
-      document.getElementById('dateFrom').value=mn.toISOString().slice(0,10);
-      document.getElementById('dateTo').value=mx.toISOString().slice(0,10);
-    }
-  }catch(e){setPill(1,'err',e.message);btn.classList.remove('spinning');return}
 
-  if(s2){
+  try {
+    const csv1 = await fetchCSV(s1, proxy);
+    allRows = parseS1(csv1);
+    filteredRows = [...allRows];
+    setPill(1,'ok', allRows.length + ' events loaded ✓');
+
+    // Auto date range
+    const dates = allRows.map(r => r.date).filter(Boolean);
+    if (dates.length) {
+      const mn = new Date(Math.min(...dates)), mx = new Date(Math.max(...dates));
+      document.getElementById('dateFrom').value = mn.toISOString().slice(0,10);
+      document.getElementById('dateTo').value = mx.toISOString().slice(0,10);
+    }
+  } catch(e) {
+    setPill(1,'err','Sheet 1 error: ' + e.message);
+    btn.classList.remove('spinning');
+    return;
+  }
+
+  // Sheet 2
+  if (s2) {
     document.getElementById('pill2').classList.remove('hidden');
     setPill(2,'loading','Loading Sheet 2…');
-    try{
-      const csv2=await fetchCSV(s2,proxy);
-      allTickets=parseS2(csv2);filteredTickets=[...allTickets];
-      setPill(2,'ok',allTickets.length+' tickets');
-    }catch(e){setPill(2,'err','S2: '+e.message)}
+    try {
+      const csv2 = await fetchCSV(s2, proxy);
+      allTickets = parseS2(csv2);
+      filteredTickets = [...allTickets];
+      setPill(2,'ok', allTickets.length + ' tickets loaded ✓');
+    } catch(e) {
+      setPill(2,'err','Sheet 2: ' + e.message);
+      // Don't stop — continue with Sheet 1 data
+    }
   }
+
   document.getElementById('howto').classList.add('hidden');
-  document.getElementById('lastUpdated').textContent='Updated '+new Date().toLocaleTimeString();
-  document.getElementById('filterCount').textContent=filteredRows.length+' events · '+filteredTickets.length+' tickets';
-  saveURLs();renderAll();btn.classList.remove('spinning');
-}
+  document.getElementById('lastUpdated').textContent = 'Updated ' + new Date().toLocaleTimeString();
+  document.getElementById('filterCount').textContent = filteredRows.length + ' events · ' + filteredTickets.length + ' tickets';
 
-function setPill(n,type,msg){
-  const p=document.getElementById('pill'+n);
-  p.className='pill'+(type==='ok'?' ok':type==='err'?' err':type==='loading'?' loading':'');
-  document.getElementById('pillTxt'+n).textContent=msg;
-}
-
-// ════════ DATE FILTER ════════
-function getDays(){
-  const f=document.getElementById('dateFrom').value,t=document.getElementById('dateTo').value;
-  if(!f||!t) return null;
-  return Math.max(1,Math.round((new Date(t)-new Date(f))/864e5)+1);
-}
-function applyFilter(){
-  const f=document.getElementById('dateFrom').value,t=document.getElementById('dateTo').value;
-  const inR=d=>{if(!d)return true;if(f&&d<new Date(f))return false;if(t&&d>new Date(t+'T23:59:59'))return false;return true};
-  filteredRows=allRows.filter(r=>inR(r.date));
-  filteredTickets=allTickets.filter(r=>inR(r.date));
-  document.getElementById('filterBadge').classList.toggle('hidden',!f&&!t);
-  document.getElementById('filterCount').textContent=filteredRows.length+' events · '+filteredTickets.length+' tickets';
+  saveURLs();
   renderAll();
-}
-function clearFilter(){
-  document.getElementById('dateFrom').value='';document.getElementById('dateTo').value='';
-  document.getElementById('filterBadge').classList.add('hidden');
-  filteredRows=[...allRows];filteredTickets=[...allTickets];
-  document.getElementById('filterCount').textContent=allRows.length+' events · '+allTickets.length+' tickets';
-  renderAll();
-}
-
-// ════════ TABS ════════
-const TABS=['downtime','complaint','maintenance','replacement'];
-function switchTab(name){
-  activeTab=name;
-  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',TABS[i]===name));
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  document.getElementById('tab-'+name).classList.add('active');
-  ({downtime:renderDowntime,complaint:renderComplaint,maintenance:renderMaintenance,replacement:renderReplacement}[name]||(() => {}))();
+  btn.classList.remove('spinning');
 }
 
 // ════════ RENDER ALL ════════
@@ -1190,18 +1172,27 @@ async function testWorker() {
 
 // ════════ PERSIST ════════
 function saveURLs(){
-  localStorage.setItem('mdoc_s1',document.getElementById('sheetUrl').value);
-  localStorage.setItem('mdoc_s2',document.getElementById('sheet2Url').value);
-  localStorage.setItem('mdoc_px',document.getElementById('proxyUrl').value);
+  localStorage.setItem('mdoc_s1', document.getElementById('sheetUrl').value);
+  localStorage.setItem('mdoc_s2', document.getElementById('sheet2Url').value);
+  localStorage.setItem('mdoc_px', document.getElementById('proxyUrl').value);
 }
-window.addEventListener('load',()=>{
-  const s1=localStorage.getItem('mdoc_s1'),s2=localStorage.getItem('mdoc_s2'),px=localStorage.getItem('mdoc_px');
-  if(s1) document.getElementById('sheetUrl').value=s1;
-  if(s2) document.getElementById('sheet2Url').value=s2;
-  if(px) document.getElementById('proxyUrl').value=px;
-  if(s1&&px) loadAll();
+window.addEventListener('load', () => {
+  // Only restore proxy from localStorage (sheets are hardcoded)
+  const px = localStorage.getItem('mdoc_px');
+  if (px) document.getElementById('proxyUrl').value = px;
+
+  // Auto-load if proxy is saved
+  const s1 = document.getElementById('sheetUrl').value;
+  if (s1 && px) {
+    loadAll();
+  } else if (s1) {
+    // Sheets are prefilled — try loading with backup proxies even without saved proxy
+    loadAll();
+  }
 });
-['sheetUrl','sheet2Url','proxyUrl'].forEach(id=>document.getElementById(id).addEventListener('change',saveURLs));
+['sheetUrl','sheet2Url','proxyUrl'].forEach(id =>
+  document.getElementById(id).addEventListener('change', saveURLs)
+);
 </script>
 </body>
 </html>
