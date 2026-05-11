@@ -1,5 +1,3 @@
-html
-
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
@@ -407,13 +405,39 @@ tbody tr:hover td{background:var(--surface2)}
 <div class="howto" id="howto">
   <h3>⚡ Quick Setup</h3>
   <ol>
-    <li><strong>Publish Sheet 1</strong> (downtime data): File → Share → Publish to web → select correct tab → CSV → Publish → copy URL → paste above</li>
-    <li><strong>Sheet 2 URL is pre-filled</strong> — but make sure that specific sheet tab is published as CSV too (check gid=1802746093)</li>
-    <li>Paste your <strong>Cloudflare Worker URL</strong> in the Proxy field → click <strong>Refresh All Data</strong></li>
+    <li><strong>Publish Sheet 1:</strong> File → Share → Publish to web → first dropdown: select your downtime tab → second dropdown: CSV → Publish → copy URL → paste above</li>
+    <li><strong>Sheet 2 URL is pre-filled</strong> (gid=1802746093). Make sure "sHEET 2" tab is published: same steps, select <em>sHEET 2</em> tab → CSV → Publish</li>
+    <li>Paste your <strong>Cloudflare Worker URL</strong> → click <strong>Refresh All Data</strong></li>
+    <li><strong>IMPORTANT — update your Worker code</strong> to the version below (it now follows redirects):</li>
   </ol>
-  <p style="font-size:12px;color:var(--blue);margin-top:8px">
-    ⚠️ If Sheet 2 shows "Got HTML" — open the sheet → File → Share → Publish to web → select the <strong>specific tab</strong> that has the ticket data (not "Entire document") → CSV → Publish
-  </p>
+  <details style="margin-top:10px">
+    <summary style="font-size:13px;font-weight:700;color:var(--blue);cursor:pointer">▶ Updated Cloudflare Worker code (click to expand — must update this)</summary>
+    <pre style="margin-top:8px;font-size:11px;font-family:'JetBrains Mono',monospace;background:rgba(37,99,235,.08);padding:12px;border-radius:8px;overflow-x:auto;color:var(--blue);white-space:pre">export default {
+  async fetch(request) {
+    const url = new URL(request.url);
+    const target = url.searchParams.get("url");
+    if (!target) return new Response("Missing ?url=", { status: 400 });
+
+    // Follow redirects — Google Sheets pub URLs redirect to actual CSV
+    const res = await fetch(target, {
+      redirect: "follow",
+      headers: {
+        "User-Agent": "Mozilla/5.0 (compatible; GoogleSheets-Proxy/1.0)",
+      },
+    });
+
+    const text = await res.text();
+    return new Response(text, {
+      headers: {
+        "Content-Type": "text/csv; charset=utf-8",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET",
+      },
+    });
+  },
+};</pre>
+    <p style="font-size:12px;color:var(--blue);margin-top:8px">Go to <strong>dash.cloudflare.com → Workers & Pages → your worker → Edit code</strong> → paste above → Deploy</p>
+  </details>
 </div>
 
 <!-- ═══ DATE FILTER ═══ -->
@@ -729,24 +753,61 @@ function parseS2(csv){
 }
 
 // ════════ FETCH ════════
-async function fetchCSV(url,proxy){
-  // For URLs already ending in output=csv — pass directly to proxy
-  let csvUrl=url;
-  if(url.includes('docs.google.com/spreadsheets')&&!url.includes('output=csv')){
-    const m=url.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
-    if(!m) throw new Error('Cannot find spreadsheet ID in URL');
-    const gm=url.match(/[#&?]gid=(\d+)/);
-    csvUrl=`https://docs.google.com/spreadsheets/d/${m[1]}/export?format=csv&gid=${gm?gm[1]:'0'}`;
+// Google Sheets pub?output=csv URLs redirect — we must follow them server-side.
+// The worker handles this. We always convert to /export?format=csv which is more reliable.
+function toExportUrl(url) {
+  if (!url.includes('docs.google.com/spreadsheets')) return url;
+  // Already an export URL — keep as is
+  if (url.includes('/export?') || url.includes('/export?format=csv')) return url;
+  // pub? URL — extract spreadsheet ID and gid, rewrite to /export
+  // Both pub and edit URLs have the spreadsheet ID after /d/
+  const mId = url.match(/\/spreadsheets\/d\/e\/([a-zA-Z0-9_-]+)/);
+  const mId2 = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+  const gidM = url.match(/[?&]gid=(\d+)/);
+  const gid = gidM ? gidM[1] : '0';
+  if (mId) {
+    // Published URL format: /d/e/LONG_ID/pub — use pub with output=csv directly
+    const base = url.split('?')[0].replace(/\/pub$/, '');
+    return base + '/pub?gid=' + gid + '&single=true&output=csv';
   }
-  const fetchUrl=proxy.replace(/\/$/,'')+'?url='+encodeURIComponent(csvUrl);
-  console.log('[fetch]',fetchUrl);
-  const res=await fetch(fetchUrl,{cache:'no-store'});
-  if(res.status===404) throw new Error('Worker not found (404) — check Proxy URL');
-  if(!res.ok) throw new Error('Proxy error HTTP '+res.status);
-  const text=await res.text();
-  if(!text.trim()) throw new Error('Empty response. Publish the sheet tab as CSV: File → Share → Publish to web → select the exact tab → CSV → Publish');
-  if(text.trim().toLowerCase().startsWith('<'))
-    throw new Error('Got HTML page instead of CSV. The sheet tab must be published: File → Share → Publish to web → select the specific tab (not Entire Document) → CSV → Publish');
+  if (mId2) {
+    return 'https://docs.google.com/spreadsheets/d/' + mId2[1] + '/export?format=csv&gid=' + gid;
+  }
+  return url;
+}
+
+async function fetchCSV(url, proxy) {
+  const csvUrl = toExportUrl(url.trim());
+  const proxyClean = proxy.replace(/\/$/, '');
+  const fetchUrl = proxyClean + '?url=' + encodeURIComponent(csvUrl);
+  console.log('[fetch] proxy:', proxyClean);
+  console.log('[fetch] csv url:', csvUrl);
+  console.log('[fetch] full:', fetchUrl);
+
+  let res;
+  try {
+    res = await fetch(fetchUrl, { cache: 'no-store' });
+  } catch(netErr) {
+    throw new Error('Network error reaching proxy: ' + netErr.message + '. Check your Proxy URL is correct.');
+  }
+
+  if (res.status === 404) throw new Error('Proxy Worker not found (404). Double-check your Cloudflare Worker URL — it should end in .workers.dev');
+  if (res.status === 403) throw new Error('Proxy blocked (403). Check Cloudflare dashboard — Worker may be paused.');
+  if (res.status === 500) throw new Error('Proxy Worker error (500). Update the Worker code (see below) and redeploy.');
+  if (!res.ok) throw new Error('Proxy returned HTTP ' + res.status);
+
+  const text = await res.text();
+  console.log('[fetch] response length:', text.length, 'starts with:', text.substring(0,80));
+
+  if (!text || !text.trim()) {
+    throw new Error('Empty response from proxy. Make sure the sheet tab is published: File → Share → Publish to web → select the SPECIFIC TAB → CSV → Publish.');
+  }
+  if (text.trim().toLowerCase().startsWith('<!doctype') || text.trim().toLowerCase().startsWith('<html')) {
+    throw new Error('Got Google login/HTML page instead of CSV. Fix: open the sheet → File → Share → Publish to web → in the first dropdown select the SPECIFIC TAB (e.g. "sHEET 2") not "Entire Document" → second dropdown: CSV → click Publish.');
+  }
+  if (text.trim().startsWith('{') || text.trim().startsWith('[')) {
+    throw new Error('Got JSON instead of CSV. Check your proxy Worker code is the correct version.');
+  }
   return text;
 }
 
