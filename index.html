@@ -38,7 +38,7 @@
       --shadow: 0 2px 8px rgba(0,0,0,0.4), 0 0 0 0.5px rgba(255,255,255,0.05);
     }
     body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; transition: background 0.3s, color 0.3s; }
-    /* ── Dark mode toggle ── */
+
     .theme-toggle { display:flex; align-items:center; gap:8px; cursor:pointer; background:var(--surface2); border:1px solid var(--border2); border-radius:99px; padding:5px 12px 5px 8px; font-size:12px; font-weight:500; color:var(--text2); transition:all 0.15s; user-select:none; }
     .theme-toggle:hover { border-color:var(--blue); color:var(--blue); }
     .toggle-track { width:32px; height:18px; border-radius:99px; background:var(--border2); position:relative; transition:background 0.2s; flex-shrink:0; }
@@ -46,7 +46,6 @@
     .toggle-thumb { width:14px; height:14px; border-radius:50%; background:#fff; position:absolute; top:2px; left:2px; transition:transform 0.2s; box-shadow:0 1px 3px rgba(0,0,0,0.3); }
     body.dark .toggle-thumb { transform:translateX(14px); }
 
-    /* ── Header ── */
     .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
     .header-brand { display: flex; align-items: center; gap: 10px; }
     .header-brand svg { width: 28px; height: 28px; }
@@ -54,7 +53,7 @@
     .last-updated { font-size: 12px; color: var(--text3); font-family: 'DM Mono', monospace; }
     .main { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
 
-    /* ── Config ── */
+    /* Config */
     .config-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 10px; box-shadow: var(--shadow); }
     .config-section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text3); padding-bottom: 2px; border-bottom: 1px solid var(--border); margin-top: 4px; }
     .config-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -63,10 +62,10 @@
     .config-row input[type=text]:focus { border-color: var(--blue); background: var(--surface); }
     .config-row input[type=text]::placeholder { color: var(--text3); }
 
-    /* ── Filter ── */
+    /* Filter */
     .filter-bar { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; box-shadow: var(--shadow); }
     .filter-bar label { font-size: 13px; font-weight: 500; color: var(--text2); white-space: nowrap; }
-    .filter-bar input[type=date] { font-size: 13px; font-family: 'DM Sans', sans-serif; padding: 7px 10px; border: 1px solid var(--border2); border-radius: var(--radius); background: var(--surface2); color: var(--text); outline: none; cursor: pointer; }
+    .filter-bar input[type=date] { font-size: 13px; padding: 7px 10px; border: 1px solid var(--border2); border-radius: var(--radius); background: var(--surface2); color: var(--text); outline: none; cursor: pointer; }
     .filter-bar input[type=date]:focus { border-color: var(--blue); background: var(--surface); }
     .filter-sep { font-size: 13px; color: var(--text3); }
     .filter-active-badge { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 99px; background: var(--amber-light); color: var(--amber); border: 1px solid rgba(212,130,10,0.25); }
@@ -74,13 +73,15 @@
     .btn-clear:hover { background: var(--surface2); color: var(--text2); }
     .filter-count { font-size: 12px; color: var(--text3); margin-left: auto; }
 
-    /* ── Tabs ── */
+    /* Tabs */
     .tabs { display: flex; gap: 4px; background: var(--surface2); border-radius: var(--radius); padding: 4px; margin-bottom: 1.5rem; width: fit-content; flex-wrap: wrap; }
     .tab { font-size: 13px; font-weight: 500; padding: 7px 16px; border-radius: 8px; border: none; background: none; cursor: pointer; color: var(--text2); transition: all 0.15s; white-space: nowrap; }
     .tab:hover { color: var(--text); background: rgba(255,255,255,0.6); }
     .tab.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+    /* Sub-tab strip */
+    .subtabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 4px; margin-bottom: 1.5rem; width: fit-content; flex-wrap: wrap; box-shadow: var(--shadow); }
 
-    /* ── Buttons ── */
+    /* Buttons */
     .btn { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 500; font-family: 'DM Sans', sans-serif; padding: 8px 16px; border-radius: var(--radius); border: 1px solid var(--border2); cursor: pointer; transition: all 0.15s; background: var(--surface); color: var(--text); white-space: nowrap; }
     .btn:hover { background: var(--surface2); }
     .btn-primary { background: var(--blue); color: #fff; border-color: var(--blue-dark); }
@@ -89,15 +90,15 @@
     .btn.spinning svg { animation: spin 0.7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── Status pills ── */
+    /* Pills */
     .pill-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .status-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 4px 10px; border-radius: 99px; background: var(--surface2); color: var(--text2); border: 1px solid var(--border); white-space: nowrap; }
-    .status-pill.ok  { background: var(--green-light);  color: var(--green);  border-color: rgba(31,122,62,0.2); }
-    .status-pill.err { background: var(--red-light);    color: var(--red);    border-color: rgba(192,57,43,0.2); }
-    .status-pill.loading { background: var(--blue-light); color: var(--blue); border-color: rgba(26,110,245,0.2); }
+    .status-pill.ok      { background: var(--green-light);  color: var(--green);  border-color: rgba(31,122,62,0.2); }
+    .status-pill.err     { background: var(--red-light);    color: var(--red);    border-color: rgba(192,57,43,0.2); }
+    .status-pill.loading { background: var(--blue-light);   color: var(--blue);   border-color: rgba(26,110,245,0.2); }
     .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
 
-    /* ── KPI Metrics ── */
+    /* Metrics */
     .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
     .metric { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.1rem 1.25rem; box-shadow: var(--shadow); position: relative; overflow: hidden; }
     .metric::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background: var(--metric-color, var(--blue)); }
@@ -107,16 +108,16 @@
 
     .section-title { font-size: 12px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
 
-    /* ── Charger selector ── */
+    /* Charger selector */
     .charger-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow); }
-    .charger-search { width: 100%; max-width: 280px; font-size: 13px; padding: 7px 12px; border: 1px solid var(--border2); border-radius: var(--radius); background: var(--surface2); color: var(--text); margin-bottom: 14px; outline: none; font-family: 'DM Sans', sans-serif; }
+    .charger-search { width: 100%; max-width: 280px; font-size: 13px; padding: 7px 12px; border: 1px solid var(--border2); border-radius: var(--radius); background: var(--surface2); color: var(--text); margin-bottom: 14px; outline: none; }
     .charger-search:focus { border-color: var(--blue); background: var(--surface); }
     .charger-grid { display: flex; flex-wrap: wrap; gap: 8px; }
     .chip { font-size: 12px; font-family: 'DM Mono', monospace; font-weight: 500; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border2); cursor: pointer; background: var(--surface2); color: var(--text2); transition: all 0.12s; user-select: none; }
     .chip:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
     .chip.active { background: var(--blue); color: #fff; border-color: var(--blue-dark); box-shadow: 0 2px 8px rgba(26,110,245,0.3); }
 
-    /* ── Detail banner ── */
+    /* Detail banner */
     .detail-banner { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; box-shadow: var(--shadow); }
     .detail-id { font-size: 22px; font-weight: 600; font-family: 'DM Mono', monospace; letter-spacing: -0.5px; }
     .detail-tags { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -124,15 +125,13 @@
     .tag-blue { background: var(--blue-light); color: var(--blue-dark); }
     .tag-gray { background: var(--gray-light); color: var(--gray); }
 
-    /* ── Grids & Cards ── */
+    /* Grids & Cards */
     .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 1.5rem; }
-    .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 1.5rem; }
-    @media (max-width: 900px) { .grid3 { grid-template-columns: 1fr 1fr; } }
-    @media (max-width: 700px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+    @media (max-width: 700px) { .grid2 { grid-template-columns: 1fr; } }
     .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; box-shadow: var(--shadow); }
     .card-mb { margin-bottom: 1.5rem; }
 
-    /* ── Group breakdown ── */
+    /* Group breakdown */
     .group-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; box-shadow: var(--shadow); margin-bottom: 12px; }
     .group-header { display: flex; align-items: flex-start; justify-content: space-between; cursor: pointer; user-select: none; }
     .group-name { font-size: 15px; font-weight: 600; }
@@ -140,16 +139,16 @@
     .group-chevron.open { transform: rotate(180deg); }
     .group-body { overflow: hidden; transition: max-height 0.35s ease; }
 
-    /* ── Bar charts ── */
+    /* Bar charts */
     .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
     .bar-row:last-child { margin-bottom: 0; }
     .bar-label { font-size: 12px; color: var(--text2); width: 180px; min-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .bar-label.narrow { width: 130px; min-width: 130px; }
     .bar-track { flex: 1; height: 18px; background: var(--surface2); border-radius: 5px; overflow: hidden; }
     .bar-fill { height: 100%; border-radius: 5px; transition: width 0.5s cubic-bezier(.4,0,.2,1); min-width: 3px; }
-    .bar-num { font-size: 12px; font-weight: 600; font-family: 'DM Mono', monospace; min-width: 54px; text-align: right; color: var(--text); }
+    .bar-num { font-size: 12px; font-weight: 600; font-family: 'DM Mono', monospace; min-width: 60px; text-align: right; color: var(--text); }
 
-    /* ── Tables ── */
+    /* Tables */
     .tbl-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 13px; }
     th { text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); padding: 8px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
@@ -159,7 +158,7 @@
     .mono { font-family: 'DM Mono', monospace; font-size: 12px; }
     .badge { display: inline-flex; align-items: center; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 6px; white-space: nowrap; }
 
-    /* ── Utility ── */
+    /* Utility */
     .no-data { text-align: center; padding: 2rem 0; color: var(--text3); font-size: 14px; }
     .hidden { display: none !important; }
     .tab-panel { display: none; }
@@ -167,15 +166,15 @@
     .subtab-panel { display: none; }
     .subtab-panel.active { display: block; }
 
-    /* ── Howto ── */
+    /* Howto */
     .howto { background: var(--blue-light); border: 1px solid rgba(26,110,245,0.15); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; }
     .howto h3 { font-size: 14px; font-weight: 600; color: var(--blue-dark); margin-bottom: 10px; }
     .howto ol { padding-left: 1.2rem; }
     .howto li { font-size: 13px; color: var(--blue-dark); margin-bottom: 6px; line-height: 1.6; }
     .howto code { font-family: 'DM Mono', monospace; background: rgba(26,110,245,0.12); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
 
-    /* ── Section note ── */
-    .section-note { font-size: 12px; color: var(--text3); margin-bottom: 12px; }
+    /* Units badge on metric card */
+    .units-badge { display:inline-block; font-size:10px; font-weight:600; padding:1px 6px; border-radius:4px; background:var(--amber-light); color:var(--amber); margin-left:6px; vertical-align:middle; }
   </style>
 </head>
 <body>
@@ -200,20 +199,18 @@
 
 <main class="main">
 
-  <!-- ═══ CONFIG ═══ -->
+  <!-- CONFIG -->
   <div class="config-card">
     <div class="config-section-label">Sheet 1 — Charger Downtime / Power Cut Data</div>
     <div class="config-row">
       <label>📊 Sheet 1 CSV URL</label>
       <input type="text" id="sheetUrl" placeholder="https://docs.google.com/spreadsheets/d/…/pub?output=csv" />
     </div>
-
-    <div class="config-section-label" style="margin-top:6px;">Sheet 2 — Daily Complaints, Monthly Maintenance & Replacement</div>
+    <div class="config-section-label" style="margin-top:6px;">Sheet 2 — Daily Complaints, Monthly Maintenance &amp; Replacement</div>
     <div class="config-row">
       <label>📋 Sheet 2 CSV URL</label>
       <input type="text" id="sheet2Url" placeholder="Paste new Google Sheet published CSV URL…" />
     </div>
-
     <div class="config-section-label" style="margin-top:6px;">Proxy</div>
     <div class="config-row">
       <label>🔁 Cloudflare Proxy URL</label>
@@ -234,20 +231,20 @@
     </div>
   </div>
 
-  <!-- ═══ HOWTO ═══ -->
+  <!-- HOWTO -->
   <div class="howto" id="howto">
     <h3>🔗 Setup (one-time)</h3>
     <ol>
-      <li><strong>Sheet 1 (Downtime):</strong> Google Sheet → File → Share → Publish to web → select downtime tab → <code>CSV</code> → Publish → copy URL → paste above</li>
-      <li><strong>Sheet 2 (Complaints / Maintenance / Replacement):</strong> Open your new Google Sheet → same steps → select the correct tab → <code>CSV</code> → Publish → paste above. The Activity/Type column should contain <code>Daily Complaint</code>, <code>Monthly Maintenance</code>, or <code>Replacement</code> to route rows to the right tab.</li>
+      <li><strong>Sheet 1 (Downtime):</strong> Google Sheet → File → Share → Publish to web → select tab → <code>CSV</code> → Publish → copy URL → paste above</li>
+      <li><strong>Sheet 2 (Complaints / Maintenance / Replacement):</strong> Same steps on new sheet. The Activity/Type column should contain <code>Daily Complaint</code>, <code>Monthly Maintenance</code>, or <code>Replacement</code>.</li>
       <li>Paste your <strong>Cloudflare Proxy URL</strong> (e.g. <code>https://manish.pdgncr.workers.dev/</code>) → click <strong>Refresh All Data</strong></li>
     </ol>
     <p style="font-size:12px;color:var(--blue-dark);margin-top:10px;">
-      ⚡ Sheet 2 expected columns: <code>Charger Name</code>, <code>City</code>, <code>Zone</code>, <code>Activity / Type</code>, <code>RCA</code>, <code>Emp Name</code>, <code>Ticket Close</code>, <code>Resolution Hrs</code>, <code>Damage List</code>, <code>Aux Bat Voltage</code>, <code>Remrks</code>
+      ⚡ Hours column: dashboard auto-detects seconds vs hours. If values look wrong, check the <code>Expected Power Down Time (HRS)</code> column is actually in hours not seconds.
     </p>
   </div>
 
-  <!-- ═══ DATE FILTER ═══ -->
+  <!-- DATE FILTER -->
   <div class="filter-bar">
     <label>📅 Date range</label>
     <input type="date" id="dateFrom" onchange="applyFilter()" />
@@ -258,50 +255,69 @@
     <span class="filter-count" id="filterCount"></span>
   </div>
 
-  <!-- ═══ GLOBAL KPI ═══ -->
-  <div class="metrics" id="globalMetrics">
-    <div class="metric" style="--metric-color:var(--blue)"><div class="metric-label">Downtime Events</div><div class="metric-val" id="mTotal">—</div></div>
-    <div class="metric" style="--metric-color:var(--purple)"><div class="metric-label">Unique Chargers</div><div class="metric-val" id="mChargers">—</div></div>
-    <div class="metric" style="--metric-color:var(--red)"><div class="metric-label">Total Downtime</div><div class="metric-val" id="mHours">—</div><div class="metric-sub">hours</div></div>
-    <div class="metric" style="--metric-color:var(--amber)"><div class="metric-label">Avg / Event</div><div class="metric-val" id="mAvg">—</div><div class="metric-sub">hours</div></div>
-    <div class="metric" style="--metric-color:var(--green)"><div class="metric-label">Daily Complaints</div><div class="metric-val" id="mComplaints">—</div></div>
-    <div class="metric" style="--metric-color:var(--teal)"><div class="metric-label">Maintenance</div><div class="metric-val" id="mMaint">—</div></div>
-    <div class="metric" style="--metric-color:var(--orange)"><div class="metric-label">Replacements</div><div class="metric-val" id="mReplace">—</div></div>
+  <!-- GLOBAL KPI -->
+  <div class="metrics">
+    <div class="metric" style="--metric-color:var(--blue)">
+      <div class="metric-label">Downtime Events</div>
+      <div class="metric-val" id="mTotal">—</div>
+    </div>
+    <div class="metric" style="--metric-color:var(--purple)">
+      <div class="metric-label">Unique Chargers</div>
+      <div class="metric-val" id="mChargers">—</div>
+    </div>
+    <div class="metric" style="--metric-color:var(--red)">
+      <div class="metric-label">Total Downtime <span class="units-badge" id="unitsHint" style="display:none"></span></div>
+      <div class="metric-val" id="mHours">—</div>
+      <div class="metric-sub">hours</div>
+    </div>
+    <div class="metric" style="--metric-color:var(--amber)">
+      <div class="metric-label">Avg / Event</div>
+      <div class="metric-val" id="mAvg">—</div>
+      <div class="metric-sub">hours</div>
+    </div>
+    <div class="metric" style="--metric-color:var(--green)">
+      <div class="metric-label">Daily Complaints</div>
+      <div class="metric-val" id="mComplaints">—</div>
+    </div>
+    <div class="metric" style="--metric-color:var(--teal)">
+      <div class="metric-label">Maintenance</div>
+      <div class="metric-val" id="mMaint">—</div>
+    </div>
+    <div class="metric" style="--metric-color:var(--orange)">
+      <div class="metric-label">Replacements</div>
+      <div class="metric-val" id="mReplace">—</div>
+    </div>
   </div>
 
-  <!-- ═══ TABS ═══ -->
+  <!-- MAIN TABS -->
   <div class="tabs">
     <button class="tab main-tab-btn active" data-tab="chargerdowntime" onclick="switchTab('chargerdowntime')">⚡ Charger Downtime</button>
-    <button class="tab main-tab-btn" data-tab="complaint" onclick="switchTab('complaint')">🔧 Daily Complaints</button>
-    <button class="tab main-tab-btn" data-tab="maintenance" onclick="switchTab('maintenance')">🔩 Monthly Maintenance</button>
-    <button class="tab main-tab-btn" data-tab="replacement" onclick="switchTab('replacement')">🔄 Replacement</button>
+    <button class="tab main-tab-btn" data-tab="complaint"      onclick="switchTab('complaint')">🔧 Daily Complaints</button>
+    <button class="tab main-tab-btn" data-tab="maintenance"    onclick="switchTab('maintenance')">🔩 Monthly Maintenance</button>
+    <button class="tab main-tab-btn" data-tab="replacement"    onclick="switchTab('replacement')">🔄 Replacement</button>
   </div>
 
-  <!-- ═══ TAB: CHARGER DOWNTIME (main wrapper with sub-tabs) ═══ -->
+  <!-- ══════════════════════════════════════════
+       TAB: CHARGER DOWNTIME
+  ══════════════════════════════════════════ -->
   <div class="tab-panel active" id="tab-chargerdowntime">
-    <div class="tabs" style="margin-bottom:1.5rem;background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);">
-      <button class="tab sub-tab-btn active" data-subtab="overview" onclick="switchSubTab('overview')">⚡ Overview</button>
-      <button class="tab sub-tab-btn" data-subtab="charger" onclick="switchSubTab('charger')">🔌 By Charger</button>
-      <button class="tab sub-tab-btn" data-subtab="zone" onclick="switchSubTab('zone')">📍 By Zone</button>
-      <button class="tab sub-tab-btn" data-subtab="city" onclick="switchSubTab('city')">🌆 By City</button>
+    <div class="subtabs">
+      <button class="tab sub-tab-btn active" data-subtab="dt-overview" onclick="switchSubTab('chargerdowntime','dt-overview')">⚡ Overview</button>
+      <button class="tab sub-tab-btn"        data-subtab="dt-charger"  onclick="switchSubTab('chargerdowntime','dt-charger')">🔌 By Charger</button>
+      <button class="tab sub-tab-btn"        data-subtab="dt-zone"     onclick="switchSubTab('chargerdowntime','dt-zone')">📍 By Zone</button>
+      <button class="tab sub-tab-btn"        data-subtab="dt-city"     onclick="switchSubTab('chargerdowntime','dt-city')">🌆 By City</button>
     </div>
 
-    <!-- SUB: OVERVIEW -->
-    <div class="subtab-panel active" id="subtab-overview">
+    <!-- DT: Overview -->
+    <div class="subtab-panel active" id="subtab-dt-overview">
       <div class="grid2">
-        <div class="card">
-          <div class="section-title">Top Chargers by Downtime (hrs)</div>
-          <div id="topChargersChart"><div class="no-data">Load data first</div></div>
-        </div>
-        <div class="card">
-          <div class="section-title">RCA Distribution — All</div>
-          <div id="globalRcaChart"><div class="no-data">Load data first</div></div>
-        </div>
+        <div class="card"><div class="section-title">Top Chargers by Downtime (hrs)</div><div id="topChargersChart"><div class="no-data">Load data first</div></div></div>
+        <div class="card"><div class="section-title">RCA Distribution — All</div><div id="globalRcaChart"><div class="no-data">Load data first</div></div></div>
       </div>
     </div>
 
-    <!-- SUB: BY CHARGER -->
-    <div class="subtab-panel hidden" id="subtab-charger">
+    <!-- DT: By Charger -->
+    <div class="subtab-panel" id="subtab-dt-charger">
       <div class="charger-wrap">
         <div class="section-title">Select Charger ID</div>
         <input type="text" class="charger-search" id="chargerSearch" placeholder="Search charger ID…" oninput="filterChips()" />
@@ -331,8 +347,8 @@
       </div>
     </div>
 
-    <!-- SUB: BY ZONE -->
-    <div class="subtab-panel hidden" id="subtab-zone">
+    <!-- DT: By Zone -->
+    <div class="subtab-panel" id="subtab-dt-zone">
       <div class="grid2" style="margin-bottom:1rem;">
         <div class="card"><div class="section-title">Total Downtime hrs by Zone</div><div id="zoneHrsChart"><div class="no-data">Load data first</div></div></div>
         <div class="card"><div class="section-title">RCA Distribution — All Zones</div><div id="zoneGlobalRcaChart"><div class="no-data">Load data first</div></div></div>
@@ -341,8 +357,8 @@
       <div id="zoneBreakdownList"></div>
     </div>
 
-    <!-- SUB: BY CITY -->
-    <div class="subtab-panel hidden" id="subtab-city">
+    <!-- DT: By City -->
+    <div class="subtab-panel" id="subtab-dt-city">
       <div class="grid2" style="margin-bottom:1rem;">
         <div class="card"><div class="section-title">Total Downtime hrs by City</div><div id="cityHrsChart"><div class="no-data">Load data first</div></div></div>
         <div class="card"><div class="section-title">RCA Distribution — All Cities</div><div id="cityGlobalRcaChart"><div class="no-data">Load data first</div></div></div>
@@ -352,94 +368,191 @@
     </div>
   </div>
 
-  <!-- ═══ TAB: DAILY COMPLAINTS ═══ -->
+  <!-- ══════════════════════════════════════════
+       TAB: DAILY COMPLAINTS
+  ══════════════════════════════════════════ -->
   <div class="tab-panel" id="tab-complaint">
-    <div class="metrics" style="margin-bottom:1.5rem;">
-      <div class="metric" style="--metric-color:var(--blue)"><div class="metric-label">Total Complaints</div><div class="metric-val" id="cTotal">—</div></div>
-      <div class="metric" style="--metric-color:var(--green)"><div class="metric-label">Avg Resolution</div><div class="metric-val" id="cAvgRes">—</div><div class="metric-sub">hours</div></div>
-      <div class="metric" style="--metric-color:var(--purple)"><div class="metric-label">Unique Chargers</div><div class="metric-val" id="cChargers">—</div></div>
-      <div class="metric" style="--metric-color:var(--red)"><div class="metric-label">Repeat Offenders</div><div class="metric-val" id="cRepeat">—</div><div class="metric-sub">≥3 same RCA</div></div>
-      <div class="metric" style="--metric-color:var(--teal)"><div class="metric-label">Technicians</div><div class="metric-val" id="cTechs">—</div></div>
+    <div class="subtabs">
+      <button class="tab sub-tab-btn active" data-subtab="c-summary"  onclick="switchSubTab('complaint','c-summary')">📊 Summary</button>
+      <button class="tab sub-tab-btn"        data-subtab="c-zone"     onclick="switchSubTab('complaint','c-zone')">📍 By Zone</button>
+      <button class="tab sub-tab-btn"        data-subtab="c-city"     onclick="switchSubTab('complaint','c-city')">🌆 By City</button>
+      <button class="tab sub-tab-btn"        data-subtab="c-charger"  onclick="switchSubTab('complaint','c-charger')">🔌 By Charger</button>
+      <button class="tab sub-tab-btn"        data-subtab="c-tech"     onclick="switchSubTab('complaint','c-tech')">👷 Technicians</button>
     </div>
-    <div class="grid2">
-      <div class="card"><div class="section-title">🔧 RCA Breakdown — Count</div><div id="cChartRca"><div class="no-data">Load Sheet 2 data</div></div></div>
-      <div class="card"><div class="section-title">⏱ Avg Resolution Hrs by RCA</div><div id="cChartRcaAvg"><div class="no-data">Load Sheet 2 data</div></div></div>
-    </div>
-    <div class="grid2">
-      <div class="card"><div class="section-title">📍 Complaints by Zone</div><div id="cChartZone"><div class="no-data">Load Sheet 2 data</div></div></div>
-      <div class="card"><div class="section-title">🌆 Complaints by City</div><div id="cChartCity"><div class="no-data">Load Sheet 2 data</div></div></div>
-    </div>
-    <div class="card card-mb">
-      <div class="section-title">🔁 Repeat Offenders (≥3 visits, same RCA)</div>
-      <div class="tbl-wrap">
-        <table><thead><tr><th>Charger Name</th><th>City</th><th>RCA</th><th style="text-align:right">Visits</th><th style="text-align:right">Avg Res Hrs</th></tr></thead>
-        <tbody id="cRepeatBody"><tr><td colspan="5" class="no-data">Load Sheet 2 first</td></tr></tbody></table>
+
+    <!-- C: Summary -->
+    <div class="subtab-panel active" id="subtab-c-summary">
+      <div class="metrics" style="margin-bottom:1.5rem;">
+        <div class="metric" style="--metric-color:var(--blue)"><div class="metric-label">Total Complaints</div><div class="metric-val" id="cTotal">—</div></div>
+        <div class="metric" style="--metric-color:var(--green)"><div class="metric-label">Avg Resolution</div><div class="metric-val" id="cAvgRes">—</div><div class="metric-sub">hours</div></div>
+        <div class="metric" style="--metric-color:var(--purple)"><div class="metric-label">Unique Chargers</div><div class="metric-val" id="cChargers">—</div></div>
+        <div class="metric" style="--metric-color:var(--red)"><div class="metric-label">Repeat Offenders</div><div class="metric-val" id="cRepeat">—</div><div class="metric-sub">≥3 same RCA</div></div>
+        <div class="metric" style="--metric-color:var(--teal)"><div class="metric-label">Technicians</div><div class="metric-val" id="cTechs">—</div></div>
+      </div>
+      <div class="grid2">
+        <div class="card"><div class="section-title">🔧 RCA Breakdown — Count</div><div id="cChartRca"><div class="no-data">Load Sheet 2 data</div></div></div>
+        <div class="card"><div class="section-title">⏱ Avg Resolution Hrs by RCA</div><div id="cChartRcaAvg"><div class="no-data">Load Sheet 2 data</div></div></div>
+      </div>
+      <div class="card card-mb">
+        <div class="section-title">🔁 Repeat Offenders (≥3 visits, same RCA)</div>
+        <div class="tbl-wrap">
+          <table><thead><tr><th>Charger Name</th><th>City</th><th>RCA</th><th style="text-align:right">Visits</th><th style="text-align:right">Avg Res Hrs</th></tr></thead>
+          <tbody id="cRepeatBody"><tr><td colspan="5" class="no-data">Load Sheet 2 first</td></tr></tbody></table>
+        </div>
       </div>
     </div>
-    <div class="card card-mb">
-      <div class="section-title">🏆 Most Complained Chargers — Top 15</div>
-      <div class="tbl-wrap">
-        <table><thead><tr><th>#</th><th>Charger Name</th><th>City</th><th style="text-align:right">Visits</th><th style="text-align:right">Avg Res Hrs</th><th>Top RCA</th></tr></thead>
-        <tbody id="cWorstBody"><tr><td colspan="6" class="no-data">Load Sheet 2 first</td></tr></tbody></table>
+
+    <!-- C: By Zone -->
+    <div class="subtab-panel" id="subtab-c-zone">
+      <div class="grid2">
+        <div class="card"><div class="section-title">📍 Complaints by Zone</div><div id="cChartZone"><div class="no-data">Load Sheet 2 data</div></div></div>
+        <div class="card"><div class="section-title">📍 Zone — Avg Resolution Hrs</div><div id="cChartZoneAvg"><div class="no-data">Load Sheet 2 data</div></div></div>
+      </div>
+      <div class="section-title">Zone-by-Zone Complaint Breakdown</div>
+      <div id="cZoneBreakdown"></div>
+    </div>
+
+    <!-- C: By City -->
+    <div class="subtab-panel" id="subtab-c-city">
+      <div class="grid2">
+        <div class="card"><div class="section-title">🌆 Complaints by City</div><div id="cChartCity"><div class="no-data">Load Sheet 2 data</div></div></div>
+        <div class="card"><div class="section-title">🌆 City — Avg Resolution Hrs</div><div id="cChartCityAvg"><div class="no-data">Load Sheet 2 data</div></div></div>
+      </div>
+      <div class="section-title">City-by-City Complaint Breakdown</div>
+      <div id="cCityBreakdown"></div>
+    </div>
+
+    <!-- C: By Charger -->
+    <div class="subtab-panel" id="subtab-c-charger">
+      <div class="card card-mb">
+        <div class="section-title">🏆 Most Complained Chargers — Top 15</div>
+        <div class="tbl-wrap">
+          <table><thead><tr><th>#</th><th>Charger Name</th><th>City</th><th style="text-align:right">Visits</th><th style="text-align:right">Avg Res Hrs</th><th>Top RCA</th></tr></thead>
+          <tbody id="cWorstBody"><tr><td colspan="6" class="no-data">Load Sheet 2 first</td></tr></tbody></table>
+        </div>
       </div>
     </div>
-    <div class="card card-mb">
-      <div class="section-title">👷 Technician Performance</div>
-      <div id="cChartEmp"><div class="no-data">Load Sheet 2 data</div></div>
+
+    <!-- C: Technicians -->
+    <div class="subtab-panel" id="subtab-c-tech">
+      <div class="card card-mb">
+        <div class="section-title">👷 Technician Performance — Tickets Closed</div>
+        <div id="cChartEmp"><div class="no-data">Load Sheet 2 data</div></div>
+      </div>
+      <div class="card card-mb">
+        <div class="section-title">⏱ Technician — Avg Resolution Hrs</div>
+        <div id="cChartEmpAvg"><div class="no-data">Load Sheet 2 data</div></div>
+      </div>
     </div>
   </div>
 
-  <!-- ═══ TAB: MONTHLY MAINTENANCE ═══ -->
+  <!-- ══════════════════════════════════════════
+       TAB: MONTHLY MAINTENANCE
+  ══════════════════════════════════════════ -->
   <div class="tab-panel" id="tab-maintenance">
-    <div class="metrics" style="margin-bottom:1.5rem;">
-      <div class="metric" style="--metric-color:var(--teal)"><div class="metric-label">Total Activities</div><div class="metric-val" id="mntTotal">—</div></div>
-      <div class="metric" style="--metric-color:var(--blue)"><div class="metric-label">Chargers Serviced</div><div class="metric-val" id="mntChargers">—</div></div>
-      <div class="metric" style="--metric-color:var(--red)"><div class="metric-label">With Damage</div><div class="metric-val" id="mntDamage">—</div></div>
-      <div class="metric" style="--metric-color:var(--amber)"><div class="metric-label">Avg Aux Battery</div><div class="metric-val" id="mntAvgV">—</div><div class="metric-sub">volts</div></div>
+    <div class="subtabs">
+      <button class="tab sub-tab-btn active" data-subtab="m-summary" onclick="switchSubTab('maintenance','m-summary')">📊 Summary</button>
+      <button class="tab sub-tab-btn"        data-subtab="m-zone"    onclick="switchSubTab('maintenance','m-zone')">📍 By Zone / City</button>
+      <button class="tab sub-tab-btn"        data-subtab="m-damage"  onclick="switchSubTab('maintenance','m-damage')">⚠️ Damage Report</button>
+      <button class="tab sub-tab-btn"        data-subtab="m-log"     onclick="switchSubTab('maintenance','m-log')">📋 Full Log</button>
     </div>
-    <div class="grid2">
-      <div class="card"><div class="section-title">📍 Activities by Zone / City</div><div id="mntChartZone"><div class="no-data">Load Sheet 2 data</div></div></div>
-      <div class="card"><div class="section-title">🔋 Aux Battery Voltage Distribution</div><div id="mntChartVolt"><div class="no-data">Load Sheet 2 data</div></div></div>
-    </div>
-    <div class="card card-mb">
-      <div class="section-title">⚠️ Damaged Chargers List</div>
-      <div class="tbl-wrap">
-        <table><thead><tr><th>Charger Name</th><th>City</th><th>Damage</th><th>Remarks</th><th>Technician</th><th>Date</th></tr></thead>
-        <tbody id="mntDamageBody"><tr><td colspan="6" class="no-data">Load Sheet 2 first</td></tr></tbody></table>
+
+    <!-- M: Summary -->
+    <div class="subtab-panel active" id="subtab-m-summary">
+      <div class="metrics" style="margin-bottom:1.5rem;">
+        <div class="metric" style="--metric-color:var(--teal)"><div class="metric-label">Total Activities</div><div class="metric-val" id="mntTotal">—</div></div>
+        <div class="metric" style="--metric-color:var(--blue)"><div class="metric-label">Chargers Serviced</div><div class="metric-val" id="mntChargers">—</div></div>
+        <div class="metric" style="--metric-color:var(--red)"><div class="metric-label">With Damage</div><div class="metric-val" id="mntDamage">—</div></div>
+        <div class="metric" style="--metric-color:var(--amber)"><div class="metric-label">Avg Aux Battery</div><div class="metric-val" id="mntAvgV">—</div><div class="metric-sub">volts</div></div>
+      </div>
+      <div class="grid2">
+        <div class="card"><div class="section-title">🔋 Aux Battery Voltage Distribution</div><div id="mntChartVolt"><div class="no-data">Load Sheet 2 data</div></div></div>
+        <div class="card"><div class="section-title">🔋 Low Voltage Chargers (&lt; 12V)</div><div id="mntLowVolt"><div class="no-data">Load Sheet 2 data</div></div></div>
       </div>
     </div>
-    <div class="card card-mb">
-      <div class="section-title">📋 All Maintenance Records — <span id="mntCount"></span></div>
-      <div class="tbl-wrap">
-        <table><thead><tr><th>Charger Name</th><th>City</th><th>Technician</th><th>Remarks</th><th style="text-align:right">Aux V</th><th>Date</th></tr></thead>
-        <tbody id="mntLogBody"><tr><td colspan="6" class="no-data">Load Sheet 2 first</td></tr></tbody></table>
+
+    <!-- M: By Zone/City -->
+    <div class="subtab-panel" id="subtab-m-zone">
+      <div class="grid2">
+        <div class="card"><div class="section-title">📍 Activities by Zone</div><div id="mntChartZone"><div class="no-data">Load Sheet 2 data</div></div></div>
+        <div class="card"><div class="section-title">🌆 Activities by City</div><div id="mntChartCity"><div class="no-data">Load Sheet 2 data</div></div></div>
+      </div>
+    </div>
+
+    <!-- M: Damage -->
+    <div class="subtab-panel" id="subtab-m-damage">
+      <div class="card card-mb">
+        <div class="section-title">⚠️ Damaged Chargers List</div>
+        <div class="tbl-wrap">
+          <table><thead><tr><th>Charger Name</th><th>City</th><th>Damage</th><th>Remarks</th><th>Technician</th><th>Date</th></tr></thead>
+          <tbody id="mntDamageBody"><tr><td colspan="6" class="no-data">Load Sheet 2 first</td></tr></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- M: Full Log -->
+    <div class="subtab-panel" id="subtab-m-log">
+      <div class="card card-mb">
+        <div class="section-title">📋 All Maintenance Records — <span id="mntCount"></span></div>
+        <div class="tbl-wrap">
+          <table><thead><tr><th>Charger Name</th><th>City</th><th>Technician</th><th>Remarks</th><th style="text-align:right">Aux V</th><th>Date</th></tr></thead>
+          <tbody id="mntLogBody"><tr><td colspan="6" class="no-data">Load Sheet 2 first</td></tr></tbody></table>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- ═══ TAB: REPLACEMENT ═══ -->
+  <!-- ══════════════════════════════════════════
+       TAB: REPLACEMENT
+  ══════════════════════════════════════════ -->
   <div class="tab-panel" id="tab-replacement">
-    <div class="metrics" style="margin-bottom:1.5rem;">
-      <div class="metric" style="--metric-color:var(--orange)"><div class="metric-label">Total Replacements</div><div class="metric-val" id="rTotal">—</div></div>
-      <div class="metric" style="--metric-color:var(--blue)"><div class="metric-label">Chargers Affected</div><div class="metric-val" id="rChargers">—</div></div>
-      <div class="metric" style="--metric-color:var(--purple)"><div class="metric-label">Unique Parts</div><div class="metric-val" id="rParts">—</div></div>
+    <div class="subtabs">
+      <button class="tab sub-tab-btn active" data-subtab="r-summary" onclick="switchSubTab('replacement','r-summary')">📊 Summary</button>
+      <button class="tab sub-tab-btn"        data-subtab="r-zone"    onclick="switchSubTab('replacement','r-zone')">📍 By Zone / City</button>
+      <button class="tab sub-tab-btn"        data-subtab="r-charger" onclick="switchSubTab('replacement','r-charger')">🔌 By Charger</button>
+      <button class="tab sub-tab-btn"        data-subtab="r-log"     onclick="switchSubTab('replacement','r-log')">📋 Full Log</button>
     </div>
-    <div class="grid2">
-      <div class="card"><div class="section-title">🔩 Parts Replaced (by count)</div><div id="rChartParts"><div class="no-data">Load Sheet 2 data</div></div></div>
-      <div class="card"><div class="section-title">🌆 Replacements by City</div><div id="rChartCity"><div class="no-data">Load Sheet 2 data</div></div></div>
-    </div>
-    <div class="card card-mb">
-      <div class="section-title">🏆 Most Replaced Chargers — Top 15</div>
-      <div class="tbl-wrap">
-        <table><thead><tr><th>#</th><th>Charger Name</th><th>City</th><th>Parts Replaced</th><th style="text-align:right">Count</th></tr></thead>
-        <tbody id="rWorstBody"><tr><td colspan="5" class="no-data">Load Sheet 2 first</td></tr></tbody></table>
+
+    <!-- R: Summary -->
+    <div class="subtab-panel active" id="subtab-r-summary">
+      <div class="metrics" style="margin-bottom:1.5rem;">
+        <div class="metric" style="--metric-color:var(--orange)"><div class="metric-label">Total Replacements</div><div class="metric-val" id="rTotal">—</div></div>
+        <div class="metric" style="--metric-color:var(--blue)"><div class="metric-label">Chargers Affected</div><div class="metric-val" id="rChargers">—</div></div>
+        <div class="metric" style="--metric-color:var(--purple)"><div class="metric-label">Unique Parts</div><div class="metric-val" id="rParts">—</div></div>
+      </div>
+      <div class="grid2">
+        <div class="card"><div class="section-title">🔩 Parts Replaced (by count)</div><div id="rChartParts"><div class="no-data">Load Sheet 2 data</div></div></div>
+        <div class="card"><div class="section-title">📈 Replacements Over Time (by month)</div><div id="rChartMonth"><div class="no-data">Load Sheet 2 data</div></div></div>
       </div>
     </div>
-    <div class="card card-mb">
-      <div class="section-title">📋 All Replacement Records</div>
-      <div class="tbl-wrap">
-        <table><thead><tr><th>Charger Name</th><th>City</th><th>Part / Damage</th><th>Technician</th><th>Date</th></tr></thead>
-        <tbody id="rLogBody"><tr><td colspan="5" class="no-data">Load Sheet 2 first</td></tr></tbody></table>
+
+    <!-- R: By Zone/City -->
+    <div class="subtab-panel" id="subtab-r-zone">
+      <div class="grid2">
+        <div class="card"><div class="section-title">📍 Replacements by Zone</div><div id="rChartZone"><div class="no-data">Load Sheet 2 data</div></div></div>
+        <div class="card"><div class="section-title">🌆 Replacements by City</div><div id="rChartCity"><div class="no-data">Load Sheet 2 data</div></div></div>
+      </div>
+    </div>
+
+    <!-- R: By Charger -->
+    <div class="subtab-panel" id="subtab-r-charger">
+      <div class="card card-mb">
+        <div class="section-title">🏆 Most Replaced Chargers — Top 15</div>
+        <div class="tbl-wrap">
+          <table><thead><tr><th>#</th><th>Charger Name</th><th>City</th><th>Parts Replaced</th><th style="text-align:right">Count</th></tr></thead>
+          <tbody id="rWorstBody"><tr><td colspan="5" class="no-data">Load Sheet 2 first</td></tr></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- R: Full Log -->
+    <div class="subtab-panel" id="subtab-r-log">
+      <div class="card card-mb">
+        <div class="section-title">📋 All Replacement Records</div>
+        <div class="tbl-wrap">
+          <table><thead><tr><th>Charger Name</th><th>City</th><th>Part / Damage</th><th>Technician</th><th>Date</th></tr></thead>
+          <tbody id="rLogBody"><tr><td colspan="5" class="no-data">Load Sheet 2 first</td></tr></tbody></table>
+        </div>
       </div>
     </div>
   </div>
@@ -448,24 +561,31 @@
 
 <script>
 // ════════ STATE ════════
-let allRows = [];       // Sheet 1: downtime
-let filteredRows = [];
-let allTickets = [];    // Sheet 2: complaints / maintenance / replacement
-let filteredTickets = [];
+let allRows = [], filteredRows = [];
+let allTickets = [], filteredTickets = [];
 let activeCharger = null;
 let activeTab = 'chargerdowntime';
+// Track active sub-tab per main tab
+const activeSubTabs = {
+  chargerdowntime: 'dt-overview',
+  complaint:       'c-summary',
+  maintenance:     'm-summary',
+  replacement:     'r-summary',
+};
+// hours conversion factor detected from Sheet 1
+let hoursConvFactor = 1; // 1 = already hours, 1/3600 = was seconds
 
 // ════════ RCA STYLES ════════
 const RCA_COLORS = [
-  { match: ['power cut night'],      bg: '#fef3d7', text: '#7a4c00', bar: '#d4820a' },
-  { match: ['power cut', 'discoms'], bg: '#fde8e6', text: '#7a1f1a', bar: '#c0392b' },
-  { match: ['network', 'carrier'],   bg: '#e8f0fe', text: '#0d47b5', bar: '#1a6ef5' },
-  { match: ['cms'],                  bg: '#e6f5ec', text: '#0f4d26', bar: '#1f7a3e' },
-  { match: ['mcb', 'trip'],          bg: '#f0ebfd', text: '#3b1a82', bar: '#6c3fc4' },
-  { match: ['emergency'],            bg: '#e0f5f5', text: '#0a5252', bar: '#0f7a7a' },
+  { match: ['power cut night'],           bg: '#fef3d7', text: '#7a4c00', bar: '#d4820a' },
+  { match: ['power cut', 'discoms','host'],bg: '#fde8e6', text: '#7a1f1a', bar: '#c0392b' },
+  { match: ['network', 'carrier'],        bg: '#e8f0fe', text: '#0d47b5', bar: '#1a6ef5' },
+  { match: ['cms'],                        bg: '#e6f5ec', text: '#0f4d26', bar: '#1f7a3e' },
+  { match: ['mcb', 'trip'],               bg: '#f0ebfd', text: '#3b1a82', bar: '#6c3fc4' },
+  { match: ['emergency'],                 bg: '#e0f5f5', text: '#0a5252', bar: '#0f7a7a' },
+  { match: ['part failure','burnt'],      bg: '#fef0e6', text: '#7a2e00', bar: '#c05621' },
 ];
 const DEFAULT_COLOR = { bg: '#f1efe8', text: '#3a3a36', bar: '#888780' };
-
 function rcaStyle(rca) {
   const r = (rca || '').toLowerCase();
   for (const c of RCA_COLORS) if (c.match.some(m => r.includes(m))) return c;
@@ -474,16 +594,34 @@ function rcaStyle(rca) {
 
 // ════════ CSV HELPERS ════════
 function splitCSVLine(line) {
-  const result = []; let cur = '', inQ = false;
+  const res = []; let cur = '', inQ = false;
   for (let i = 0; i < line.length; i++) {
     if (line[i] === '"') { inQ = !inQ; continue; }
-    if (line[i] === ',' && !inQ) { result.push(cur); cur = ''; continue; }
+    if (line[i] === ',' && !inQ) { res.push(cur); cur = ''; continue; }
     cur += line[i];
   }
-  result.push(cur); return result;
+  res.push(cur); return res;
 }
-function clean(s) { return (s || '').replace(/"/g, '').trim(); }
-function parseDate(s) { if (!s) return null; const d = new Date(s); return isNaN(d.getTime()) ? null : d; }
+function clean(s) { return (s || '').replace(/"/g,'').trim(); }
+function parseDate(s) {
+  if (!s) return null;
+  // try several formats
+  let d = new Date(s);
+  if (!isNaN(d)) return d;
+  // dd/mm/yyyy or dd-mm-yyyy
+  const m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+  if (m) {
+    const yr = m[3].length === 2 ? '20' + m[3] : m[3];
+    d = new Date(`${yr}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`);
+    if (!isNaN(d)) return d;
+  }
+  return null;
+}
+function fmtHrs(v) {
+  // format hours nicely: < 100 show 1 decimal, else integer
+  if (v === null || v === undefined || isNaN(v)) return '—';
+  return v < 100 ? v.toFixed(1) : Math.round(v).toLocaleString('en-IN');
+}
 
 // ════════ SHEET 1 PARSER (Downtime) ════════
 function parseS1(csv) {
@@ -491,35 +629,64 @@ function parseS1(csv) {
   if (lines.length < 2) return [];
   const H = lines[0].split(',').map(h => clean(h).toLowerCase());
   const f = (...keys) => H.findIndex(h => keys.some(k => h.includes(k.toLowerCase())));
-  const iCharger = f('charger id', 'chargerid');
-  const iRCA     = f('root cause', 'rca');
-  const iHours   = f('power down time', 'downtime', 'hours');
-  const iSite    = f('charger name', 'charger_name');
+
+  const iCharger = f('charger id','chargerid');
+  const iRCA     = f('root cause','rca');
+  const iHours   = f('expected power down','power down time','hrs','hours');
+  // fallback to any column with 'downtime' that isn't the start timestamp
+  const iHours2  = iHours < 0 ? f('downtime') : -1;
+  const iHoursF  = iHours >= 0 ? iHours : iHours2;
+  const iSite    = f('charger name','charger_name','site name');
   const iCity    = f('city');
-  const iZone    = f('vida zone', 'zone');
-  const iStart   = f('charger downtime', 'downtime (estimated)', 'downtime_start');
-  const iEnd     = f('charger uptime', 'uptime (estimated)', 'uptime_est');
+  const iZone    = f('vida zone','zone');
+  const iStart   = f('charger downtime (estimated)','downtime_start','charger downtime');
+  const iEnd     = f('charger uptime','uptime');
+
+  const rawVals = [];
   const rows = [];
   for (let i = 1; i < lines.length; i++) {
+    if (!lines[i].trim()) continue;
     const c = splitCSVLine(lines[i]);
     const charger = clean(c[iCharger]);
     if (!charger) continue;
     const startRaw = clean(iStart >= 0 ? c[iStart] : '');
-    const rawVal = parseFloat((clean(c[iHours]) || '0').replace(/[^0-9.]/g, '')) || 0;
+    const rawHoursStr = clean(iHoursF >= 0 ? c[iHoursF] : '');
+    // strip any non-numeric except dot
+    const rawVal = parseFloat(rawHoursStr.replace(/[^0-9.]/g,'')) || 0;
+    if (rawVal > 0) rawVals.push(rawVal);
     rows.push({
-      charger, rca: clean(c[iRCA]),
-      _rawHours: rawVal,
-      hours: rawVal, // will be normalised after all rows parsed
-      site: clean(c[iSite]), city: clean(c[iCity]), zone: clean(c[iZone]),
-      start: startRaw, end: clean(iEnd >= 0 ? c[iEnd] : ''),
-      date: parseDate(startRaw),
+      charger,
+      rca:      clean(c[iRCA]),
+      _raw:     rawVal,
+      hours:    rawVal, // will be fixed after detection
+      site:     clean(iSite  >= 0 ? c[iSite]  : ''),
+      city:     clean(iCity  >= 0 ? c[iCity]  : ''),
+      zone:     clean(iZone  >= 0 ? c[iZone]  : ''),
+      start:    startRaw,
+      end:      clean(iEnd   >= 0 ? c[iEnd]   : ''),
+      date:     parseDate(startRaw),
     });
   }
-  // Auto-detect: if median value > 9999, values are likely in seconds → convert to hours
-  if (rows.length) {
-    const vals = rows.map(r => r._rawHours).filter(v => v > 0).sort((a,b)=>a-b);
-    const median = vals[Math.floor(vals.length/2)] || 0;
-    if (median > 9999) rows.forEach(r => { r.hours = parseFloat((r._rawHours / 3600).toFixed(2)); });
+
+  // ── Auto-detect seconds vs hours ──
+  // Heuristic: if the MEDIAN raw value > 300 (5 minutes in hours is absurd,
+  // but 300 seconds = 5 mins is plausible), values are likely seconds.
+  // More precise: if median > 500 assume seconds.
+  hoursConvFactor = 1;
+  if (rawVals.length) {
+    const sorted = [...rawVals].sort((a,b) => a-b);
+    const median = sorted[Math.floor(sorted.length / 2)];
+    if (median > 500) {
+      // values are in seconds → convert to hours
+      hoursConvFactor = 1 / 3600;
+      rows.forEach(r => { r.hours = parseFloat((r._raw * hoursConvFactor).toFixed(4)); });
+      // show hint badge
+      const hint = document.getElementById('unitsHint');
+      if (hint) { hint.textContent = 'auto-converted from seconds'; hint.style.display = ''; }
+    } else {
+      const hint = document.getElementById('unitsHint');
+      if (hint) hint.style.display = 'none';
+    }
   }
   return rows;
 }
@@ -530,17 +697,17 @@ function parseS2(csv) {
   if (lines.length < 2) return [];
   const H = lines[0].split(',').map(h => clean(h).toLowerCase());
   const f = (...keys) => H.findIndex(h => keys.some(k => h.includes(k.toLowerCase())));
-  const iName    = f('charger name', 'site name');
+  const iName    = f('charger name','site name');
   const iCity    = f('city');
   const iZone    = f('zone');
-  const iClose   = f('ticket close', 'close time', 'date');
-  const iRes     = f('resolution hrs', 'res hrs');
-  const iEmp     = f('emp name', 'employee', 'technician');
-  const iRemarks = f('remrks', 'remarks', 'notes');
-  const iAct     = f('activite', 'activity', 'type');
-  const iDmg     = f('damage list', 'damage');
-  const iRca     = f('rca', 'root cause');
-  const iAuxV    = f('aux bat', 'battery voltage', 'aux_bat');
+  const iClose   = f('ticket close','close time','date');
+  const iRes     = f('resolution hrs','res hrs','resolution');
+  const iEmp     = f('emp name','employee','technician');
+  const iRemarks = f('remrks','remarks','notes');
+  const iAct     = f('activite','activity','type');
+  const iDmg     = f('damage list','damage');
+  const iRca     = f('rca','root cause');
+  const iAuxV    = f('aux bat','battery voltage','aux_bat');
   const rows = [];
   for (let i = 1; i < lines.length; i++) {
     if (!lines[i].trim()) continue;
@@ -551,20 +718,21 @@ function parseS2(csv) {
     const actRaw   = clean(iAct >= 0 ? c[iAct] : '');
     const act      = actRaw.toLowerCase();
     let type = 'other';
-    if (act.includes('daily complaint') || act.includes('complaint')) type = 'complaint';
+    if      (act.includes('daily complaint') || act.includes('complaint'))  type = 'complaint';
     else if (act.includes('monthly maintenance') || act.includes('maintenance')) type = 'maintenance';
-    else if (act.includes('replacement')) type = 'replacement';
+    else if (act.includes('replacement'))  type = 'replacement';
     const resRaw = clean(iRes >= 0 ? c[iRes] : '');
+    const resVal = (resRaw === '' || resRaw.toLowerCase() === 'nan') ? null : parseFloat(resRaw);
     rows.push({
       name, city: clean(c[iCity]), zone: clean(c[iZone]),
       closeRaw, date: parseDate(closeRaw),
-      resHrs: (resRaw === '' || resRaw === 'NaN') ? null : parseFloat(resRaw),
-      emp: clean(iEmp >= 0 ? c[iEmp] : ''),
+      resHrs: (resVal !== null && !isNaN(resVal)) ? resVal : null,
+      emp:     clean(iEmp     >= 0 ? c[iEmp]     : ''),
       remarks: clean(iRemarks >= 0 ? c[iRemarks] : ''),
       activity: actRaw, type,
-      damage: clean(iDmg >= 0 ? c[iDmg] : ''),
-      rca: clean(iRca >= 0 ? c[iRca] : ''),
-      auxV: clean(iAuxV >= 0 ? c[iAuxV] : ''),
+      damage:  clean(iDmg  >= 0 ? c[iDmg]  : ''),
+      rca:     clean(iRca  >= 0 ? c[iRca]  : ''),
+      auxV:    clean(iAuxV >= 0 ? c[iAuxV] : ''),
     });
   }
   return rows;
@@ -583,170 +751,131 @@ function toCSVUrl(url) {
   if (keyM) return `https://docs.google.com/spreadsheets/d/${keyM[1]}/export?format=csv&gid=${gid}`;
   return url;
 }
-
 async function tryFetch(url) {
   const res = await fetch(url, { cache: 'no-store' });
   if (!res.ok) throw new Error('HTTP ' + res.status);
   const text = await res.text();
   if (!text || !text.trim()) throw new Error('Empty response');
   const t = text.trim().toLowerCase();
-  if (t.startsWith('<!') || t.startsWith('<html')) throw new Error('Got HTML not CSV — check sheet is published');
+  if (t.startsWith('<!') || t.startsWith('<html')) throw new Error('Got HTML — sheet not published as CSV');
   return text;
 }
-
 async function fetchCSV(sheetUrl, proxy) {
   const csvUrl = toCSVUrl(sheetUrl);
-  // Strategy 1: Cloudflare proxy
   if (proxy && proxy.trim()) {
-    const workerUrl = proxy.replace(/\/$/, '') + '?url=' + encodeURIComponent(csvUrl);
-    try { return await tryFetch(workerUrl); } catch(e) { console.warn('Proxy failed:', e.message); }
+    try { return await tryFetch(proxy.replace(/\/$,'') + '?url=' + encodeURIComponent(csvUrl)); } catch(e) { console.warn('Proxy1:', e.message); }
   }
-  // Strategy 2: allorigins.win
-  try { return await tryFetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(csvUrl)); } catch(e) { console.warn('allorigins failed:', e.message); }
-  // Strategy 3: corsproxy.io
-  try { return await tryFetch('https://corsproxy.io/?' + encodeURIComponent(csvUrl)); } catch(e) { console.warn('corsproxy failed:', e.message); }
-  throw new Error('All fetch methods failed. Check your Proxy URL and that the sheet is published.');
+  try { return await tryFetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(csvUrl)); } catch(e) { console.warn('allorigins:', e.message); }
+  try { return await tryFetch('https://corsproxy.io/?' + encodeURIComponent(csvUrl)); } catch(e) { console.warn('corsproxy:', e.message); }
+  throw new Error('All fetch methods failed. Check Proxy URL and sheet publication.');
 }
-
 function setPill(n, type, msg) {
-  const pill = document.getElementById('pill' + n);
-  const txt  = document.getElementById('pillTxt' + n);
-  if (!pill || !txt) return;
-  pill.className = 'status-pill' + (type === 'ok' ? ' ok' : type === 'err' ? ' err' : type === 'loading' ? ' loading' : '');
+  const pill = document.getElementById('pill'+n), txt = document.getElementById('pillTxt'+n);
+  if (!pill||!txt) return;
+  pill.className = 'status-pill'+(type==='ok'?' ok':type==='err'?' err':type==='loading'?' loading':'');
   txt.textContent = msg;
 }
 
 // ════════ LOAD ALL ════════
 async function loadAll() {
-  const s1    = document.getElementById('sheetUrl').value.trim();
-  const s2    = document.getElementById('sheet2Url').value.trim();
-  const proxy = document.getElementById('proxyUrl').value.trim();
-  const btn   = document.getElementById('refreshBtn');
-
-  if (!s1) { setPill(1, 'err', 'Paste Sheet 1 URL first'); return; }
-
+  const s1 = document.getElementById('sheetUrl').value.trim();
+  const s2 = document.getElementById('sheet2Url').value.trim();
+  const px = document.getElementById('proxyUrl').value.trim();
+  const btn = document.getElementById('refreshBtn');
+  if (!s1) { setPill(1,'err','Paste Sheet 1 URL first'); return; }
   btn.classList.add('spinning');
-  setPill(1, 'loading', 'Loading Sheet 1…');
-
-  // Load Sheet 1
+  setPill(1,'loading','Loading Sheet 1…');
   try {
-    const csv1 = await fetchCSV(s1, proxy);
+    const csv1 = await fetchCSV(s1, px);
     allRows = parseS1(csv1);
     filteredRows = [...allRows];
-    setPill(1, 'ok', allRows.length + ' events loaded ✓');
-    const dates = allRows.map(r => r.date).filter(Boolean);
+    setPill(1,'ok', allRows.length + ' events loaded ✓');
+    const dates = allRows.map(r=>r.date).filter(Boolean);
     if (dates.length) {
       document.getElementById('dateFrom').value = new Date(Math.min(...dates)).toISOString().slice(0,10);
       document.getElementById('dateTo').value   = new Date(Math.max(...dates)).toISOString().slice(0,10);
     }
-  } catch(e) {
-    setPill(1, 'err', 'Sheet 1 error: ' + e.message);
-    btn.classList.remove('spinning');
-    return;
-  }
+  } catch(e) { setPill(1,'err','Sheet 1: '+e.message); btn.classList.remove('spinning'); return; }
 
-  // Load Sheet 2 (optional)
-  allTickets = []; filteredTickets = [];
+  allTickets=[]; filteredTickets=[];
   if (s2) {
     document.getElementById('pill2').classList.remove('hidden');
-    setPill(2, 'loading', 'Loading Sheet 2…');
+    setPill(2,'loading','Loading Sheet 2…');
     try {
-      const csv2 = await fetchCSV(s2, proxy);
+      const csv2 = await fetchCSV(s2, px);
       allTickets = parseS2(csv2);
       filteredTickets = [...allTickets];
-      setPill(2, 'ok', allTickets.length + ' tickets loaded ✓');
-    } catch(e) {
-      setPill(2, 'err', 'Sheet 2 error: ' + e.message);
-    }
+      setPill(2,'ok', allTickets.length + ' tickets loaded ✓');
+    } catch(e) { setPill(2,'err','Sheet 2: '+e.message); }
   }
-
   document.getElementById('howto').classList.add('hidden');
   document.getElementById('lastUpdated').textContent = 'Updated ' + new Date().toLocaleTimeString();
   document.getElementById('filterCount').textContent = allRows.length + ' downtime events · ' + allTickets.length + ' tickets';
-  saveURLs();
-  renderAll();
-  btn.classList.remove('spinning');
+  saveURLs(); renderAll(); btn.classList.remove('spinning');
 }
 
 // ════════ FILTER ════════
 function applyFilter() {
-  const from = document.getElementById('dateFrom').value;
-  const to   = document.getElementById('dateTo').value;
-  const badge = document.getElementById('filterBadge');
-  const fromD = from ? new Date(from) : null;
-  const toD   = to   ? new Date(to + 'T23:59:59') : null;
-
-  filteredRows = allRows.filter(r => {
-    if (!fromD && !toD) return true;
-    if (!r.date) return true;
-    if (fromD && r.date < fromD) return false;
-    if (toD   && r.date > toD)   return false;
-    return true;
-  });
-  filteredTickets = allTickets.filter(t => {
-    if (!fromD && !toD) return true;
-    if (!t.date) return true;
-    if (fromD && t.date < fromD) return false;
-    if (toD   && t.date > toD)   return false;
-    return true;
-  });
-
-  badge.classList.toggle('hidden', !from && !to);
-  document.getElementById('filterCount').textContent =
-    filteredRows.length + ' downtime events · ' + filteredTickets.length + ' tickets';
+  const from=document.getElementById('dateFrom').value, to=document.getElementById('dateTo').value;
+  const fromD=from?new Date(from):null, toD=to?new Date(to+'T23:59:59'):null;
+  const pass = (d) => (!fromD||d>=fromD) && (!toD||d<=toD);
+  filteredRows    = allRows.filter(r    => !r.date    || (!fromD&&!toD) || pass(r.date));
+  filteredTickets = allTickets.filter(t => !t.date    || (!fromD&&!toD) || pass(t.date));
+  document.getElementById('filterBadge').classList.toggle('hidden', !from&&!to);
+  document.getElementById('filterCount').textContent = filteredRows.length+' downtime events · '+filteredTickets.length+' tickets';
   renderAll();
 }
-
 function clearFilter() {
-  document.getElementById('dateFrom').value = '';
-  document.getElementById('dateTo').value   = '';
+  document.getElementById('dateFrom').value=''; document.getElementById('dateTo').value='';
   document.getElementById('filterBadge').classList.add('hidden');
-  filteredRows    = [...allRows];
-  filteredTickets = [...allTickets];
-  document.getElementById('filterCount').textContent =
-    allRows.length + ' downtime events · ' + allTickets.length + ' tickets';
+  filteredRows=[...allRows]; filteredTickets=[...allTickets];
+  document.getElementById('filterCount').textContent = allRows.length+' downtime events · '+allTickets.length+' tickets';
   renderAll();
 }
 
 // ════════ TABS ════════
 function switchTab(name) {
   activeTab = name;
-  document.querySelectorAll('.main-tab-btn').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  document.querySelectorAll('.main-tab-btn').forEach(t => t.classList.toggle('active', t.dataset.tab===name));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
   renderActive();
 }
-
-let activeSubTab = 'overview';
-function switchSubTab(name) {
-  activeSubTab = name;
-  document.querySelectorAll('.sub-tab-btn').forEach(t => t.classList.toggle('active', t.dataset.subtab === name));
-  document.querySelectorAll('.subtab-panel').forEach(p => { p.classList.remove('active'); p.classList.add('hidden'); });
-  const panel = document.getElementById('subtab-' + name);
-  if (panel) { panel.classList.remove('hidden'); panel.classList.add('active'); }
-  renderSubActive();
+function switchSubTab(mainTab, subName) {
+  activeSubTabs[mainTab] = subName;
+  // only update buttons/panels within this main tab's panel
+  const panel = document.getElementById('tab-'+mainTab);
+  panel.querySelectorAll('.sub-tab-btn').forEach(t => t.classList.toggle('active', t.dataset.subtab===subName));
+  panel.querySelectorAll('.subtab-panel').forEach(p => p.classList.remove('active'));
+  const sp = document.getElementById('subtab-'+subName);
+  if (sp) sp.classList.add('active');
+  renderSubActive(mainTab, subName);
 }
-
-function renderSubActive() {
+function renderSubActive(mainTab, subName) {
   const map = {
-    overview: renderOverview,
-    charger:  () => { renderChargerChips(); if (activeCharger) renderDetail(activeCharger); },
-    zone:     renderZone,
-    city:     renderCity,
+    'dt-overview': renderDtOverview,
+    'dt-charger':  () => { renderChargerChips(); if (activeCharger) renderDetail(activeCharger); },
+    'dt-zone':     renderDtZone,
+    'dt-city':     renderDtCity,
+    'c-summary':   renderCSummary,
+    'c-zone':      renderCZone,
+    'c-city':      renderCCity,
+    'c-charger':   renderCCharger,
+    'c-tech':      renderCTech,
+    'm-summary':   renderMSummary,
+    'm-zone':      renderMZone,
+    'm-damage':    renderMDamage,
+    'm-log':       renderMLog,
+    'r-summary':   renderRSummary,
+    'r-zone':      renderRZone,
+    'r-charger':   renderRCharger,
+    'r-log':       renderRLog,
   };
-  (map[activeSubTab] || (() => {}))();
+  (map[subName] || (() => {}))();
 }
-
 function renderActive() {
-  const map = {
-    chargerdowntime: renderSubActive,
-    complaint:       renderComplaint,
-    maintenance:     renderMaintenance,
-    replacement:     renderReplacement,
-  };
-  (map[activeTab] || (() => {}))();
+  renderSubActive(activeTab, activeSubTabs[activeTab]);
 }
-
 function renderAll() {
   renderGlobalMetrics();
   renderActive();
@@ -754,353 +883,396 @@ function renderAll() {
 
 // ════════ GLOBAL METRICS ════════
 function renderGlobalMetrics() {
-  const R = filteredRows, T = filteredTickets;
-  const hrs  = R.reduce((s, r) => s + r.hours, 0);
-  const total = R.length;
-  document.getElementById('mTotal').textContent     = total;
-  document.getElementById('mChargers').textContent  = new Set(R.map(r => r.charger)).size;
-  document.getElementById('mHours').textContent     = hrs.toFixed(1);
-  document.getElementById('mAvg').textContent       = total ? (hrs / total).toFixed(1) : '—';
-  document.getElementById('mComplaints').textContent= T.filter(t => t.type === 'complaint').length;
-  document.getElementById('mMaint').textContent     = T.filter(t => t.type === 'maintenance').length;
-  document.getElementById('mReplace').textContent   = T.filter(t => t.type === 'replacement').length;
+  const R=filteredRows, T=filteredTickets;
+  const hrs=R.reduce((s,r)=>s+r.hours,0), n=R.length;
+  document.getElementById('mTotal').textContent     = n;
+  document.getElementById('mChargers').textContent  = new Set(R.map(r=>r.charger)).size;
+  document.getElementById('mHours').textContent     = fmtHrs(hrs);
+  document.getElementById('mAvg').textContent       = n ? fmtHrs(hrs/n) : '—';
+  document.getElementById('mComplaints').textContent= T.filter(t=>t.type==='complaint').length;
+  document.getElementById('mMaint').textContent     = T.filter(t=>t.type==='maintenance').length;
+  document.getElementById('mReplace').textContent   = T.filter(t=>t.type==='replacement').length;
 }
 
-// ════════ OVERVIEW ════════
-function renderOverview() {
-  const rows = filteredRows;
-  const byC = {};
-  rows.forEach(r => { byC[r.charger] = (byC[r.charger]||0) + r.hours; });
-  renderBar('topChargersChart', toArr(byC).slice(0, 10), 'hrs', '#1a6ef5');
-  const byR = {};
-  rows.forEach(r => { byR[r.rca] = (byR[r.rca]||0) + r.hours; });
+// ════════ DT: OVERVIEW ════════
+function renderDtOverview() {
+  const rows=filteredRows;
+  const byC={}; rows.forEach(r=>{byC[r.charger]=(byC[r.charger]||0)+r.hours;});
+  renderBar('topChargersChart', toArr(byC).slice(0,10), 'hrs', '#1a6ef5');
+  const byR={}; rows.forEach(r=>{byR[r.rca]=(byR[r.rca]||0)+r.hours;});
   renderBar('globalRcaChart', toArr(byR), 'hrs');
 }
 
-// ════════ CHARGER TAB ════════
+// ════════ DT: BY CHARGER ════════
 function renderChargerChips() {
-  const ids   = [...new Set(filteredRows.map(r => r.charger))].sort();
-  const query = (document.getElementById('chargerSearch').value || '').toLowerCase();
-  const shown = ids.filter(id => !query || id.toLowerCase().includes(query));
-  const grid  = document.getElementById('chargerGrid');
-  if (!shown.length) { grid.innerHTML = '<div class="no-data">No chargers match</div>'; return; }
-  grid.innerHTML = shown.map(id =>
-    `<div class="chip ${id === activeCharger ? 'active' : ''}" onclick="selectCharger('${id}')">${id}</div>`
-  ).join('');
+  const ids=[...new Set(filteredRows.map(r=>r.charger))].sort();
+  const q=(document.getElementById('chargerSearch').value||'').toLowerCase();
+  const shown=ids.filter(id=>!q||id.toLowerCase().includes(q));
+  const grid=document.getElementById('chargerGrid');
+  if (!shown.length) { grid.innerHTML='<div class="no-data">No chargers match</div>'; return; }
+  grid.innerHTML=shown.map(id=>`<div class="chip ${id===activeCharger?'active':''}" onclick="selectCharger('${id}')">${id}</div>`).join('');
 }
 function filterChips() { renderChargerChips(); }
 function selectCharger(id) {
-  activeCharger = id; renderChargerChips(); renderDetail(id);
-  document.getElementById('detailSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  activeCharger=id; renderChargerChips(); renderDetail(id);
+  document.getElementById('detailSection').scrollIntoView({behavior:'smooth',block:'start'});
 }
 function renderDetail(id) {
-  const rows = filteredRows.filter(r => r.charger === id);
+  const rows=filteredRows.filter(r=>r.charger===id);
   if (!rows.length) { document.getElementById('detailSection').classList.add('hidden'); return; }
-  const totalHrs = rows.reduce((s, r) => s + r.hours, 0);
-  document.getElementById('detailId').textContent   = id;
-  document.getElementById('detailSite').textContent = [rows[0]?.zone, rows[0]?.site, rows[0]?.city].filter(Boolean).join(' · ');
-  document.getElementById('chargerEventCount').textContent = rows.length + ' event' + (rows.length !== 1 ? 's' : '');
-  document.getElementById('detailTags').innerHTML =
-    `<span class="tag tag-blue">${rows.length} incidents</span><span class="tag tag-gray">${totalHrs.toFixed(1)} hrs total</span>`;
-  const byHrs = {}, byCnt = {};
-  rows.forEach(r => { byHrs[r.rca] = (byHrs[r.rca]||0) + r.hours; byCnt[r.rca] = (byCnt[r.rca]||0) + 1; });
-  renderBar('rcaHrsChart', toArr(byHrs), 'hrs');
-  renderBar('rcaCntChart', toArr(byCnt), '');
-  document.getElementById('eventTableBody').innerHTML = rows.map(r => {
-    const s = rcaStyle(r.rca);
-    return `<tr>
-      <td><span class="badge" style="background:${s.bg};color:${s.text};">${r.rca||'—'}</span></td>
-      <td class="mono" style="color:var(--text2);">${r.start||'—'}</td>
-      <td class="mono" style="color:var(--text2);">${r.end||'—'}</td>
-      <td style="text-align:right;font-weight:600;" class="mono">${r.hours}</td></tr>`;
+  const totalHrs=rows.reduce((s,r)=>s+r.hours,0);
+  document.getElementById('detailId').textContent  =id;
+  document.getElementById('detailSite').textContent=[rows[0]?.zone,rows[0]?.site,rows[0]?.city].filter(Boolean).join(' · ');
+  document.getElementById('chargerEventCount').textContent=rows.length+' event'+(rows.length!==1?'s':'');
+  document.getElementById('detailTags').innerHTML=
+    `<span class="tag tag-blue">${rows.length} incidents</span><span class="tag tag-gray">${fmtHrs(totalHrs)} hrs total</span>`;
+  const byHrs={},byCnt={};
+  rows.forEach(r=>{byHrs[r.rca]=(byHrs[r.rca]||0)+r.hours;byCnt[r.rca]=(byCnt[r.rca]||0)+1;});
+  renderBar('rcaHrsChart',toArr(byHrs),'hrs');
+  renderBar('rcaCntChart',toArr(byCnt),'');
+  document.getElementById('eventTableBody').innerHTML=rows.map(r=>{
+    const s=rcaStyle(r.rca);
+    return `<tr><td><span class="badge" style="background:${s.bg};color:${s.text}">${r.rca||'—'}</span></td>
+      <td class="mono" style="color:var(--text2)">${r.start||'—'}</td>
+      <td class="mono" style="color:var(--text2)">${r.end||'—'}</td>
+      <td style="text-align:right;font-weight:600" class="mono">${fmtHrs(r.hours)}</td></tr>`;
   }).join('');
   document.getElementById('detailSection').classList.remove('hidden');
 }
 
-// ════════ ZONE & CITY TABS ════════
-function renderZone() {
-  const rows = filteredRows;
-  const byZ = {};
-  rows.forEach(r => { const k = r.zone || '(no zone)'; byZ[k] = (byZ[k]||0) + r.hours; });
-  renderBar('zoneHrsChart', toArr(byZ), 'hrs', '#6c3fc4');
-  const byR = {};
-  rows.forEach(r => { byR[r.rca] = (byR[r.rca]||0) + r.hours; });
-  renderBar('zoneGlobalRcaChart', toArr(byR), 'hrs');
-  renderGroupBreakdown('zoneBreakdownList', rows, 'zone', '#6c3fc4');
-}
-function renderCity() {
-  const rows = filteredRows;
-  const byC = {};
-  rows.forEach(r => { const k = r.city || '(no city)'; byC[k] = (byC[k]||0) + r.hours; });
-  renderBar('cityHrsChart', toArr(byC), 'hrs', '#0f7a7a');
-  const byR = {};
-  rows.forEach(r => { byR[r.rca] = (byR[r.rca]||0) + r.hours; });
-  renderBar('cityGlobalRcaChart', toArr(byR), 'hrs');
-  renderGroupBreakdown('cityBreakdownList', rows, 'city', '#0f7a7a');
+// ════════ DT: ZONE ════════
+function renderDtZone() {
+  const rows=filteredRows;
+  const byZ={}; rows.forEach(r=>{const k=r.zone||'(no zone)';byZ[k]=(byZ[k]||0)+r.hours;});
+  renderBar('zoneHrsChart',toArr(byZ),'hrs','#6c3fc4');
+  const byR={}; rows.forEach(r=>{byR[r.rca]=(byR[r.rca]||0)+r.hours;});
+  renderBar('zoneGlobalRcaChart',toArr(byR),'hrs');
+  renderGroupBreakdown('zoneBreakdownList',rows,'zone','#6c3fc4');
 }
 
-// ════════ DAILY COMPLAINT TAB ════════
-function renderComplaint() {
-  const T = filteredTickets.filter(t => t.type === 'complaint');
-  const resolved = T.filter(t => t.resHrs !== null);
-  const avgRes = resolved.length ? resolved.reduce((s, t) => s + t.resHrs, 0) / resolved.length : null;
+// ════════ DT: CITY ════════
+function renderDtCity() {
+  const rows=filteredRows;
+  const byC={}; rows.forEach(r=>{const k=r.city||'(no city)';byC[k]=(byC[k]||0)+r.hours;});
+  renderBar('cityHrsChart',toArr(byC),'hrs','#0f7a7a');
+  const byR={}; rows.forEach(r=>{byR[r.rca]=(byR[r.rca]||0)+r.hours;});
+  renderBar('cityGlobalRcaChart',toArr(byR),'hrs');
+  renderGroupBreakdown('cityBreakdownList',rows,'city','#0f7a7a');
+}
 
-  // Repeat offenders: same charger + same RCA ≥ 3 times
-  const combo = {};
-  T.forEach(t => {
-    const k = t.name + '||' + t.rca;
-    if (!combo[k]) combo[k] = { name: t.name, city: t.city, rca: t.rca, visits: [], res: [] };
-    combo[k].visits.push(t);
-    if (t.resHrs !== null) combo[k].res.push(t.resHrs);
-  });
-  const repList = Object.values(combo).filter(c => c.visits.length >= 3).sort((a, b) => b.visits.length - a.visits.length);
-
-  // Most complained
-  const byName = {};
-  T.forEach(t => {
-    if (!byName[t.name]) byName[t.name] = { name: t.name, city: t.city, cnt: 0, res: [], rcas: {} };
-    byName[t.name].cnt++;
-    if (t.resHrs !== null) byName[t.name].res.push(t.resHrs);
-    byName[t.name].rcas[t.rca] = (byName[t.name].rcas[t.rca]||0) + 1;
-  });
-  const worst = Object.values(byName).sort((a, b) => b.cnt - a.cnt).slice(0, 15);
-
-  document.getElementById('cTotal').textContent    = T.length;
-  document.getElementById('cAvgRes').textContent   = avgRes !== null ? avgRes.toFixed(1) : '—';
-  document.getElementById('cChargers').textContent = new Set(T.map(t => t.name)).size;
-  document.getElementById('cRepeat').textContent   = repList.length;
-  document.getElementById('cTechs').textContent    = new Set(T.map(t => t.emp).filter(Boolean)).size;
-
-  // Charts
-  const byR = {}; T.forEach(t => { byR[t.rca] = (byR[t.rca]||0) + 1; });
-  renderBar('cChartRca', toArr(byR), '');
-  const rcaRes = {};
-  T.forEach(t => { if (t.resHrs !== null) { if (!rcaRes[t.rca]) rcaRes[t.rca] = { s:0, n:0 }; rcaRes[t.rca].s += t.resHrs; rcaRes[t.rca].n++; } });
-  renderBar('cChartRcaAvg', Object.entries(rcaRes).map(([l, v]) => ({ l, v: parseFloat((v.s/v.n).toFixed(2)) })).sort((a, b) => b.v - a.v), 'hrs', '#d4820a');
-  const byZ = {}; T.forEach(t => { const k = t.zone||'?'; byZ[k] = (byZ[k]||0) + 1; });
-  renderBar('cChartZone', toArr(byZ).slice(0, 12), '', '#6c3fc4');
-  const byCity = {}; T.forEach(t => { const k = t.city||'?'; byCity[k] = (byCity[k]||0) + 1; });
-  renderBar('cChartCity', toArr(byCity).slice(0, 12), '', '#0f7a7a');
-
-  // Repeat table
-  document.getElementById('cRepeatBody').innerHTML = repList.length ? repList.map(r => {
-    const avg = r.res.length ? r.res.reduce((a, b) => a + b, 0) / r.res.length : null;
-    const s = rcaStyle(r.rca);
+// ════════ COMPLAINT: SUMMARY ════════
+function renderCSummary() {
+  const T=filteredTickets.filter(t=>t.type==='complaint');
+  const res=T.filter(t=>t.resHrs!==null);
+  const avgRes=res.length?res.reduce((s,t)=>s+t.resHrs,0)/res.length:null;
+  const combo={};
+  T.forEach(t=>{const k=t.name+'||'+t.rca; if(!combo[k])combo[k]={name:t.name,city:t.city,rca:t.rca,visits:[],res:[]}; combo[k].visits.push(t); if(t.resHrs!==null)combo[k].res.push(t.resHrs);});
+  const repList=Object.values(combo).filter(c=>c.visits.length>=3).sort((a,b)=>b.visits.length-a.visits.length);
+  document.getElementById('cTotal').textContent   =T.length;
+  document.getElementById('cAvgRes').textContent  =avgRes!==null?fmtHrs(avgRes):'—';
+  document.getElementById('cChargers').textContent=new Set(T.map(t=>t.name)).size;
+  document.getElementById('cRepeat').textContent  =repList.length;
+  document.getElementById('cTechs').textContent   =new Set(T.map(t=>t.emp).filter(Boolean)).size;
+  const byR={}; T.forEach(t=>{byR[t.rca]=(byR[t.rca]||0)+1;});
+  renderBar('cChartRca',toArr(byR),'');
+  const rcaRes={};
+  T.forEach(t=>{if(t.resHrs!==null){if(!rcaRes[t.rca])rcaRes[t.rca]={s:0,n:0};rcaRes[t.rca].s+=t.resHrs;rcaRes[t.rca].n++;}});
+  renderBar('cChartRcaAvg',Object.entries(rcaRes).map(([l,v])=>({l,v:parseFloat((v.s/v.n).toFixed(2))})).sort((a,b)=>b.v-a.v),'hrs','#d4820a');
+  document.getElementById('cRepeatBody').innerHTML=repList.length?repList.map(r=>{
+    const avg=r.res.length?r.res.reduce((a,b)=>a+b,0)/r.res.length:null;
+    const s=rcaStyle(r.rca);
     return `<tr><td style="font-weight:600">${r.name}</td><td style="color:var(--text2)">${r.city||'—'}</td>
       <td><span class="badge" style="background:${s.bg};color:${s.text}">${r.rca||'—'}</span></td>
       <td style="text-align:right;font-weight:700">${r.visits.length}</td>
-      <td style="text-align:right" class="mono">${avg !== null ? avg.toFixed(1) + 'h' : '—'}</td></tr>`;
-  }).join('') : '<tr><td colspan="5" class="no-data">No repeat offenders</td></tr>';
+      <td style="text-align:right" class="mono">${avg!==null?fmtHrs(avg)+'h':'—'}</td></tr>`;
+  }).join(''):'<tr><td colspan="5" class="no-data">No repeat offenders</td></tr>';
+}
 
-  // Worst chargers table
-  document.getElementById('cWorstBody').innerHTML = worst.length ? worst.map((c, i) => {
-    const avg = c.res.length ? c.res.reduce((a, b) => a + b, 0) / c.res.length : null;
-    const top = Object.entries(c.rcas).sort((a, b) => b[1] - a[1])[0];
-    const rank = ['🥇','🥈','🥉'][i] || (i+1);
-    const s = rcaStyle(top ? top[0] : '');
+// ════════ COMPLAINT: ZONE ════════
+function renderCZone() {
+  const T=filteredTickets.filter(t=>t.type==='complaint');
+  const byZ={}; T.forEach(t=>{const k=t.zone||'?';byZ[k]=(byZ[k]||0)+1;});
+  renderBar('cChartZone',toArr(byZ).slice(0,12),'','#6c3fc4');
+  const zoneRes={};
+  T.forEach(t=>{if(t.resHrs!==null){const k=t.zone||'?';if(!zoneRes[k])zoneRes[k]={s:0,n:0};zoneRes[k].s+=t.resHrs;zoneRes[k].n++;}});
+  renderBar('cChartZoneAvg',Object.entries(zoneRes).map(([l,v])=>({l,v:parseFloat((v.s/v.n).toFixed(2))})).sort((a,b)=>b.v-a.v),'hrs','#d4820a');
+  renderTicketGroupBreakdown('cZoneBreakdown',T,'zone','#6c3fc4');
+}
+
+// ════════ COMPLAINT: CITY ════════
+function renderCCity() {
+  const T=filteredTickets.filter(t=>t.type==='complaint');
+  const byC={}; T.forEach(t=>{const k=t.city||'?';byC[k]=(byC[k]||0)+1;});
+  renderBar('cChartCity',toArr(byC).slice(0,12),'','#0f7a7a');
+  const cityRes={};
+  T.forEach(t=>{if(t.resHrs!==null){const k=t.city||'?';if(!cityRes[k])cityRes[k]={s:0,n:0};cityRes[k].s+=t.resHrs;cityRes[k].n++;}});
+  renderBar('cChartCityAvg',Object.entries(cityRes).map(([l,v])=>({l,v:parseFloat((v.s/v.n).toFixed(2))})).sort((a,b)=>b.v-a.v),'hrs','#d4820a');
+  renderTicketGroupBreakdown('cCityBreakdown',T,'city','#0f7a7a');
+}
+
+// ════════ COMPLAINT: BY CHARGER ════════
+function renderCCharger() {
+  const T=filteredTickets.filter(t=>t.type==='complaint');
+  const byName={};
+  T.forEach(t=>{if(!byName[t.name])byName[t.name]={name:t.name,city:t.city,cnt:0,res:[],rcas:{}}; byName[t.name].cnt++; if(t.resHrs!==null)byName[t.name].res.push(t.resHrs); byName[t.name].rcas[t.rca]=(byName[t.name].rcas[t.rca]||0)+1;});
+  const worst=Object.values(byName).sort((a,b)=>b.cnt-a.cnt).slice(0,15);
+  document.getElementById('cWorstBody').innerHTML=worst.length?worst.map((c,i)=>{
+    const avg=c.res.length?c.res.reduce((a,b)=>a+b,0)/c.res.length:null;
+    const top=Object.entries(c.rcas).sort((a,b)=>b[1]-a[1])[0];
+    const rank=['🥇','🥈','🥉'][i]||(i+1);
+    const s=rcaStyle(top?top[0]:'');
     return `<tr><td style="font-size:13px;font-weight:700;color:var(--text3)">${rank}</td>
       <td style="font-weight:600">${c.name}</td><td style="color:var(--text2)">${c.city||'—'}</td>
       <td style="text-align:right;font-weight:700;font-size:15px">${c.cnt}</td>
-      <td style="text-align:right" class="mono">${avg !== null ? avg.toFixed(1) + 'h' : '—'}</td>
-      <td><span class="badge" style="background:${s.bg};color:${s.text};font-size:11px">${top ? top[0] + ' ('+top[1]+')' : '—'}</span></td></tr>`;
-  }).join('') : '<tr><td colspan="6" class="no-data">No data</td></tr>';
-
-  // Technician chart
-  const byEmp = {}; T.forEach(t => { if (t.emp) { const k = t.emp.trim(); byEmp[k] = (byEmp[k]||0) + 1; } });
-  renderBar('cChartEmp', toArr(byEmp).slice(0, 15), 'tickets', '#1a6ef5');
+      <td style="text-align:right" class="mono">${avg!==null?fmtHrs(avg)+'h':'—'}</td>
+      <td><span class="badge" style="background:${s.bg};color:${s.text};font-size:11px">${top?top[0]+' ('+top[1]+')':'—'}</span></td></tr>`;
+  }).join(''):'<tr><td colspan="6" class="no-data">No data</td></tr>';
 }
 
-// ════════ MONTHLY MAINTENANCE TAB ════════
-function renderMaintenance() {
-  const T = filteredTickets.filter(t => t.type === 'maintenance');
-  const wDmg = T.filter(t => t.damage && t.damage.trim());
-  const vs = T.map(t => parseFloat(t.auxV)).filter(v => !isNaN(v) && v > 0);
-  const avgV = vs.length ? vs.reduce((a, b) => a + b, 0) / vs.length : null;
+// ════════ COMPLAINT: TECHNICIANS ════════
+function renderCTech() {
+  const T=filteredTickets.filter(t=>t.type==='complaint');
+  const byEmp={};
+  T.forEach(t=>{if(t.emp){const k=t.emp.trim();byEmp[k]=(byEmp[k]||0)+1;}});
+  renderBar('cChartEmp',toArr(byEmp).slice(0,15),'tickets','#1a6ef5');
+  const empRes={};
+  T.forEach(t=>{if(t.emp&&t.resHrs!==null){const k=t.emp.trim();if(!empRes[k])empRes[k]={s:0,n:0};empRes[k].s+=t.resHrs;empRes[k].n++;}});
+  renderBar('cChartEmpAvg',Object.entries(empRes).map(([l,v])=>({l,v:parseFloat((v.s/v.n).toFixed(2))})).sort((a,b)=>a.v-b.v).slice(0,15),'hrs','#1f7a3e');
+}
 
-  document.getElementById('mntTotal').textContent    = T.length;
-  document.getElementById('mntChargers').textContent = new Set(T.map(t => t.name)).size;
-  document.getElementById('mntDamage').textContent   = wDmg.length;
-  document.getElementById('mntAvgV').textContent     = avgV !== null ? avgV.toFixed(1) : '—';
-  document.getElementById('mntCount').textContent    = T.length + ' records';
+// ════════ MAINTENANCE: SUMMARY ════════
+function renderMSummary() {
+  const T=filteredTickets.filter(t=>t.type==='maintenance');
+  const wDmg=T.filter(t=>t.damage&&t.damage.trim());
+  const vs=T.map(t=>parseFloat(t.auxV)).filter(v=>!isNaN(v)&&v>0);
+  const avgV=vs.length?vs.reduce((a,b)=>a+b,0)/vs.length:null;
+  document.getElementById('mntTotal').textContent   =T.length;
+  document.getElementById('mntChargers').textContent=new Set(T.map(t=>t.name)).size;
+  document.getElementById('mntDamage').textContent  =wDmg.length;
+  document.getElementById('mntAvgV').textContent    =avgV!==null?avgV.toFixed(1):'—';
+  const vR={'< 12V':0,'12–12.5V':0,'12.5–13V':0,'> 13V':0};
+  vs.forEach(v=>{if(v<12)vR['< 12V']++;else if(v<12.5)vR['12–12.5V']++;else if(v<13)vR['12.5–13V']++;else vR['> 13V']++;});
+  renderBar('mntChartVolt',Object.entries(vR).map(([l,v])=>({l,v})),'','#0f7a7a');
+  // low voltage list
+  const lowV=T.filter(t=>parseFloat(t.auxV)<12&&parseFloat(t.auxV)>0).sort((a,b)=>parseFloat(a.auxV)-parseFloat(b.auxV)).slice(0,15);
+  const el=document.getElementById('mntLowVolt');
+  el.innerHTML=lowV.length?lowV.map(t=>`<div class="bar-row">
+    <div class="bar-label">${t.name} (${t.city||'?'})</div>
+    <div class="bar-track"><div class="bar-fill" style="width:${Math.round(parseFloat(t.auxV)/15*100)}%;background:var(--red)"></div></div>
+    <div class="bar-num" style="color:var(--red);font-weight:700">${parseFloat(t.auxV).toFixed(1)}V</div></div>`).join(''):'<div class="no-data">No low voltage chargers</div>';
+}
 
-  const byZ = {}; T.forEach(t => { const k = t.zone || t.city || '?'; byZ[k] = (byZ[k]||0) + 1; });
-  renderBar('mntChartZone', toArr(byZ).slice(0, 12), '', '#6c3fc4');
+// ════════ MAINTENANCE: ZONE ════════
+function renderMZone() {
+  const T=filteredTickets.filter(t=>t.type==='maintenance');
+  const byZ={}; T.forEach(t=>{const k=t.zone||'?';byZ[k]=(byZ[k]||0)+1;});
+  renderBar('mntChartZone',toArr(byZ).slice(0,12),'','#6c3fc4');
+  const byC={}; T.forEach(t=>{const k=t.city||'?';byC[k]=(byC[k]||0)+1;});
+  renderBar('mntChartCity',toArr(byC).slice(0,12),'','#0f7a7a');
+}
 
-  const vRanges = { '< 12V': 0, '12–12.5V': 0, '12.5–13V': 0, '> 13V': 0 };
-  vs.forEach(v => { if (v < 12) vRanges['< 12V']++; else if (v < 12.5) vRanges['12–12.5V']++; else if (v < 13) vRanges['12.5–13V']++; else vRanges['> 13V']++; });
-  renderBar('mntChartVolt', Object.entries(vRanges).map(([l, v]) => ({l, v})), '', '#0f7a7a');
-
-  document.getElementById('mntDamageBody').innerHTML = wDmg.length ? wDmg.map(t =>
+// ════════ MAINTENANCE: DAMAGE ════════
+function renderMDamage() {
+  const T=filteredTickets.filter(t=>t.type==='maintenance');
+  const wDmg=T.filter(t=>t.damage&&t.damage.trim());
+  document.getElementById('mntDamageBody').innerHTML=wDmg.length?wDmg.map(t=>
     `<tr><td style="font-weight:600">${t.name}</td><td style="color:var(--text2)">${t.city||'—'}</td>
     <td><span class="badge" style="background:var(--red-light);color:var(--red)">${t.damage}</span></td>
     <td style="font-size:12px;color:var(--text2)">${t.remarks||'—'}</td>
     <td style="font-size:12px;color:var(--text2)">${t.emp||'—'}</td>
-    <td class="mono" style="color:var(--text3)">${t.date ? t.date.toLocaleDateString('en-IN') : '—'}</td></tr>`
-  ).join('') : '<tr><td colspan="6" class="no-data">No damage recorded in this period</td></tr>';
+    <td class="mono" style="color:var(--text3)">${t.date?t.date.toLocaleDateString('en-IN'):'—'}</td></tr>`
+  ).join(''):'<tr><td colspan="6" class="no-data">No damage in this period</td></tr>';
+}
 
-  document.getElementById('mntLogBody').innerHTML = T.length ? T.map(t =>
+// ════════ MAINTENANCE: LOG ════════
+function renderMLog() {
+  const T=filteredTickets.filter(t=>t.type==='maintenance');
+  document.getElementById('mntCount').textContent=T.length+' records';
+  document.getElementById('mntLogBody').innerHTML=T.length?T.map(t=>
     `<tr><td style="font-weight:600;font-size:12px">${t.name}</td><td style="color:var(--text2);font-size:12px">${t.city||'—'}</td>
     <td style="font-size:12px;color:var(--text2)">${t.emp||'—'}</td>
     <td style="font-size:12px;color:var(--text2)">${t.remarks||'—'}</td>
     <td style="text-align:right" class="mono">${t.auxV||'—'}</td>
-    <td class="mono" style="color:var(--text3)">${t.date ? t.date.toLocaleDateString('en-IN') : '—'}</td></tr>`
-  ).join('') : '<tr><td colspan="6" class="no-data">No maintenance records in this period</td></tr>';
+    <td class="mono" style="color:var(--text3)">${t.date?t.date.toLocaleDateString('en-IN'):'—'}</td></tr>`
+  ).join(''):'<tr><td colspan="6" class="no-data">No records in this period</td></tr>';
 }
 
-// ════════ REPLACEMENT TAB ════════
-function renderReplacement() {
-  const T = filteredTickets.filter(t => t.type === 'replacement');
-  const wParts = T.filter(t => t.damage && t.damage.trim());
+// ════════ REPLACEMENT: SUMMARY ════════
+function renderRSummary() {
+  const T=filteredTickets.filter(t=>t.type==='replacement');
+  const wP=T.filter(t=>t.damage&&t.damage.trim());
+  document.getElementById('rTotal').textContent   =T.length;
+  document.getElementById('rChargers').textContent=new Set(T.map(t=>t.name)).size;
+  document.getElementById('rParts').textContent   =new Set(wP.map(t=>t.damage.trim())).size;
+  const byP={}; wP.forEach(t=>{const k=t.damage.trim();byP[k]=(byP[k]||0)+1;});
+  renderBar('rChartParts',toArr(byP),'','#c05621');
+  // month trend
+  const byM={};
+  T.forEach(t=>{if(t.date){const k=t.date.getFullYear()+'-'+(''+(t.date.getMonth()+1)).padStart(2,'0');byM[k]=(byM[k]||0)+1;}});
+  renderBar('rChartMonth',Object.entries(byM).sort((a,b)=>a[0].localeCompare(b[0])).map(([l,v])=>({l,v})),'','#a07af0');
+}
 
-  document.getElementById('rTotal').textContent    = T.length;
-  document.getElementById('rChargers').textContent = new Set(T.map(t => t.name)).size;
-  document.getElementById('rParts').textContent    = new Set(wParts.map(t => t.damage.trim())).size;
+// ════════ REPLACEMENT: ZONE/CITY ════════
+function renderRZone() {
+  const T=filteredTickets.filter(t=>t.type==='replacement');
+  const byZ={}; T.forEach(t=>{const k=t.zone||'?';byZ[k]=(byZ[k]||0)+1;});
+  renderBar('rChartZone',toArr(byZ).slice(0,12),'','#6c3fc4');
+  const byC={}; T.forEach(t=>{const k=t.city||'?';byC[k]=(byC[k]||0)+1;});
+  renderBar('rChartCity',toArr(byC).slice(0,12),'','#0f7a7a');
+}
 
-  const byPart = {}; wParts.forEach(t => { const k = t.damage.trim(); byPart[k] = (byPart[k]||0) + 1; });
-  renderBar('rChartParts', toArr(byPart), '', '#c05621');
-  const byCity = {}; T.forEach(t => { const k = t.city||'?'; byCity[k] = (byCity[k]||0) + 1; });
-  renderBar('rChartCity', toArr(byCity).slice(0, 12), '', '#0f7a7a');
-
-  const byName = {};
-  T.forEach(t => {
-    if (!byName[t.name]) byName[t.name] = { name: t.name, city: t.city, cnt: 0, parts: [] };
-    byName[t.name].cnt++;
-    if (t.damage) byName[t.name].parts.push(t.damage);
-  });
-  const worst = Object.values(byName).sort((a, b) => b.cnt - a.cnt).slice(0, 15);
-
-  document.getElementById('rWorstBody').innerHTML = worst.length ? worst.map((c, i) => {
-    const rank = ['🥇','🥈','🥉'][i] || (i+1);
+// ════════ REPLACEMENT: BY CHARGER ════════
+function renderRCharger() {
+  const T=filteredTickets.filter(t=>t.type==='replacement');
+  const byName={};
+  T.forEach(t=>{if(!byName[t.name])byName[t.name]={name:t.name,city:t.city,cnt:0,parts:[]}; byName[t.name].cnt++; if(t.damage)byName[t.name].parts.push(t.damage);});
+  const worst=Object.values(byName).sort((a,b)=>b.cnt-a.cnt).slice(0,15);
+  document.getElementById('rWorstBody').innerHTML=worst.length?worst.map((c,i)=>{
+    const rank=['🥇','🥈','🥉'][i]||(i+1);
     return `<tr><td style="font-size:13px;font-weight:700;color:var(--text3)">${rank}</td>
       <td style="font-weight:600">${c.name}</td><td style="color:var(--text2)">${c.city||'—'}</td>
       <td style="font-size:12px;color:var(--text2)">${[...new Set(c.parts)].join(', ')||'—'}</td>
       <td style="text-align:right;font-weight:700;font-size:15px">${c.cnt}</td></tr>`;
-  }).join('') : '<tr><td colspan="5" class="no-data">No replacement data</td></tr>';
+  }).join(''):'<tr><td colspan="5" class="no-data">No replacement data</td></tr>';
+}
 
-  document.getElementById('rLogBody').innerHTML = T.length ? T.map(t =>
+// ════════ REPLACEMENT: LOG ════════
+function renderRLog() {
+  const T=filteredTickets.filter(t=>t.type==='replacement');
+  document.getElementById('rLogBody').innerHTML=T.length?T.map(t=>
     `<tr><td style="font-weight:600;font-size:12px">${t.name}</td><td style="color:var(--text2)">${t.city||'—'}</td>
     <td><span class="badge" style="background:var(--orange-light);color:var(--orange)">${t.damage||'—'}</span></td>
     <td style="font-size:12px;color:var(--text2)">${t.emp||'—'}</td>
-    <td class="mono" style="color:var(--text3)">${t.date ? t.date.toLocaleDateString('en-IN') : '—'}</td></tr>`
-  ).join('') : '<tr><td colspan="5" class="no-data">No replacement records in this period</td></tr>';
+    <td class="mono" style="color:var(--text3)">${t.date?t.date.toLocaleDateString('en-IN'):'—'}</td></tr>`
+  ).join(''):'<tr><td colspan="5" class="no-data">No records in this period</td></tr>';
 }
 
-// ════════ GROUP BREAKDOWN (Zone/City) ════════
+// ════════ GROUP BREAKDOWN (DT Zone/City) ════════
 function renderGroupBreakdown(containerId, rows, groupKey, accentColor) {
-  const container = document.getElementById(containerId);
-  const groups = {};
-  rows.forEach(r => {
-    const k = r[groupKey] || ('(no ' + groupKey + ')');
-    if (!groups[k]) groups[k] = [];
-    groups[k].push(r);
-  });
-  const sorted = Object.entries(groups).sort((a, b) =>
-    b[1].reduce((s, r) => s + r.hours, 0) - a[1].reduce((s, r) => s + r.hours, 0)
-  );
-  if (!sorted.length) { container.innerHTML = '<div class="no-data">No data</div>'; return; }
-  container.innerHTML = sorted.map(([name, gRows], idx) => {
-    const totalHrs = gRows.reduce((s, r) => s + r.hours, 0);
-    const byRca = {};
-    gRows.forEach(r => { byRca[r.rca] = (byRca[r.rca]||0) + r.hours; });
-    const rcaEntries = Object.entries(byRca).sort((a, b) => b[1] - a[1]);
-    const maxV = Math.max(...rcaEntries.map(([, v]) => v));
-    const barsHtml = rcaEntries.map(([rca, hrs]) => {
-      const s = rcaStyle(rca);
-      const pct = maxV > 0 ? Math.round(hrs/maxV*100) : 0;
-      const disp = Number.isInteger(hrs) ? hrs : hrs.toFixed(1);
-      return `<div class="bar-row">
-        <div class="bar-label narrow" title="${rca}">${rca}</div>
-        <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${s.bar};"></div></div>
-        <div class="bar-num">${disp} hrs</div></div>`;
+  const container=document.getElementById(containerId);
+  const groups={};
+  rows.forEach(r=>{const k=r[groupKey]||('(no '+groupKey+')'); if(!groups[k])groups[k]=[]; groups[k].push(r);});
+  const sorted=Object.entries(groups).sort((a,b)=>b[1].reduce((s,r)=>s+r.hours,0)-a[1].reduce((s,r)=>s+r.hours,0));
+  if(!sorted.length){container.innerHTML='<div class="no-data">No data</div>';return;}
+  container.innerHTML=sorted.map(([name,gRows],idx)=>{
+    const totalHrs=gRows.reduce((s,r)=>s+r.hours,0);
+    const byRca={};
+    gRows.forEach(r=>{byRca[r.rca]=(byRca[r.rca]||0)+r.hours;});
+    const rcaEntries=Object.entries(byRca).sort((a,b)=>b[1]-a[1]);
+    const maxV=Math.max(...rcaEntries.map(([,v])=>v));
+    const barsHtml=rcaEntries.map(([rca,hrs])=>{
+      const s=rcaStyle(rca),pct=maxV>0?Math.round(hrs/maxV*100):0;
+      return `<div class="bar-row"><div class="bar-label narrow" title="${rca}">${rca}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${s.bar}"></div></div>
+        <div class="bar-num">${fmtHrs(hrs)} hrs</div></div>`;
     }).join('');
-    const chargers = [...new Set(gRows.map(r => r.charger))];
-    const badges = chargers.slice(0, 8).map(c =>
-      `<span style="font-size:11px;font-family:'DM Mono',monospace;background:var(--surface2);border:1px solid var(--border);padding:2px 8px;border-radius:5px;color:var(--text2);">${c}</span>`
-    ).join('') + (chargers.length > 8 ? `<span style="font-size:11px;color:var(--text3);">+${chargers.length - 8} more</span>` : '');
-    const isOpen = idx === 0;
-    return `<div class="group-card">
-      <div class="group-header" onclick="toggleGroup(this)">
-        <div>
-          <div class="group-name" style="color:${accentColor};">${name}</div>
-          <div style="display:flex;gap:14px;margin-top:5px;">
-            <span style="font-size:12px;color:var(--text3);">${gRows.length} events</span>
-            <span style="font-size:12px;font-weight:600;font-family:'DM Mono',monospace;color:var(--text2);">${totalHrs.toFixed(1)} hrs</span>
-            <span style="font-size:12px;color:var(--text3);">${chargers.length} charger${chargers.length !== 1 ? 's' : ''}</span>
-          </div>
-        </div>
-        <span class="group-chevron ${isOpen ? 'open' : ''}">▼</span>
-      </div>
-      <div class="group-body" style="max-height:${isOpen ? '700px' : '0'};">
-        <div style="padding-top:12px;border-top:1px solid var(--border);margin-top:10px;">
-          <div class="section-title" style="margin-bottom:10px;">RCA Breakdown — Hours</div>
-          ${barsHtml}
-          <div style="margin-top:16px;">
-            <div class="section-title" style="margin-bottom:8px;">Chargers in this ${groupKey}</div>
-            <div style="display:flex;flex-wrap:wrap;gap:6px;">${badges}</div>
-          </div>
-        </div>
-      </div></div>`;
+    const chargers=[...new Set(gRows.map(r=>r.charger))];
+    const badges=chargers.slice(0,8).map(c=>`<span style="font-size:11px;font-family:'DM Mono',monospace;background:var(--surface2);border:1px solid var(--border);padding:2px 8px;border-radius:5px;color:var(--text2)">${c}</span>`).join('')+(chargers.length>8?`<span style="font-size:11px;color:var(--text3)">+${chargers.length-8} more</span>`:'');
+    const isOpen=idx===0;
+    return `<div class="group-card"><div class="group-header" onclick="toggleGroup(this)">
+      <div><div class="group-name" style="color:${accentColor}">${name}</div>
+      <div style="display:flex;gap:14px;margin-top:5px">
+        <span style="font-size:12px;color:var(--text3)">${gRows.length} events</span>
+        <span style="font-size:12px;font-weight:600;font-family:'DM Mono',monospace;color:var(--text2)">${fmtHrs(totalHrs)} hrs</span>
+        <span style="font-size:12px;color:var(--text3)">${chargers.length} charger${chargers.length!==1?'s':''}</span></div></div>
+      <span class="group-chevron ${isOpen?'open':''}">▼</span></div>
+      <div class="group-body" style="max-height:${isOpen?'700px':'0'}">
+        <div style="padding-top:12px;border-top:1px solid var(--border);margin-top:10px">
+          <div class="section-title" style="margin-bottom:10px">RCA Breakdown — Hours</div>${barsHtml}
+          <div style="margin-top:16px"><div class="section-title" style="margin-bottom:8px">Chargers</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">${badges}</div></div>
+        </div></div></div>`;
+  }).join('');
+}
+
+// ════════ TICKET GROUP BREAKDOWN (Complaint zone/city) ════════
+function renderTicketGroupBreakdown(containerId, tickets, groupKey, accentColor) {
+  const container=document.getElementById(containerId);
+  const groups={};
+  tickets.forEach(t=>{const k=t[groupKey]||('(no '+groupKey+')'); if(!groups[k])groups[k]=[]; groups[k].push(t);});
+  const sorted=Object.entries(groups).sort((a,b)=>b[1].length-a[1].length);
+  if(!sorted.length){container.innerHTML='<div class="no-data">No data</div>';return;}
+  container.innerHTML=sorted.map(([name,gT],idx)=>{
+    const byRca={};
+    gT.forEach(t=>{byRca[t.rca]=(byRca[t.rca]||0)+1;});
+    const rcaEntries=Object.entries(byRca).sort((a,b)=>b[1]-a[1]);
+    const maxV=Math.max(...rcaEntries.map(([,v])=>v));
+    const res=gT.filter(t=>t.resHrs!==null);
+    const avgRes=res.length?res.reduce((s,t)=>s+t.resHrs,0)/res.length:null;
+    const barsHtml=rcaEntries.slice(0,6).map(([rca,cnt])=>{
+      const s=rcaStyle(rca),pct=maxV>0?Math.round(cnt/maxV*100):0;
+      return `<div class="bar-row"><div class="bar-label narrow" title="${rca}">${rca||'—'}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${s.bar}"></div></div>
+        <div class="bar-num">${cnt}</div></div>`;
+    }).join('');
+    const isOpen=idx===0;
+    return `<div class="group-card"><div class="group-header" onclick="toggleGroup(this)">
+      <div><div class="group-name" style="color:${accentColor}">${name}</div>
+      <div style="display:flex;gap:14px;margin-top:5px">
+        <span style="font-size:12px;color:var(--text3)">${gT.length} complaints</span>
+        ${avgRes!==null?`<span style="font-size:12px;font-weight:600;font-family:'DM Mono',monospace;color:var(--text2)">${fmtHrs(avgRes)}h avg res</span>`:''}
+        <span style="font-size:12px;color:var(--text3)">${new Set(gT.map(t=>t.name)).size} chargers</span></div></div>
+      <span class="group-chevron ${isOpen?'open':''}">▼</span></div>
+      <div class="group-body" style="max-height:${isOpen?'500px':'0'}">
+        <div style="padding-top:12px;border-top:1px solid var(--border);margin-top:10px">
+          <div class="section-title" style="margin-bottom:10px">Top RCAs</div>${barsHtml}
+        </div></div></div>`;
   }).join('');
 }
 
 function toggleGroup(header) {
-  const body    = header.nextElementSibling;
-  const chevron = header.querySelector('.group-chevron');
-  const isOpen  = chevron.classList.contains('open');
-  body.style.maxHeight = isOpen ? '0' : '700px';
-  chevron.classList.toggle('open', !isOpen);
+  const body=header.nextElementSibling, ch=header.querySelector('.group-chevron');
+  const isOpen=ch.classList.contains('open');
+  body.style.maxHeight=isOpen?'0':'700px';
+  ch.classList.toggle('open',!isOpen);
 }
 
 // ════════ BAR CHART ════════
 function renderBar(id, entries, unit, overrideColor) {
-  const el = document.getElementById(id);
-  if (!entries || !entries.length) { el.innerHTML = '<div class="no-data">No data</div>'; return; }
-  const max = Math.max(...entries.map(e => e.v));
-  el.innerHTML = entries.map(e => {
-    const pct   = max > 0 ? Math.round(e.v / max * 100) : 0;
-    const color = overrideColor || rcaStyle(e.l).bar;
-    const disp  = typeof e.v === 'number' && !Number.isInteger(e.v) ? e.v.toFixed(1) : e.v;
+  const el=document.getElementById(id);
+  if(!el)return;
+  if(!entries||!entries.length){el.innerHTML='<div class="no-data">No data</div>';return;}
+  const max=Math.max(...entries.map(e=>e.v));
+  el.innerHTML=entries.map(e=>{
+    const pct=max>0?Math.round(e.v/max*100):0;
+    const color=overrideColor||rcaStyle(e.l).bar;
+    const disp=typeof e.v==='number'&&!Number.isInteger(e.v)?e.v.toFixed(1):e.v;
     return `<div class="bar-row">
-      <div class="bar-label" title="${e.l}">${e.l || '—'}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color};"></div></div>
-      <div class="bar-num">${disp}${unit ? ' ' + unit : ''}</div></div>`;
+      <div class="bar-label" title="${e.l}">${e.l||'—'}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      <div class="bar-num">${disp}${unit?' '+unit:''}</div></div>`;
   }).join('');
 }
 
 // ════════ UTILS ════════
-function toArr(obj) {
-  return Object.entries(obj).sort((a, b) => b[1] - a[1]).map(([l, v]) => ({ l, v }));
-}
+function toArr(obj) { return Object.entries(obj).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v})); }
 
 // ════════ THEME ════════
 function toggleTheme() {
-  const isDark = document.body.classList.toggle('dark');
-  document.getElementById('themeLabel').textContent = isDark ? 'Dark' : 'Light';
-  localStorage.setItem('cdash_theme', isDark ? 'dark' : 'light');
+  const isDark=document.body.classList.toggle('dark');
+  document.getElementById('themeLabel').textContent=isDark?'Dark':'Light';
+  localStorage.setItem('cdash_theme',isDark?'dark':'light');
 }
 
 // ════════ PERSIST ════════
 function saveURLs() {
-  localStorage.setItem('cdash_s1', document.getElementById('sheetUrl').value);
-  localStorage.setItem('cdash_s2', document.getElementById('sheet2Url').value);
-  localStorage.setItem('cdash_px', document.getElementById('proxyUrl').value);
+  localStorage.setItem('cdash_s1',document.getElementById('sheetUrl').value);
+  localStorage.setItem('cdash_s2',document.getElementById('sheet2Url').value);
+  localStorage.setItem('cdash_px',document.getElementById('proxyUrl').value);
 }
-window.addEventListener('load', () => {
-  // Restore theme
-  if (localStorage.getItem('cdash_theme') === 'dark') {
+window.addEventListener('load',()=>{
+  if(localStorage.getItem('cdash_theme')==='dark'){
     document.body.classList.add('dark');
-    document.getElementById('themeLabel').textContent = 'Dark';
+    document.getElementById('themeLabel').textContent='Dark';
   }
-  const s1 = localStorage.getItem('cdash_s1');
-  const s2 = localStorage.getItem('cdash_s2');
-  const px = localStorage.getItem('cdash_px');
-  if (s1) document.getElementById('sheetUrl').value  = s1;
-  if (s2) document.getElementById('sheet2Url').value = s2;
-  if (px) document.getElementById('proxyUrl').value  = px;
-  if (s1) loadAll();
+  const s1=localStorage.getItem('cdash_s1'),s2=localStorage.getItem('cdash_s2'),px=localStorage.getItem('cdash_px');
+  if(s1) document.getElementById('sheetUrl').value=s1;
+  if(s2) document.getElementById('sheet2Url').value=s2;
+  if(px) document.getElementById('proxyUrl').value=px;
+  if(s1) loadAll();
 });
-['sheetUrl', 'sheet2Url', 'proxyUrl'].forEach(id =>
-  document.getElementById(id).addEventListener('change', saveURLs)
+['sheetUrl','sheet2Url','proxyUrl'].forEach(id=>
+  document.getElementById(id).addEventListener('change',saveURLs)
 );
 </script>
 </body>
