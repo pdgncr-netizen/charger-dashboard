@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Charger Operations Dashboard</title>
+  <title>Manish Operation Clarity Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
@@ -23,7 +23,28 @@
       --radius: 10px; --radius-lg: 14px;
       --shadow: 0 1px 4px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(0,0,0,0.08);
     }
-    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    body.dark {
+      --bg: #0f1117; --surface: #1a1d27; --surface2: #22263a;
+      --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.14);
+      --text: #e8e8f0; --text2: #9a9ab0; --text3: #5a5a78;
+      --blue: #4d8df7; --blue-light: #1a2a4a; --blue-dark: #2255cc;
+      --amber: #e8a020; --amber-light: #2a1f08;
+      --green: #3ab56a; --green-light: #0f2a1e;
+      --teal: #22b8b8; --teal-light: #0a2828;
+      --purple: #a07af0; --purple-light: #1e1240;
+      --red: #e05a4a; --red-light: #2a0f0a;
+      --orange: #e07040; --orange-light: #2a1208;
+      --gray: #8a8aa0; --gray-light: #1e1e2e;
+      --shadow: 0 2px 8px rgba(0,0,0,0.4), 0 0 0 0.5px rgba(255,255,255,0.05);
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; transition: background 0.3s, color 0.3s; }
+    /* ── Dark mode toggle ── */
+    .theme-toggle { display:flex; align-items:center; gap:8px; cursor:pointer; background:var(--surface2); border:1px solid var(--border2); border-radius:99px; padding:5px 12px 5px 8px; font-size:12px; font-weight:500; color:var(--text2); transition:all 0.15s; user-select:none; }
+    .theme-toggle:hover { border-color:var(--blue); color:var(--blue); }
+    .toggle-track { width:32px; height:18px; border-radius:99px; background:var(--border2); position:relative; transition:background 0.2s; flex-shrink:0; }
+    body.dark .toggle-track { background:var(--blue); }
+    .toggle-thumb { width:14px; height:14px; border-radius:50%; background:#fff; position:absolute; top:2px; left:2px; transition:transform 0.2s; box-shadow:0 1px 3px rgba(0,0,0,0.3); }
+    body.dark .toggle-thumb { transform:translateX(14px); }
 
     /* ── Header ── */
     .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
@@ -143,6 +164,8 @@
     .hidden { display: none !important; }
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
+    .subtab-panel { display: none; }
+    .subtab-panel.active { display: block; }
 
     /* ── Howto ── */
     .howto { background: var(--blue-light); border: 1px solid rgba(26,110,245,0.15); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; }
@@ -164,9 +187,15 @@
       <path d="M8 20 L14 8 L20 20" stroke="white" stroke-width="2" stroke-linejoin="round" fill="none"/>
       <path d="M10 16 L18 16" stroke="white" stroke-width="2" stroke-linecap="round"/>
     </svg>
-    <span>Charger Operations Dashboard</span>
+    <span>Manish Operation Clarity Dashboard</span>
   </div>
-  <span class="last-updated" id="lastUpdated">Not loaded yet</span>
+  <div style="display:flex;align-items:center;gap:14px;">
+    <div class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
+      <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      <span id="themeLabel">Light</span>
+    </div>
+    <span class="last-updated" id="lastUpdated">Not loaded yet</span>
+  </div>
 </header>
 
 <main class="main">
@@ -242,78 +271,85 @@
 
   <!-- ═══ TABS ═══ -->
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('overview')">⚡ Overview</button>
-    <button class="tab" onclick="switchTab('charger')">🔌 By Charger</button>
-    <button class="tab" onclick="switchTab('zone')">📍 By Zone</button>
-    <button class="tab" onclick="switchTab('city')">🌆 By City</button>
-    <button class="tab" onclick="switchTab('complaint')">🔧 Daily Complaints</button>
-    <button class="tab" onclick="switchTab('maintenance')">🔩 Monthly Maintenance</button>
-    <button class="tab" onclick="switchTab('replacement')">🔄 Replacement</button>
+    <button class="tab main-tab-btn active" data-tab="chargerdowntime" onclick="switchTab('chargerdowntime')">⚡ Charger Downtime</button>
+    <button class="tab main-tab-btn" data-tab="complaint" onclick="switchTab('complaint')">🔧 Daily Complaints</button>
+    <button class="tab main-tab-btn" data-tab="maintenance" onclick="switchTab('maintenance')">🔩 Monthly Maintenance</button>
+    <button class="tab main-tab-btn" data-tab="replacement" onclick="switchTab('replacement')">🔄 Replacement</button>
   </div>
 
-  <!-- ═══ TAB: OVERVIEW ═══ -->
-  <div class="tab-panel active" id="tab-overview">
-    <div class="grid2">
-      <div class="card">
-        <div class="section-title">Top Chargers by Downtime (hrs)</div>
-        <div id="topChargersChart"><div class="no-data">Load data first</div></div>
-      </div>
-      <div class="card">
-        <div class="section-title">RCA Distribution — All</div>
-        <div id="globalRcaChart"><div class="no-data">Load data first</div></div>
-      </div>
+  <!-- ═══ TAB: CHARGER DOWNTIME (main wrapper with sub-tabs) ═══ -->
+  <div class="tab-panel active" id="tab-chargerdowntime">
+    <div class="tabs" style="margin-bottom:1.5rem;background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);">
+      <button class="tab sub-tab-btn active" data-subtab="overview" onclick="switchSubTab('overview')">⚡ Overview</button>
+      <button class="tab sub-tab-btn" data-subtab="charger" onclick="switchSubTab('charger')">🔌 By Charger</button>
+      <button class="tab sub-tab-btn" data-subtab="zone" onclick="switchSubTab('zone')">📍 By Zone</button>
+      <button class="tab sub-tab-btn" data-subtab="city" onclick="switchSubTab('city')">🌆 By City</button>
     </div>
-  </div>
 
-  <!-- ═══ TAB: BY CHARGER ═══ -->
-  <div class="tab-panel" id="tab-charger">
-    <div class="charger-wrap">
-      <div class="section-title">Select Charger ID</div>
-      <input type="text" class="charger-search" id="chargerSearch" placeholder="Search charger ID…" oninput="filterChips()" />
-      <div class="charger-grid" id="chargerGrid"><div class="no-data">Load data to see chargers</div></div>
-    </div>
-    <div id="detailSection" class="hidden">
-      <div class="detail-banner">
-        <div>
-          <div class="detail-id" id="detailId"></div>
-          <div style="font-size:13px;color:var(--text2);margin-top:4px;" id="detailSite"></div>
-        </div>
-        <div class="detail-tags" id="detailTags"></div>
-      </div>
+    <!-- SUB: OVERVIEW -->
+    <div class="subtab-panel active" id="subtab-overview">
       <div class="grid2">
-        <div class="card"><div class="section-title">Downtime Hours by RCA</div><div id="rcaHrsChart"></div></div>
-        <div class="card"><div class="section-title">Incident Count by RCA</div><div id="rcaCntChart"></div></div>
-      </div>
-      <div class="card card-mb">
-        <div class="section-title">All Events — <span id="chargerEventCount"></span></div>
-        <div class="tbl-wrap">
-          <table>
-            <thead><tr><th>RCA</th><th>Downtime Start</th><th>Downtime End</th><th style="text-align:right">Hours</th></tr></thead>
-            <tbody id="eventTableBody"></tbody>
-          </table>
+        <div class="card">
+          <div class="section-title">Top Chargers by Downtime (hrs)</div>
+          <div id="topChargersChart"><div class="no-data">Load data first</div></div>
+        </div>
+        <div class="card">
+          <div class="section-title">RCA Distribution — All</div>
+          <div id="globalRcaChart"><div class="no-data">Load data first</div></div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- ═══ TAB: BY ZONE ═══ -->
-  <div class="tab-panel" id="tab-zone">
-    <div class="grid2" style="margin-bottom:1rem;">
-      <div class="card"><div class="section-title">Total Downtime hrs by Zone</div><div id="zoneHrsChart"><div class="no-data">Load data first</div></div></div>
-      <div class="card"><div class="section-title">RCA Distribution — All Zones</div><div id="zoneGlobalRcaChart"><div class="no-data">Load data first</div></div></div>
+    <!-- SUB: BY CHARGER -->
+    <div class="subtab-panel hidden" id="subtab-charger">
+      <div class="charger-wrap">
+        <div class="section-title">Select Charger ID</div>
+        <input type="text" class="charger-search" id="chargerSearch" placeholder="Search charger ID…" oninput="filterChips()" />
+        <div class="charger-grid" id="chargerGrid"><div class="no-data">Load data to see chargers</div></div>
+      </div>
+      <div id="detailSection" class="hidden">
+        <div class="detail-banner">
+          <div>
+            <div class="detail-id" id="detailId"></div>
+            <div style="font-size:13px;color:var(--text2);margin-top:4px;" id="detailSite"></div>
+          </div>
+          <div class="detail-tags" id="detailTags"></div>
+        </div>
+        <div class="grid2">
+          <div class="card"><div class="section-title">Downtime Hours by RCA</div><div id="rcaHrsChart"></div></div>
+          <div class="card"><div class="section-title">Incident Count by RCA</div><div id="rcaCntChart"></div></div>
+        </div>
+        <div class="card card-mb">
+          <div class="section-title">All Events — <span id="chargerEventCount"></span></div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>RCA</th><th>Downtime Start</th><th>Downtime End</th><th style="text-align:right">Hours</th></tr></thead>
+              <tbody id="eventTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="section-title">Zone-by-Zone RCA Breakdown</div>
-    <div id="zoneBreakdownList"></div>
-  </div>
 
-  <!-- ═══ TAB: BY CITY ═══ -->
-  <div class="tab-panel" id="tab-city">
-    <div class="grid2" style="margin-bottom:1rem;">
-      <div class="card"><div class="section-title">Total Downtime hrs by City</div><div id="cityHrsChart"><div class="no-data">Load data first</div></div></div>
-      <div class="card"><div class="section-title">RCA Distribution — All Cities</div><div id="cityGlobalRcaChart"><div class="no-data">Load data first</div></div></div>
+    <!-- SUB: BY ZONE -->
+    <div class="subtab-panel hidden" id="subtab-zone">
+      <div class="grid2" style="margin-bottom:1rem;">
+        <div class="card"><div class="section-title">Total Downtime hrs by Zone</div><div id="zoneHrsChart"><div class="no-data">Load data first</div></div></div>
+        <div class="card"><div class="section-title">RCA Distribution — All Zones</div><div id="zoneGlobalRcaChart"><div class="no-data">Load data first</div></div></div>
+      </div>
+      <div class="section-title">Zone-by-Zone RCA Breakdown</div>
+      <div id="zoneBreakdownList"></div>
     </div>
-    <div class="section-title">City-by-City RCA Breakdown</div>
-    <div id="cityBreakdownList"></div>
+
+    <!-- SUB: BY CITY -->
+    <div class="subtab-panel hidden" id="subtab-city">
+      <div class="grid2" style="margin-bottom:1rem;">
+        <div class="card"><div class="section-title">Total Downtime hrs by City</div><div id="cityHrsChart"><div class="no-data">Load data first</div></div></div>
+        <div class="card"><div class="section-title">RCA Distribution — All Cities</div><div id="cityGlobalRcaChart"><div class="no-data">Load data first</div></div></div>
+      </div>
+      <div class="section-title">City-by-City RCA Breakdown</div>
+      <div id="cityBreakdownList"></div>
+    </div>
   </div>
 
   <!-- ═══ TAB: DAILY COMPLAINTS ═══ -->
@@ -417,7 +453,7 @@ let filteredRows = [];
 let allTickets = [];    // Sheet 2: complaints / maintenance / replacement
 let filteredTickets = [];
 let activeCharger = null;
-let activeTab = 'overview';
+let activeTab = 'chargerdowntime';
 
 // ════════ RCA STYLES ════════
 const RCA_COLORS = [
@@ -469,13 +505,21 @@ function parseS1(csv) {
     const charger = clean(c[iCharger]);
     if (!charger) continue;
     const startRaw = clean(iStart >= 0 ? c[iStart] : '');
+    const rawVal = parseFloat((clean(c[iHours]) || '0').replace(/[^0-9.]/g, '')) || 0;
     rows.push({
       charger, rca: clean(c[iRCA]),
-      hours: parseFloat((clean(c[iHours]) || '0').replace(/[^0-9.]/g, '')) || 0,
+      _rawHours: rawVal,
+      hours: rawVal, // will be normalised after all rows parsed
       site: clean(c[iSite]), city: clean(c[iCity]), zone: clean(c[iZone]),
       start: startRaw, end: clean(iEnd >= 0 ? c[iEnd] : ''),
       date: parseDate(startRaw),
     });
+  }
+  // Auto-detect: if median value > 9999, values are likely in seconds → convert to hours
+  if (rows.length) {
+    const vals = rows.map(r => r._rawHours).filter(v => v > 0).sort((a,b)=>a-b);
+    const median = vals[Math.floor(vals.length/2)] || 0;
+    if (median > 9999) rows.forEach(r => { r.hours = parseFloat((r._rawHours / 3600).toFixed(2)); });
   }
   return rows;
 }
@@ -667,22 +711,38 @@ function clearFilter() {
 // ════════ TABS ════════
 function switchTab(name) {
   activeTab = name;
-  const names = ['overview','charger','zone','city','complaint','maintenance','replacement'];
-  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', names[i] === name));
+  document.querySelectorAll('.main-tab-btn').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
   renderActive();
 }
 
+let activeSubTab = 'overview';
+function switchSubTab(name) {
+  activeSubTab = name;
+  document.querySelectorAll('.sub-tab-btn').forEach(t => t.classList.toggle('active', t.dataset.subtab === name));
+  document.querySelectorAll('.subtab-panel').forEach(p => { p.classList.remove('active'); p.classList.add('hidden'); });
+  const panel = document.getElementById('subtab-' + name);
+  if (panel) { panel.classList.remove('hidden'); panel.classList.add('active'); }
+  renderSubActive();
+}
+
+function renderSubActive() {
+  const map = {
+    overview: renderOverview,
+    charger:  () => { renderChargerChips(); if (activeCharger) renderDetail(activeCharger); },
+    zone:     renderZone,
+    city:     renderCity,
+  };
+  (map[activeSubTab] || (() => {}))();
+}
+
 function renderActive() {
   const map = {
-    overview:    renderOverview,
-    charger:     () => { renderChargerChips(); if (activeCharger) renderDetail(activeCharger); },
-    zone:        renderZone,
-    city:        renderCity,
-    complaint:   renderComplaint,
-    maintenance: renderMaintenance,
-    replacement: renderReplacement,
+    chargerdowntime: renderSubActive,
+    complaint:       renderComplaint,
+    maintenance:     renderMaintenance,
+    replacement:     renderReplacement,
   };
   (map[activeTab] || (() => {}))();
 }
@@ -1012,6 +1072,13 @@ function toArr(obj) {
   return Object.entries(obj).sort((a, b) => b[1] - a[1]).map(([l, v]) => ({ l, v }));
 }
 
+// ════════ THEME ════════
+function toggleTheme() {
+  const isDark = document.body.classList.toggle('dark');
+  document.getElementById('themeLabel').textContent = isDark ? 'Dark' : 'Light';
+  localStorage.setItem('cdash_theme', isDark ? 'dark' : 'light');
+}
+
 // ════════ PERSIST ════════
 function saveURLs() {
   localStorage.setItem('cdash_s1', document.getElementById('sheetUrl').value);
@@ -1019,6 +1086,11 @@ function saveURLs() {
   localStorage.setItem('cdash_px', document.getElementById('proxyUrl').value);
 }
 window.addEventListener('load', () => {
+  // Restore theme
+  if (localStorage.getItem('cdash_theme') === 'dark') {
+    document.body.classList.add('dark');
+    document.getElementById('themeLabel').textContent = 'Dark';
+  }
   const s1 = localStorage.getItem('cdash_s1');
   const s2 = localStorage.getItem('cdash_s2');
   const px = localStorage.getItem('cdash_px');
