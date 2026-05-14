@@ -86,6 +86,13 @@
 
     .section-title { font-size: 12px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
 
+    /* ── Info box ── */
+    .info-box { background: var(--blue-light); border: 1px solid rgba(26,110,245,0.2); border-radius: var(--radius-lg); padding: 1rem 1.25rem; margin-bottom: 1.5rem; }
+    .info-box h4 { font-size: 13px; font-weight: 600; color: var(--blue-dark); margin-bottom: 8px; }
+    .info-box p { font-size: 12px; color: var(--blue-dark); line-height: 1.6; margin-bottom: 4px; }
+    .info-box code { font-family: 'DM Mono', monospace; background: rgba(26,110,245,0.15); padding: 1px 5px; border-radius: 4px; font-size: 11px; }
+    .info-box .formula { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; color: var(--blue-dark); background: rgba(26,110,245,0.12); padding: 8px 12px; border-radius: 8px; margin: 8px 0; display: block; }
+
     /* ── Charger selector ── */
     .charger-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow); }
     .charger-search { width: 100%; max-width: 280px; font-size: 13px; padding: 7px 12px; border: 1px solid var(--border2); border-radius: var(--radius); background: var(--surface2); color: var(--text); margin-bottom: 14px; outline: none; font-family: 'DM Sans', sans-serif; }
@@ -102,6 +109,8 @@
     .tag { font-size: 12px; padding: 4px 10px; border-radius: 6px; font-weight: 500; }
     .tag-blue { background: var(--blue-light); color: var(--blue-dark); }
     .tag-gray { background: var(--gray-light); color: var(--gray); }
+    .tag-red { background: var(--red-light); color: var(--red); }
+    .tag-green { background: var(--green-light); color: var(--green); }
 
     /* ── Grids & Cards ── */
     .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 1.5rem; }
@@ -153,6 +162,12 @@
 
     /* ── Section note ── */
     .section-note { font-size: 12px; color: var(--text3); margin-bottom: 12px; }
+
+    /* ── Downtime % indicator ── */
+    .pct-bar-wrap { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+    .pct-bar-track { flex: 1; height: 8px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
+    .pct-bar-fill { height: 100%; border-radius: 99px; transition: width 0.6s ease; }
+    .pct-label { font-size: 12px; font-weight: 600; font-family: 'DM Mono', monospace; min-width: 48px; text-align: right; }
   </style>
 </head>
 <body>
@@ -235,6 +250,7 @@
     <div class="metric" style="--metric-color:var(--purple)"><div class="metric-label">Unique Chargers</div><div class="metric-val" id="mChargers">—</div></div>
     <div class="metric" style="--metric-color:var(--red)"><div class="metric-label">Total Downtime</div><div class="metric-val" id="mHours">—</div><div class="metric-sub">hours</div></div>
     <div class="metric" style="--metric-color:var(--amber)"><div class="metric-label">Avg / Event</div><div class="metric-val" id="mAvg">—</div><div class="metric-sub">hours</div></div>
+    <div class="metric" style="--metric-color:var(--teal)"><div class="metric-label">Avg / Charger / Day</div><div class="metric-val" id="mAvgPerDay">—</div><div class="metric-sub">hours</div></div>
     <div class="metric" style="--metric-color:var(--green)"><div class="metric-label">Daily Complaints</div><div class="metric-val" id="mComplaints">—</div></div>
     <div class="metric" style="--metric-color:var(--teal)"><div class="metric-label">Maintenance</div><div class="metric-val" id="mMaint">—</div></div>
     <div class="metric" style="--metric-color:var(--orange)"><div class="metric-label">Replacements</div><div class="metric-val" id="mReplace">—</div></div>
@@ -253,6 +269,13 @@
 
   <!-- ═══ TAB: OVERVIEW ═══ -->
   <div class="tab-panel active" id="tab-overview">
+    <!-- Avg per charger per day explanation -->
+    <div class="info-box" id="overviewCalcInfo" style="display:none;">
+      <h4>📊 How "Avg / Charger / Day" is calculated</h4>
+      <span class="formula">Avg = (Total Downtime Hours ÷ Unique Chargers) ÷ Days in Range</span>
+      <p>Step A: Total downtime ÷ unique chargers = downtime per charger for the period</p>
+      <p>Step B: Divide by the number of days in the date range = daily average per charger</p>
+    </div>
     <div class="grid2">
       <div class="card">
         <div class="section-title">Top Chargers by Downtime (hrs)</div>
@@ -280,6 +303,19 @@
         </div>
         <div class="detail-tags" id="detailTags"></div>
       </div>
+
+      <!-- Individual Downtime % info box -->
+      <div class="info-box" style="margin-bottom:1.5rem;">
+        <h4>📉 Individual Downtime % — How it's calculated</h4>
+        <span class="formula">Downtime % = (Charger Total Downtime Hours ÷ (Days in Range × 24)) × 100</span>
+        <p>Total available hours in the date range = Days × 24 hours. The charger's total downtime divided by available hours gives the fraction offline.</p>
+      </div>
+      <!-- Downtime % visual -->
+      <div class="card card-mb" id="downtimePctCard">
+        <div class="section-title">⏱ Downtime % for Selected Period</div>
+        <div id="downtimePctDisplay"></div>
+      </div>
+
       <div class="grid2">
         <div class="card"><div class="section-title">Downtime Hours by RCA</div><div id="rcaHrsChart"></div></div>
         <div class="card"><div class="section-title">Incident Count by RCA</div><div id="rcaCntChart"></div></div>
@@ -412,9 +448,9 @@
 
 <script>
 // ════════ STATE ════════
-let allRows = [];       // Sheet 1: downtime
+let allRows = [];
 let filteredRows = [];
-let allTickets = [];    // Sheet 2: complaints / maintenance / replacement
+let allTickets = [];
 let filteredTickets = [];
 let activeCharger = null;
 let activeTab = 'overview';
@@ -449,6 +485,29 @@ function splitCSVLine(line) {
 function clean(s) { return (s || '').replace(/"/g, '').trim(); }
 function parseDate(s) { if (!s) return null; const d = new Date(s); return isNaN(d.getTime()) ? null : d; }
 
+// ════════ SAFE NUMBER PARSER — KEY FIX ════════
+// Strips ALL non-numeric chars except . and leading -
+// Prevents string concatenation masquerading as addition
+function safeNum(s) {
+  if (s === null || s === undefined) return 0;
+  if (typeof s === 'number') return isNaN(s) ? 0 : s;
+  // Remove thousand-separators, spaces, keep only digits, dot, minus
+  const cleaned = String(s).replace(/[^0-9.\-]/g, '');
+  const v = parseFloat(cleaned);
+  return isNaN(v) ? 0 : v;
+}
+
+// ════════ DATE RANGE HELPERS ════════
+function getDateRangeDays() {
+  const from = document.getElementById('dateFrom').value;
+  const to   = document.getElementById('dateTo').value;
+  if (!from || !to) return null;
+  const d1 = new Date(from);
+  const d2 = new Date(to);
+  const diff = Math.round((d2 - d1) / (1000 * 60 * 60 * 24)) + 1; // inclusive
+  return diff > 0 ? diff : null;
+}
+
 // ════════ SHEET 1 PARSER (Downtime) ════════
 function parseS1(csv) {
   const lines = csv.trim().split(/\r?\n/);
@@ -469,9 +528,11 @@ function parseS1(csv) {
     const charger = clean(c[iCharger]);
     if (!charger) continue;
     const startRaw = clean(iStart >= 0 ? c[iStart] : '');
+    // FIXED: use safeNum to guarantee numeric, not string
+    const hrs = safeNum(iHours >= 0 ? clean(c[iHours]) : '0');
     rows.push({
       charger, rca: clean(c[iRCA]),
-      hours: parseFloat((clean(c[iHours]) || '0').replace(/[^0-9.]/g, '')) || 0,
+      hours: hrs,
       site: clean(c[iSite]), city: clean(c[iCity]), zone: clean(c[iZone]),
       start: startRaw, end: clean(iEnd >= 0 ? c[iEnd] : ''),
       date: parseDate(startRaw),
@@ -511,10 +572,11 @@ function parseS2(csv) {
     else if (act.includes('monthly maintenance') || act.includes('maintenance')) type = 'maintenance';
     else if (act.includes('replacement')) type = 'replacement';
     const resRaw = clean(iRes >= 0 ? c[iRes] : '');
+    const resNum = safeNum(resRaw);
     rows.push({
       name, city: clean(c[iCity]), zone: clean(c[iZone]),
       closeRaw, date: parseDate(closeRaw),
-      resHrs: (resRaw === '' || resRaw === 'NaN') ? null : parseFloat(resRaw),
+      resHrs: (resRaw === '' || resRaw === 'NaN') ? null : resNum,
       emp: clean(iEmp >= 0 ? c[iEmp] : ''),
       remarks: clean(iRemarks >= 0 ? c[iRemarks] : ''),
       activity: actRaw, type,
@@ -552,14 +614,11 @@ async function tryFetch(url) {
 
 async function fetchCSV(sheetUrl, proxy) {
   const csvUrl = toCSVUrl(sheetUrl);
-  // Strategy 1: Cloudflare proxy
   if (proxy && proxy.trim()) {
     const workerUrl = proxy.replace(/\/$/, '') + '?url=' + encodeURIComponent(csvUrl);
     try { return await tryFetch(workerUrl); } catch(e) { console.warn('Proxy failed:', e.message); }
   }
-  // Strategy 2: allorigins.win
   try { return await tryFetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(csvUrl)); } catch(e) { console.warn('allorigins failed:', e.message); }
-  // Strategy 3: corsproxy.io
   try { return await tryFetch('https://corsproxy.io/?' + encodeURIComponent(csvUrl)); } catch(e) { console.warn('corsproxy failed:', e.message); }
   throw new Error('All fetch methods failed. Check your Proxy URL and that the sheet is published.');
 }
@@ -584,7 +643,6 @@ async function loadAll() {
   btn.classList.add('spinning');
   setPill(1, 'loading', 'Loading Sheet 1…');
 
-  // Load Sheet 1
   try {
     const csv1 = await fetchCSV(s1, proxy);
     allRows = parseS1(csv1);
@@ -601,7 +659,6 @@ async function loadAll() {
     return;
   }
 
-  // Load Sheet 2 (optional)
   allTickets = []; filteredTickets = [];
   if (s2) {
     document.getElementById('pill2').classList.remove('hidden');
@@ -695,25 +752,47 @@ function renderAll() {
 // ════════ GLOBAL METRICS ════════
 function renderGlobalMetrics() {
   const R = filteredRows, T = filteredTickets;
-  const hrs  = R.reduce((s, r) => s + r.hours, 0);
+
+  // FIXED: use reduce with Number() coercion to prevent string concatenation
+  const hrs   = R.reduce((s, r) => s + Number(r.hours), 0);
   const total = R.length;
+  const uniqueChargers = new Set(R.map(r => r.charger)).size;
+
   document.getElementById('mTotal').textContent     = total;
-  document.getElementById('mChargers').textContent  = new Set(R.map(r => r.charger)).size;
+  document.getElementById('mChargers').textContent  = uniqueChargers;
   document.getElementById('mHours').textContent     = hrs.toFixed(1);
   document.getElementById('mAvg').textContent       = total ? (hrs / total).toFixed(1) : '—';
-  document.getElementById('mComplaints').textContent= T.filter(t => t.type === 'complaint').length;
-  document.getElementById('mMaint').textContent     = T.filter(t => t.type === 'maintenance').length;
-  document.getElementById('mReplace').textContent   = T.filter(t => t.type === 'replacement').length;
+
+  // NEW: Avg downtime per charger per day
+  const days = getDateRangeDays();
+  if (uniqueChargers > 0 && days) {
+    const perCharger = hrs / uniqueChargers;
+    const perDay = perCharger / days;
+    document.getElementById('mAvgPerDay').textContent = perDay.toFixed(2);
+  } else {
+    document.getElementById('mAvgPerDay').textContent = '—';
+  }
+
+  document.getElementById('mComplaints').textContent = T.filter(t => t.type === 'complaint').length;
+  document.getElementById('mMaint').textContent      = T.filter(t => t.type === 'maintenance').length;
+  document.getElementById('mReplace').textContent    = T.filter(t => t.type === 'replacement').length;
 }
 
 // ════════ OVERVIEW ════════
 function renderOverview() {
   const rows = filteredRows;
+  const days = getDateRangeDays();
+
+  // Show/hide the calc info box
+  const infoBox = document.getElementById('overviewCalcInfo');
+  if (days) infoBox.style.display = 'block'; else infoBox.style.display = 'none';
+
   const byC = {};
-  rows.forEach(r => { byC[r.charger] = (byC[r.charger]||0) + r.hours; });
+  rows.forEach(r => { byC[r.charger] = (byC[r.charger] || 0) + Number(r.hours); });
   renderBar('topChargersChart', toArr(byC).slice(0, 10), 'hrs', '#1a6ef5');
+
   const byR = {};
-  rows.forEach(r => { byR[r.rca] = (byR[r.rca]||0) + r.hours; });
+  rows.forEach(r => { byR[r.rca] = (byR[r.rca] || 0) + Number(r.hours); });
   renderBar('globalRcaChart', toArr(byR), 'hrs');
 }
 
@@ -733,26 +812,72 @@ function selectCharger(id) {
   activeCharger = id; renderChargerChips(); renderDetail(id);
   document.getElementById('detailSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
+
 function renderDetail(id) {
   const rows = filteredRows.filter(r => r.charger === id);
   if (!rows.length) { document.getElementById('detailSection').classList.add('hidden'); return; }
-  const totalHrs = rows.reduce((s, r) => s + r.hours, 0);
+
+  // FIXED: use Number() coercion
+  const totalHrs = rows.reduce((s, r) => s + Number(r.hours), 0);
+
   document.getElementById('detailId').textContent   = id;
   document.getElementById('detailSite').textContent = [rows[0]?.zone, rows[0]?.site, rows[0]?.city].filter(Boolean).join(' · ');
   document.getElementById('chargerEventCount').textContent = rows.length + ' event' + (rows.length !== 1 ? 's' : '');
+
+  // NEW: Calculate individual downtime %
+  const days = getDateRangeDays();
+  let pctTag = '';
+  let pctHtml = '<div class="no-data">Set a date range to calculate downtime %</div>';
+  if (days) {
+    const availableHours = days * 24;
+    const pct = (totalHrs / availableHours) * 100;
+    const pctClamped = Math.min(pct, 100);
+    // Color: green < 5%, amber 5-15%, red > 15%
+    const barColor = pct < 5 ? '#1f7a3e' : pct < 15 ? '#d4820a' : '#c0392b';
+    const tagClass = pct < 5 ? 'tag-green' : pct < 15 ? 'tag-blue' : 'tag-red';
+    pctTag = `<span class="tag ${tagClass}">${pct.toFixed(2)}% downtime</span>`;
+    pctHtml = `
+      <div style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <span style="font-size:13px;color:var(--text2);">${id}</span>
+          <span style="font-size:22px;font-weight:700;font-family:'DM Mono',monospace;color:${barColor};">${pct.toFixed(2)}%</span>
+        </div>
+        <div class="pct-bar-wrap">
+          <div class="pct-bar-track">
+            <div class="pct-bar-fill" style="width:${pctClamped}%;background:${barColor};"></div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;">
+          <span style="font-size:12px;color:var(--text3);">Downtime: <strong style="color:var(--text);">${totalHrs.toFixed(1)} hrs</strong></span>
+          <span style="font-size:12px;color:var(--text3);">Available: <strong style="color:var(--text);">${availableHours} hrs</strong> (${days} days × 24)</span>
+        </div>
+        <div style="margin-top:6px;font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;">
+          Formula: ${totalHrs.toFixed(1)} ÷ ${availableHours} × 100 = ${pct.toFixed(4)}%
+        </div>
+      </div>`;
+  }
+
+  document.getElementById('downtimePctDisplay').innerHTML = pctHtml;
   document.getElementById('detailTags').innerHTML =
-    `<span class="tag tag-blue">${rows.length} incidents</span><span class="tag tag-gray">${totalHrs.toFixed(1)} hrs total</span>`;
+    `<span class="tag tag-blue">${rows.length} incidents</span>` +
+    `<span class="tag tag-gray">${totalHrs.toFixed(1)} hrs total</span>` +
+    pctTag;
+
   const byHrs = {}, byCnt = {};
-  rows.forEach(r => { byHrs[r.rca] = (byHrs[r.rca]||0) + r.hours; byCnt[r.rca] = (byCnt[r.rca]||0) + 1; });
+  rows.forEach(r => {
+    byHrs[r.rca] = (byHrs[r.rca] || 0) + Number(r.hours);
+    byCnt[r.rca] = (byCnt[r.rca] || 0) + 1;
+  });
   renderBar('rcaHrsChart', toArr(byHrs), 'hrs');
   renderBar('rcaCntChart', toArr(byCnt), '');
+
   document.getElementById('eventTableBody').innerHTML = rows.map(r => {
     const s = rcaStyle(r.rca);
     return `<tr>
       <td><span class="badge" style="background:${s.bg};color:${s.text};">${r.rca||'—'}</span></td>
       <td class="mono" style="color:var(--text2);">${r.start||'—'}</td>
       <td class="mono" style="color:var(--text2);">${r.end||'—'}</td>
-      <td style="text-align:right;font-weight:600;" class="mono">${r.hours}</td></tr>`;
+      <td style="text-align:right;font-weight:600;" class="mono">${Number(r.hours).toFixed(2)}</td></tr>`;
   }).join('');
   document.getElementById('detailSection').classList.remove('hidden');
 }
@@ -761,20 +886,21 @@ function renderDetail(id) {
 function renderZone() {
   const rows = filteredRows;
   const byZ = {};
-  rows.forEach(r => { const k = r.zone || '(no zone)'; byZ[k] = (byZ[k]||0) + r.hours; });
+  rows.forEach(r => { const k = r.zone || '(no zone)'; byZ[k] = (byZ[k] || 0) + Number(r.hours); });
   renderBar('zoneHrsChart', toArr(byZ), 'hrs', '#6c3fc4');
   const byR = {};
-  rows.forEach(r => { byR[r.rca] = (byR[r.rca]||0) + r.hours; });
+  rows.forEach(r => { byR[r.rca] = (byR[r.rca] || 0) + Number(r.hours); });
   renderBar('zoneGlobalRcaChart', toArr(byR), 'hrs');
   renderGroupBreakdown('zoneBreakdownList', rows, 'zone', '#6c3fc4');
 }
+
 function renderCity() {
   const rows = filteredRows;
   const byC = {};
-  rows.forEach(r => { const k = r.city || '(no city)'; byC[k] = (byC[k]||0) + r.hours; });
+  rows.forEach(r => { const k = r.city || '(no city)'; byC[k] = (byC[k] || 0) + Number(r.hours); });
   renderBar('cityHrsChart', toArr(byC), 'hrs', '#0f7a7a');
   const byR = {};
-  rows.forEach(r => { byR[r.rca] = (byR[r.rca]||0) + r.hours; });
+  rows.forEach(r => { byR[r.rca] = (byR[r.rca] || 0) + Number(r.hours); });
   renderBar('cityGlobalRcaChart', toArr(byR), 'hrs');
   renderGroupBreakdown('cityBreakdownList', rows, 'city', '#0f7a7a');
 }
@@ -783,24 +909,22 @@ function renderCity() {
 function renderComplaint() {
   const T = filteredTickets.filter(t => t.type === 'complaint');
   const resolved = T.filter(t => t.resHrs !== null);
-  const avgRes = resolved.length ? resolved.reduce((s, t) => s + t.resHrs, 0) / resolved.length : null;
+  const avgRes = resolved.length ? resolved.reduce((s, t) => s + Number(t.resHrs), 0) / resolved.length : null;
 
-  // Repeat offenders: same charger + same RCA ≥ 3 times
   const combo = {};
   T.forEach(t => {
     const k = t.name + '||' + t.rca;
     if (!combo[k]) combo[k] = { name: t.name, city: t.city, rca: t.rca, visits: [], res: [] };
     combo[k].visits.push(t);
-    if (t.resHrs !== null) combo[k].res.push(t.resHrs);
+    if (t.resHrs !== null) combo[k].res.push(Number(t.resHrs));
   });
   const repList = Object.values(combo).filter(c => c.visits.length >= 3).sort((a, b) => b.visits.length - a.visits.length);
 
-  // Most complained
   const byName = {};
   T.forEach(t => {
     if (!byName[t.name]) byName[t.name] = { name: t.name, city: t.city, cnt: 0, res: [], rcas: {} };
     byName[t.name].cnt++;
-    if (t.resHrs !== null) byName[t.name].res.push(t.resHrs);
+    if (t.resHrs !== null) byName[t.name].res.push(Number(t.resHrs));
     byName[t.name].rcas[t.rca] = (byName[t.name].rcas[t.rca]||0) + 1;
   });
   const worst = Object.values(byName).sort((a, b) => b.cnt - a.cnt).slice(0, 15);
@@ -811,18 +935,19 @@ function renderComplaint() {
   document.getElementById('cRepeat').textContent   = repList.length;
   document.getElementById('cTechs').textContent    = new Set(T.map(t => t.emp).filter(Boolean)).size;
 
-  // Charts
   const byR = {}; T.forEach(t => { byR[t.rca] = (byR[t.rca]||0) + 1; });
   renderBar('cChartRca', toArr(byR), '');
+
   const rcaRes = {};
-  T.forEach(t => { if (t.resHrs !== null) { if (!rcaRes[t.rca]) rcaRes[t.rca] = { s:0, n:0 }; rcaRes[t.rca].s += t.resHrs; rcaRes[t.rca].n++; } });
+  T.forEach(t => { if (t.resHrs !== null) { if (!rcaRes[t.rca]) rcaRes[t.rca] = { s:0, n:0 }; rcaRes[t.rca].s += Number(t.resHrs); rcaRes[t.rca].n++; } });
   renderBar('cChartRcaAvg', Object.entries(rcaRes).map(([l, v]) => ({ l, v: parseFloat((v.s/v.n).toFixed(2)) })).sort((a, b) => b.v - a.v), 'hrs', '#d4820a');
+
   const byZ = {}; T.forEach(t => { const k = t.zone||'?'; byZ[k] = (byZ[k]||0) + 1; });
   renderBar('cChartZone', toArr(byZ).slice(0, 12), '', '#6c3fc4');
+
   const byCity = {}; T.forEach(t => { const k = t.city||'?'; byCity[k] = (byCity[k]||0) + 1; });
   renderBar('cChartCity', toArr(byCity).slice(0, 12), '', '#0f7a7a');
 
-  // Repeat table
   document.getElementById('cRepeatBody').innerHTML = repList.length ? repList.map(r => {
     const avg = r.res.length ? r.res.reduce((a, b) => a + b, 0) / r.res.length : null;
     const s = rcaStyle(r.rca);
@@ -832,7 +957,6 @@ function renderComplaint() {
       <td style="text-align:right" class="mono">${avg !== null ? avg.toFixed(1) + 'h' : '—'}</td></tr>`;
   }).join('') : '<tr><td colspan="5" class="no-data">No repeat offenders</td></tr>';
 
-  // Worst chargers table
   document.getElementById('cWorstBody').innerHTML = worst.length ? worst.map((c, i) => {
     const avg = c.res.length ? c.res.reduce((a, b) => a + b, 0) / c.res.length : null;
     const top = Object.entries(c.rcas).sort((a, b) => b[1] - a[1])[0];
@@ -845,7 +969,6 @@ function renderComplaint() {
       <td><span class="badge" style="background:${s.bg};color:${s.text};font-size:11px">${top ? top[0] + ' ('+top[1]+')' : '—'}</span></td></tr>`;
   }).join('') : '<tr><td colspan="6" class="no-data">No data</td></tr>';
 
-  // Technician chart
   const byEmp = {}; T.forEach(t => { if (t.emp) { const k = t.emp.trim(); byEmp[k] = (byEmp[k]||0) + 1; } });
   renderBar('cChartEmp', toArr(byEmp).slice(0, 15), 'tickets', '#1a6ef5');
 }
@@ -898,6 +1021,7 @@ function renderReplacement() {
 
   const byPart = {}; wParts.forEach(t => { const k = t.damage.trim(); byPart[k] = (byPart[k]||0) + 1; });
   renderBar('rChartParts', toArr(byPart), '', '#c05621');
+
   const byCity = {}; T.forEach(t => { const k = t.city||'?'; byCity[k] = (byCity[k]||0) + 1; });
   renderBar('rChartCity', toArr(byCity).slice(0, 12), '', '#0f7a7a');
 
@@ -935,13 +1059,13 @@ function renderGroupBreakdown(containerId, rows, groupKey, accentColor) {
     groups[k].push(r);
   });
   const sorted = Object.entries(groups).sort((a, b) =>
-    b[1].reduce((s, r) => s + r.hours, 0) - a[1].reduce((s, r) => s + r.hours, 0)
+    b[1].reduce((s, r) => s + Number(r.hours), 0) - a[1].reduce((s, r) => s + Number(r.hours), 0)
   );
   if (!sorted.length) { container.innerHTML = '<div class="no-data">No data</div>'; return; }
   container.innerHTML = sorted.map(([name, gRows], idx) => {
-    const totalHrs = gRows.reduce((s, r) => s + r.hours, 0);
+    const totalHrs = gRows.reduce((s, r) => s + Number(r.hours), 0);
     const byRca = {};
-    gRows.forEach(r => { byRca[r.rca] = (byRca[r.rca]||0) + r.hours; });
+    gRows.forEach(r => { byRca[r.rca] = (byRca[r.rca] || 0) + Number(r.hours); });
     const rcaEntries = Object.entries(byRca).sort((a, b) => b[1] - a[1]);
     const maxV = Math.max(...rcaEntries.map(([, v]) => v));
     const barsHtml = rcaEntries.map(([rca, hrs]) => {
