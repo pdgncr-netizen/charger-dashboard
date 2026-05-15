@@ -92,7 +92,7 @@
     .main-tab.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
 
     /* ── SUB TABS ── */
-    .sub-tabs-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 10px 14px; margin: 10px 0 1.5rem; box-shadow: var(--shadow); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .sub-tabs-wrap { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 8px 12px; margin: 0 0 1.5rem; box-shadow: none; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
     .sub-tab { font-size: 12px; font-weight: 500; padding: 6px 14px; border-radius: 7px; border: 1px solid transparent; background: none; cursor: pointer; color: var(--text2); transition: all 0.15s; white-space: nowrap; display: flex; align-items: center; gap: 5px; }
     .sub-tab:hover { background: var(--surface2); color: var(--text); }
     .sub-tab.active { background: var(--blue-light); color: var(--blue-dark); border-color: rgba(26,110,245,0.25); font-weight: 600; }
@@ -207,10 +207,40 @@
 
     .no-data { text-align: center; padding: 2rem 0; color: var(--text3); font-size: 14px; }
     .hidden { display: none !important; }
-    .main-panel { display: none; }
+    .main-panel { display: none; padding: 1.5rem; }
     .main-panel.active { display: block; }
     .sub-panel { display: none; }
     .sub-panel.active { display: block; }
+
+    /* ── TOP KPI GRID ── */
+    .top-kpi-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 12px; margin-bottom: 1.5rem; }
+    @media (max-width: 1100px) { .top-kpi-grid { grid-template-columns: repeat(3,1fr); } }
+    @media (max-width: 650px)  { .top-kpi-grid { grid-template-columns: repeat(2,1fr); } }
+    .top-kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.2rem 1.2rem 1.1rem; box-shadow: var(--shadow); display: flex; align-items: flex-start; gap: 14px; position: relative; overflow: hidden; transition: transform 0.15s, box-shadow 0.15s; }
+    .top-kpi-card:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.1), 0 0 0 0.5px rgba(0,0,0,0.06); }
+    .top-kpi-card::before { content:''; position:absolute; top:0; left:0; bottom:0; width:4px; background:var(--kc,var(--blue)); border-radius:4px 0 0 4px; }
+    .top-kpi-card::after { content:''; position:absolute; bottom:0; left:0; right:0; height:0; }
+    .top-kpi-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .top-kpi-body { flex: 1; min-width: 0; }
+    .top-kpi-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; line-height: 1.3; margin-bottom: 4px; }
+    .top-kpi-val { font-size: 26px; font-weight: 700; color: var(--text); letter-spacing: -1px; line-height: 1; font-variant-numeric: tabular-nums; }
+    .top-kpi-sub { font-size: 11px; color: var(--text3); margin-top: 3px; }
+
+    /* ── MAIN TABS BAR ── */
+    .main-tabs-bar { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 5px; gap: 3px; margin-bottom: 0; box-shadow: var(--shadow); flex-wrap: wrap; }
+    .main-tab-btn { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 500; padding: 9px 20px; border-radius: 9px; border: none; background: none; cursor: pointer; color: var(--text2); transition: all 0.15s; white-space: nowrap; font-family: 'DM Sans', sans-serif; position: relative; }
+    .main-tab-btn:hover { background: var(--surface2); color: var(--text); }
+    .main-tab-btn.active { background: var(--surface2); color: var(--text); font-weight: 600; }
+    .main-tab-btn.active::after { content:''; position:absolute; bottom:0; left:12px; right:12px; height:2.5px; background:var(--blue); border-radius:99px 99px 0 0; }
+    [data-theme="dark"] .main-tab-btn.active { background: rgba(255,255,255,0.07); color: var(--text); }
+
+    /* ── DOWNTIME DETAIL KPIS ── */
+    .dt-kpi-row { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 12px; margin-bottom: 1.5rem; }
+    .dt-kpi-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.2rem; display: flex; align-items: center; gap: 12px; }
+    .dt-kpi-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .dt-kpi-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 3px; }
+    .dt-kpi-val { font-size: 20px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; line-height: 1; }
+    .dt-kpi-sub { font-size: 10px; color: var(--text3); margin-top: 2px; }
   </style>
 </head>
 <body>
@@ -223,47 +253,56 @@
       <path d="M8 20 L14 8 L20 20" stroke="white" stroke-width="2" stroke-linejoin="round" fill="none"/>
       <path d="M10 16 L18 16" stroke="white" stroke-width="2" stroke-linecap="round"/>
     </svg>
-    <span>Charger Operations Dashboard</span>
+    <div>
+      <div style="font-size:16px;font-weight:700;letter-spacing:-0.3px;">Dashboard</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:1px;">Overview of Charger Operations</div>
+    </div>
   </div>
   <div class="header-right">
-    <span class="last-updated" id="lastUpdated">Not loaded yet</span>
-    <!-- Night Mode Toggle -->
+    <!-- Date range pill -->
+    <div style="display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border2);border-radius:9px;padding:7px 14px;cursor:pointer;" onclick="document.getElementById('filterDrawer').classList.toggle('hidden')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3);"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span id="headerDateLabel" style="font-size:12px;font-weight:500;color:var(--text2);">Select date range</span>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="color:var(--text3);"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <!-- Export button -->
+    <div style="display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border2);border-radius:9px;padding:7px 14px;cursor:pointer;font-size:12px;font-weight:500;color:var(--text2);">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export
+    </div>
+    <!-- Night Mode -->
     <div class="night-toggle" onclick="toggleNightMode()">
       <span class="moon-icon">🌙</span>
       <div class="toggle-track" id="nightTrack"><div class="toggle-thumb"></div></div>
-      <span class="night-toggle-label" id="nightLabel">Night Mode</span>
     </div>
+    <span class="last-updated" id="lastUpdated" style="font-size:11px;"></span>
   </div>
 </header>
 
 <main class="main">
 
-  <!-- ═══ CONFIG ═══ -->
-  <div class="config-card">
-    <div class="config-section-label">Sheet 1 — Charger Downtime / Power Cut Data</div>
-    <div class="config-row">
-      <label>📊 Sheet 1 CSV URL</label>
-      <input type="text" id="sheetUrl" placeholder="https://docs.google.com/spreadsheets/d/…/pub?output=csv" />
-    </div>
-    <div class="config-section-label" style="margin-top:6px;">Sheet 2 — Daily Complaints, Monthly Maintenance & Replacement</div>
-    <div class="config-row">
-      <label>📋 Sheet 2 CSV URL</label>
-      <input type="text" id="sheet2Url" placeholder="Paste Google Sheet published CSV URL…" />
-    </div>
-    <div class="config-section-label" style="margin-top:6px;">Proxy</div>
-    <div class="config-row">
-      <label>🔁 Cloudflare Proxy URL</label>
-      <input type="text" id="proxyUrl" placeholder="https://manish.pdgncr.workers.dev/" />
-    </div>
-    <div class="config-row">
-      <button class="btn btn-primary" id="refreshBtn" onclick="loadAll()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- ═══ DATE FILTER DRAWER ═══ -->
+  <div id="filterDrawer" class="hidden" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.5rem;margin-bottom:1rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap;box-shadow:var(--shadow);">
+    <label style="font-size:13px;font-weight:500;color:var(--text2);">📅 Date range</label>
+    <input type="date" id="dateFrom" onchange="applyFilter()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;cursor:pointer;" />
+    <span style="font-size:13px;color:var(--text3);">→</span>
+    <input type="date" id="dateTo" onchange="applyFilter()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;cursor:pointer;" />
+    <button onclick="clearFilter()" style="font-size:12px;color:var(--text3);background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:6px;">✕ Clear</button>
+    <span class="filter-active-badge hidden" id="filterBadge">Filtered</span>
+    <span style="font-size:12px;color:var(--text3);margin-left:auto;" id="filterCount"></span>
+    <!-- Config inline -->
+    <div style="width:100%;border-top:1px solid var(--border);padding-top:10px;margin-top:4px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
+      <input type="text" id="sheetUrl" placeholder="Sheet 1 CSV URL (Downtime)" style="flex:1;min-width:200px;font-size:12px;font-family:'DM Mono',monospace;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;" />
+      <input type="text" id="sheet2Url" placeholder="Sheet 2 CSV URL (Complaints/Maintenance)" style="flex:1;min-width:200px;font-size:12px;font-family:'DM Mono',monospace;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;" />
+      <input type="text" id="proxyUrl" placeholder="Cloudflare Proxy URL" style="flex:1;min-width:160px;font-size:12px;font-family:'DM Mono',monospace;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;" />
+      <button class="btn btn-primary" id="refreshBtn" onclick="loadAll()" style="white-space:nowrap;font-size:12px;padding:7px 14px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;">
           <path d="M1 4v6h6"/><path d="M23 20v-6h-6"/>
           <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"/>
         </svg>
-        Refresh All Data
+        Refresh
       </button>
-      <div class="pill-row">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
         <div id="pill1" class="status-pill"><span class="status-dot"></span><span id="pillTxt1">Sheet 1 — Awaiting</span></div>
         <div id="pill2" class="status-pill hidden"><span class="status-dot"></span><span id="pillTxt2">Sheet 2</span></div>
         <div id="pillUnit" class="status-pill hidden"><span class="status-dot"></span><span id="pillUnitTxt">Unit: hrs</span></div>
@@ -277,7 +316,7 @@
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:12px;flex-wrap:wrap;">
         <div>
           <div style="font-size:15px;font-weight:700;color:var(--text);">🗂️ Column Mapper — Verify your sheet columns</div>
-          <div style="font-size:12px;color:var(--text3);margin-top:3px;">Auto-detected columns are shown. Fix any that are wrong, then click Apply. Your choices are saved for next time.</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:3px;">Auto-detected columns are shown. Fix any that are wrong, then click Apply.</div>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
           <button onclick="applyColumnMap()" style="font-size:13px;font-weight:600;padding:8px 18px;border-radius:9px;border:1px solid #0d47b5;background:#1a6ef5;color:#fff;cursor:pointer;">✅ Apply &amp; Re-parse</button>
@@ -290,115 +329,188 @@
 
   <!-- ═══ HOWTO ═══ -->
   <div class="howto" id="howto">
-    <h3>🔗 Setup (one-time)</h3>
+    <h3>🔗 Setup — click the date/settings button top-right to configure</h3>
     <ol>
-      <li><strong>Sheet 1 (Downtime):</strong> Google Sheet → File → Share → Publish to web → select downtime tab → <code>CSV</code> → Publish → copy URL → paste above</li>
-      <li><strong>Sheet 2 (Complaints / Maintenance / Replacement):</strong> Same steps. Activity/Type column should contain <code>Daily Complaint</code>, <code>Monthly Maintenance</code>, or <code>Replacement</code>.</li>
-      <li>Paste your <strong>Cloudflare Proxy URL</strong> → click <strong>Refresh All Data</strong></li>
+      <li><strong>Open the settings drawer</strong> (top-right button) → paste your Sheet 1 and Sheet 2 CSV URLs + Cloudflare Proxy URL → click Refresh.</li>
+      <li>Sheet 1 = Charger Downtime. Sheet 2 = Complaints / Maintenance / Replacement.</li>
+      <li>After loading, the Column Mapper will appear — verify each column is mapped correctly.</li>
     </ol>
   </div>
 
-  <!-- ═══ DATE FILTER ═══ -->
-  <div class="filter-bar">
-    <label>📅 Date range</label>
-    <input type="date" id="dateFrom" onchange="applyFilter()" />
-    <span class="filter-sep">→</span>
-    <input type="date" id="dateTo" onchange="applyFilter()" />
-    <button class="btn-clear" onclick="clearFilter()">✕ Clear</button>
-    <span class="filter-active-badge hidden" id="filterBadge">Filtered</span>
-    <span class="filter-count" id="filterCount"></span>
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TOP-LEVEL KPI CARDS (always visible, across all tabs)      -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="top-kpi-grid">
+    <!-- Total Power Cut Events -->
+    <div class="top-kpi-card" style="--kc:#1a6ef5;">
+      <div class="top-kpi-icon" style="background:rgba(26,110,245,0.15);">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1a6ef5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      </div>
+      <div class="top-kpi-body">
+        <div class="top-kpi-label">Total Power Cut Events</div>
+        <div class="top-kpi-val" id="mTotal">—</div>
+        <div class="top-kpi-sub" id="topKpiAllLoc1" style="color:var(--blue);font-size:11px;margin-top:2px;">All locations</div>
+      </div>
+    </div>
+    <!-- Daily Complaints -->
+    <div class="top-kpi-card" style="--kc:#6c3fc4;">
+      <div class="top-kpi-icon" style="background:rgba(108,63,196,0.15);">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6c3fc4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <div class="top-kpi-body">
+        <div class="top-kpi-label">Daily Complaints</div>
+        <div class="top-kpi-val" id="mComplaints">—</div>
+        <div class="top-kpi-sub" style="color:var(--purple);font-size:11px;margin-top:2px;">All locations</div>
+      </div>
+    </div>
+    <!-- Monthly Maintenance -->
+    <div class="top-kpi-card" style="--kc:#c0392b;">
+      <div class="top-kpi-icon" style="background:rgba(192,57,43,0.15);">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+      </div>
+      <div class="top-kpi-body">
+        <div class="top-kpi-label">Monthly Maintenance</div>
+        <div class="top-kpi-val" id="mMaint">—</div>
+        <div class="top-kpi-sub" style="color:var(--red);font-size:11px;margin-top:2px;">All locations</div>
+      </div>
+    </div>
+    <!-- Replacement -->
+    <div class="top-kpi-card" style="--kc:#d4820a;">
+      <div class="top-kpi-icon" style="background:rgba(212,130,10,0.15);">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d4820a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+      </div>
+      <div class="top-kpi-body">
+        <div class="top-kpi-label">Replacement</div>
+        <div class="top-kpi-val" id="mReplace">—</div>
+        <div class="top-kpi-sub" style="color:var(--amber);font-size:11px;margin-top:2px;">All locations</div>
+      </div>
+    </div>
+    <!-- Total Unique Chargers -->
+    <div class="top-kpi-card" style="--kc:#1f7a3e;">
+      <div class="top-kpi-icon" style="background:rgba(31,122,62,0.15);">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1f7a3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="14" height="12" rx="2"/><path d="M23 13V11a2 2 0 0 0-2-2h-3"/><line x1="5" y1="12" x2="5" y2="12"/><line x1="9" y1="12" x2="9" y2="12"/></svg>
+      </div>
+      <div class="top-kpi-body">
+        <div class="top-kpi-label">Total Unique Chargers</div>
+        <div class="top-kpi-val" id="mChargers">—</div>
+        <div class="top-kpi-sub" style="color:var(--green);font-size:11px;margin-top:2px;">Sheet1 &amp; Sheet2</div>
+      </div>
+    </div>
+    <!-- Avg Resolution Hrs -->
+    <div class="top-kpi-card" style="--kc:#0f7a7a;">
+      <div class="top-kpi-icon" style="background:rgba(15,122,122,0.15);">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0f7a7a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <div class="top-kpi-body">
+        <div class="top-kpi-label">Avg Resolution Hrs of Daily Complaints</div>
+        <div class="top-kpi-val" id="mAvgResHrs">—</div>
+        <div class="top-kpi-sub" style="color:var(--teal);font-size:11px;margin-top:2px;">hrs · All locations</div>
+      </div>
+    </div>
   </div>
 
-  <!-- ═══ GLOBAL KPI ═══ -->
-  <div class="metrics">
-    <div class="metric" style="--metric-color:var(--blue)"><div class="metric-label">Total Events</div><div class="metric-val" id="mTotal">—</div></div>
-    <div class="metric" style="--metric-color:var(--purple)"><div class="metric-label">Unique Chargers</div><div class="metric-val" id="mChargers">—</div></div>
-    <div class="metric" style="--metric-color:var(--red)"><div class="metric-label">Total Downtime</div><div class="metric-val" id="mHours">—</div><div class="metric-sub">hours</div></div>
-    <div class="metric" style="--metric-color:var(--teal)"><div class="metric-label">Avg / Charger / Day</div><div class="metric-val" id="mAvgPerDay">—</div><div class="metric-sub" id="mAvgPerDaySub">hrs</div><div class="metric-formula" id="mAvgPerDayFormula"></div></div>
-    <div class="metric" style="--metric-color:var(--amber)"><div class="metric-label">Avg / Event</div><div class="metric-val" id="mAvg">—</div><div class="metric-sub">hours</div></div>
-    <div class="metric" style="--metric-color:var(--blue-dark)"><div class="metric-label">Date Range</div><div style="font-size:12px;font-weight:600;margin-top:4px;" id="mDateRange">—</div><div class="metric-sub" id="mDays">—</div></div>
-    <div class="metric" style="--metric-color:var(--green)"><div class="metric-label">Daily Complaints</div><div class="metric-val" id="mComplaints">—</div></div>
-    <div class="metric" style="--metric-color:var(--teal)"><div class="metric-label">Maintenance</div><div class="metric-val" id="mMaint">—</div></div>
-    <div class="metric" style="--metric-color:var(--orange)"><div class="metric-label">Replacements</div><div class="metric-val" id="mReplace">—</div></div>
+  <!-- ═══ MAIN TAB BAR + PANELS ═══ -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow);overflow:hidden;margin-bottom:1.5rem;">
+  <!-- Tab bar — full-width, flush top -->
+  <div class="main-tabs-bar" style="border:none;border-radius:0 0 0 0;box-shadow:none;border-bottom:1px solid var(--border);margin-bottom:0;padding:8px 12px 0;">
+    <button class="main-tab-btn active" onclick="switchMainTab('downtime')" id="mtab-downtime">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      Charger Downtime
+    </button>
+    <button class="main-tab-btn" onclick="switchMainTab('complaint')" id="mtab-complaint">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Daily Complaints
+    </button>
+    <button class="main-tab-btn" onclick="switchMainTab('maintenance')" id="mtab-maintenance">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+      Monthly Maintenance
+    </button>
+    <button class="main-tab-btn" onclick="switchMainTab('replacement')" id="mtab-replacement">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+      Replacement
+    </button>
   </div>
 
-  <!-- ═══ MAIN TAB BAR ═══ -->
-  <div class="main-tabs">
-    <button class="main-tab active" onclick="switchMainTab('downtime')">⚡ Charger Downtime</button>
-    <button class="main-tab" onclick="switchMainTab('complaint')">🔧 Daily Complaints</button>
-    <button class="main-tab" onclick="switchMainTab('maintenance')">🔩 Monthly Maintenance</button>
-    <button class="main-tab" onclick="switchMainTab('replacement')">🔄 Replacement</button>
-  </div>
 
   <!-- ═══════════════════════════════════════════════ -->
   <!-- MAIN PANEL: CHARGER DOWNTIME                   -->
   <!-- ═══════════════════════════════════════════════ -->
   <div class="main-panel active" id="mpanel-downtime">
-
-    <!-- Sub-tab bar -->
-    <div class="sub-tabs-wrap">
-      <button class="sub-tab active" onclick="switchSubTab('overview')">
-        <span class="sub-tab-icon">⚡</span> Overview
-      </button>
-      <button class="sub-tab" onclick="switchSubTab('bycharger')">
-        <span class="sub-tab-icon">🔌</span> By Charger
-      </button>
-      <button class="sub-tab" onclick="switchSubTab('byzone')">
-        <span class="sub-tab-icon">📍</span> By Zone
-      </button>
-      <button class="sub-tab" onclick="switchSubTab('bycity')">
-        <span class="sub-tab-icon">🌆</span> By City
-      </button>
+    <!-- Sub-tab bar (directly after main tab, no KPI row above it) -->
+    <div class="sub-tabs-wrap" style="margin-top:0;">
+      <button class="sub-tab active" onclick="switchSubTab('overview')"><span class="sub-tab-icon">⚡</span> Overview</button>
+      <button class="sub-tab" onclick="switchSubTab('bycharger')"><span class="sub-tab-icon">🔌</span> By Charger</button>
+      <button class="sub-tab" onclick="switchSubTab('byzone')"><span class="sub-tab-icon">📍</span> By Zone</button>
+      <button class="sub-tab" onclick="switchSubTab('bycity')"><span class="sub-tab-icon">🌆</span> By City</button>
     </div>
-
-    <!-- SUB-PANEL: OVERVIEW -->
+    <!-- SUB: OVERVIEW -->
     <div class="sub-panel active" id="spanel-overview">
-      <div class="grid2" style="align-items:start;">
-        <div class="card">
-          <div class="section-title">RCA Distribution — All</div>
-          <div id="globalRcaChart"><div class="no-data">Load data first</div></div>
-        </div>
-        <div class="card">
-          <div class="section-title">Avg Downtime Per Charger Per Day</div>
-          <div id="avgCalcBox"><div class="no-data">Load data first</div></div>
+
+      <!-- ── Charger Downtime Overview heading + detail KPIs ── -->
+      <div style="margin:1.25rem 0 1rem;">
+        <div style="font-size:18px;font-weight:700;color:var(--text);letter-spacing:-0.3px;margin-bottom:1rem;">Charger Downtime – Overview</div>
+        <div class="dt-kpi-row">
+          <div class="dt-kpi-card">
+            <div class="dt-kpi-icon" style="background:rgba(26,110,245,0.12);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a6ef5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div><div class="dt-kpi-label">Total Events</div><div class="dt-kpi-val" id="dtTotal">—</div></div>
+          </div>
+          <div class="dt-kpi-card">
+            <div class="dt-kpi-icon" style="background:rgba(108,63,196,0.12);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6c3fc4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="14" height="12" rx="2"/><path d="M23 13V11a2 2 0 0 0-2-2h-3"/></svg>
+            </div>
+            <div><div class="dt-kpi-label">Unique Chargers</div><div class="dt-kpi-val" id="dtChargers">—</div></div>
+          </div>
+          <div class="dt-kpi-card">
+            <div class="dt-kpi-icon" style="background:rgba(192,57,43,0.12);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div><div class="dt-kpi-label">Total Downtime</div><div class="dt-kpi-val" id="dtHours">—</div><div class="dt-kpi-sub">hrs</div></div>
+          </div>
+          <div class="dt-kpi-card">
+            <div class="dt-kpi-icon" style="background:rgba(15,122,122,0.12);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0f7a7a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+            </div>
+            <div>
+              <div class="dt-kpi-label">Avg / Charger / Day</div>
+              <div class="dt-kpi-val" id="dtAvgPerDay">—</div>
+              <div class="dt-kpi-sub" id="dtAvgPerDaySub">Set date range</div>
+            </div>
+          </div>
+          <div class="dt-kpi-card">
+            <div class="dt-kpi-icon" style="background:rgba(212,130,10,0.12);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d4820a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div><div class="dt-kpi-label">Avg / Event</div><div class="dt-kpi-val" id="dtAvg">—</div><div class="dt-kpi-sub">hrs</div></div>
+          </div>
+          <div class="dt-kpi-card">
+            <div class="dt-kpi-icon" style="background:rgba(108,63,196,0.08);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6c3fc4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div><div class="dt-kpi-label">Date Range</div><div style="font-size:12px;font-weight:600;color:var(--text);margin-top:2px;line-height:1.3;" id="dtDateRange">—</div></div>
+          </div>
         </div>
       </div>
 
-      <!-- WORST CHARGERS TABLE -->
+      <div class="grid2" style="align-items:start;">
+        <div class="card"><div class="section-title">RCA Distribution — All</div><div id="globalRcaChart"><div class="no-data">Load data first</div></div></div>
+        <div class="card"><div class="section-title">Avg Downtime Per Charger Per Day</div><div id="avgCalcBox"><div class="no-data">Load data first</div></div></div>
+      </div>
       <div class="card card-mb">
         <div class="section-title">Worst Chargers — Top 20 by Downtime %</div>
-        <div style="font-size:12px;color:var(--text3);margin-bottom:14px;">
-          Downtime % = (Charger Total Hrs ÷ (Days in Filter × 24)) × 100
-        </div>
-        <div class="tbl-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th style="width:44px;">#</th>
-                <th>Charger ID</th>
-                <th>Charger Name / Site</th>
-                <th>Zone</th>
-                <th>City</th>
-                <th style="text-align:right">Total HRS</th>
-                <th style="text-align:right">Incidents</th>
-                <th style="text-align:right">Downtime %</th>
-              </tr>
-            </thead>
-            <tbody id="overviewDowntimePctBody">
-              <tr><td colspan="8" class="no-data">Load data first</td></tr>
-            </tbody>
-          </table>
-        </div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:14px;">Downtime % = (Charger Total Hrs ÷ (Days × 24)) × 100</div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th style="width:44px;">#</th><th>Charger ID</th><th>Charger Name / Site</th><th>Zone</th><th>City</th><th style="text-align:right">Total HRS</th><th style="text-align:right">Incidents</th><th style="text-align:right">Downtime %</th></tr></thead>
+          <tbody id="overviewDowntimePctBody"><tr><td colspan="8" class="no-data">Load data first</td></tr></tbody>
+        </table></div>
       </div>
-
-      <!-- TOP CHARGERS BAR CHART -->
       <div class="card card-mb">
         <div class="section-title">Top 10 Chargers by Downtime Hours</div>
         <div id="topChargersChart"><div class="no-data">Load data first</div></div>
       </div>
     </div>
-
-    <!-- SUB-PANEL: BY CHARGER -->
+    <!-- SUB: BY CHARGER -->
     <div class="sub-panel" id="spanel-bycharger">
       <div class="charger-wrap">
         <div class="section-title">Select Charger ID</div>
@@ -407,57 +519,26 @@
       </div>
       <div id="detailSection" class="hidden">
         <div class="detail-banner">
-          <div>
-            <div class="detail-id" id="detailId"></div>
-            <div style="font-size:13px;color:var(--text2);margin-top:4px;" id="detailSite"></div>
-          </div>
+          <div><div class="detail-id" id="detailId"></div><div style="font-size:13px;color:var(--text2);margin-top:4px;" id="detailSite"></div></div>
           <div class="detail-tags" id="detailTags"></div>
         </div>
-
-        <!-- Downtime % big visual -->
-        <div class="card card-mb">
-          <div class="section-title">⏱ Downtime Percentage — Selected Period</div>
-          <div id="chargerDowntimePctBox"></div>
+        <div class="card card-mb"><div class="section-title">⏱ Downtime Percentage — Selected Period</div><div id="chargerDowntimePctBox"></div></div>
+        <div class="card card-mb"><div class="section-title">📋 Downtime Summary</div>
+          <div class="tbl-wrap"><table><thead><tr><th>Charger Name</th><th>Charger ID</th><th style="text-align:right">Tickets</th><th style="text-align:right">Total HRS</th><th style="text-align:right">Downtime %</th><th>City</th><th>Zone</th></tr></thead>
+          <tbody id="chargerPctTableBody"></tbody></table></div>
         </div>
-
-        <!-- Downtime % summary table (handwritten design) -->
-        <div class="card card-mb">
-          <div class="section-title">📋 Downtime Summary</div>
-          <div class="tbl-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Charger Name</th>
-                  <th>Charger ID</th>
-                  <th style="text-align:right">Tickets</th>
-                  <th style="text-align:right">Total HRS</th>
-                  <th style="text-align:right">Downtime %</th>
-                  <th>City</th>
-                  <th>Zone</th>
-                </tr>
-              </thead>
-              <tbody id="chargerPctTableBody"></tbody>
-            </table>
-          </div>
-        </div>
-
         <div class="grid2">
           <div class="card"><div class="section-title">Downtime Hours by RCA</div><div id="rcaHrsChart"></div></div>
           <div class="card"><div class="section-title">Incident Count by RCA</div><div id="rcaCntChart"></div></div>
         </div>
         <div class="card card-mb">
           <div class="section-title">All Events — <span id="chargerEventCount"></span></div>
-          <div class="tbl-wrap">
-            <table>
-              <thead><tr><th>RCA</th><th>Downtime Start</th><th>Downtime End</th><th style="text-align:right">Hours</th></tr></thead>
-              <tbody id="eventTableBody"></tbody>
-            </table>
-          </div>
+          <div class="tbl-wrap"><table><thead><tr><th>RCA</th><th>Downtime Start</th><th>Downtime End</th><th style="text-align:right">Hours</th></tr></thead>
+          <tbody id="eventTableBody"></tbody></table></div>
         </div>
       </div>
     </div>
-
-    <!-- SUB-PANEL: BY ZONE -->
+    <!-- SUB: BY ZONE -->
     <div class="sub-panel" id="spanel-byzone">
       <div class="grid2" style="margin-bottom:1rem;">
         <div class="card"><div class="section-title">Total Downtime hrs by Zone</div><div id="zoneHrsChart"><div class="no-data">Load data first</div></div></div>
@@ -466,8 +547,7 @@
       <div class="section-title">Zone-by-Zone RCA Breakdown</div>
       <div id="zoneBreakdownList"></div>
     </div>
-
-    <!-- SUB-PANEL: BY CITY -->
+    <!-- SUB: BY CITY -->
     <div class="sub-panel" id="spanel-bycity">
       <div class="grid2" style="margin-bottom:1rem;">
         <div class="card"><div class="section-title">Total Downtime hrs by City</div><div id="cityHrsChart"><div class="no-data">Load data first</div></div></div>
@@ -476,48 +556,36 @@
       <div class="section-title">City-by-City RCA Breakdown</div>
       <div id="cityBreakdownList"></div>
     </div>
-
   </div><!-- /mpanel-downtime -->
 
   <!-- ═══════════════════════════════════════════════ -->
   <!-- MAIN PANEL: DAILY COMPLAINTS                   -->
   <!-- ═══════════════════════════════════════════════ -->
   <div class="main-panel" id="mpanel-complaint">
-    <!-- KPI row always visible -->
-    <div style="height:16px;"></div>
-    <div class="metrics" style="margin-bottom:1.5rem;">
+    <div class="metrics" style="margin-bottom:1rem;">
       <div class="metric" style="--metric-color:var(--blue)"><div class="metric-label">Total Complaints</div><div class="metric-val" id="cTotal">—</div></div>
       <div class="metric" style="--metric-color:var(--green)"><div class="metric-label">Avg Resolution</div><div class="metric-val" id="cAvgRes">—</div><div class="metric-sub">hours</div></div>
       <div class="metric" style="--metric-color:var(--purple)"><div class="metric-label">Unique Chargers</div><div class="metric-val" id="cChargers">—</div></div>
       <div class="metric" style="--metric-color:var(--red)"><div class="metric-label">Repeat Offenders</div><div class="metric-val" id="cRepeat">—</div><div class="metric-sub">≥3 same RCA</div></div>
       <div class="metric" style="--metric-color:var(--teal)"><div class="metric-label">Technicians</div><div class="metric-val" id="cTechs">—</div></div>
     </div>
-    <!-- Sub-tab bar -->
-    <div class="sub-tabs-wrap">
+    <div class="sub-tabs-wrap" style="margin-top:0;">
       <button class="sub-tab active" onclick="switchSubTab2('c','overview')"><span class="sub-tab-icon">⚡</span> Overview</button>
       <button class="sub-tab" onclick="switchSubTab2('c','bycharger')"><span class="sub-tab-icon">🔌</span> By Charger</button>
       <button class="sub-tab" onclick="switchSubTab2('c','byzone')"><span class="sub-tab-icon">📍</span> By Zone</button>
       <button class="sub-tab" onclick="switchSubTab2('c','bycity')"><span class="sub-tab-icon">🌆</span> By City</button>
     </div>
-
-    <!-- SUB: COMPLAINT OVERVIEW -->
     <div class="sub-panel active" id="cspanel-overview">
       <div class="grid2">
         <div class="card"><div class="section-title">🔧 RCA Breakdown — Count</div><div id="cChartRca"><div class="no-data">Load Sheet 2</div></div></div>
         <div class="card"><div class="section-title">⏱ Avg Resolution Hrs by RCA</div><div id="cChartRcaAvg"><div class="no-data">Load Sheet 2</div></div></div>
       </div>
-      <div class="card card-mb">
-        <div class="section-title">🔁 Repeat Offenders (≥3 visits, same RCA)</div>
+      <div class="card card-mb"><div class="section-title">🔁 Repeat Offenders (≥3 visits, same RCA)</div>
         <div class="tbl-wrap"><table><thead><tr><th>Charger Name</th><th>City</th><th>RCA</th><th style="text-align:right">Visits</th><th style="text-align:right">Avg Res Hrs</th></tr></thead>
         <tbody id="cRepeatBody"><tr><td colspan="5" class="no-data">Load Sheet 2 first</td></tr></tbody></table></div>
       </div>
-      <div class="card card-mb">
-        <div class="section-title">👷 Technician Performance</div>
-        <div id="cChartEmp"><div class="no-data">Load Sheet 2</div></div>
-      </div>
+      <div class="card card-mb"><div class="section-title">👷 Technician Performance</div><div id="cChartEmp"><div class="no-data">Load Sheet 2</div></div></div>
     </div>
-
-    <!-- SUB: COMPLAINT BY CHARGER -->
     <div class="sub-panel" id="cspanel-bycharger">
       <div class="charger-wrap">
         <div class="section-title">Select Charger Name</div>
@@ -526,53 +594,33 @@
       </div>
       <div id="cDetailSection" class="hidden">
         <div class="detail-banner">
-          <div>
-            <div class="detail-id" id="cDetailName" style="font-size:18px;"></div>
-            <div style="font-size:13px;color:var(--text2);margin-top:4px;" id="cDetailMeta"></div>
-          </div>
+          <div><div class="detail-id" id="cDetailName" style="font-size:18px;"></div><div style="font-size:13px;color:var(--text2);margin-top:4px;" id="cDetailMeta"></div></div>
           <div class="detail-tags" id="cDetailTags"></div>
         </div>
         <div class="grid2">
-          <div class="card"><div class="section-title">RCA Breakdown — Count</div><div id="cDetailRcaChart"></div></div>
+          <div class="card"><div class="section-title">RCA Breakdown</div><div id="cDetailRcaChart"></div></div>
           <div class="card"><div class="section-title">Avg Resolution by RCA</div><div id="cDetailResChart"></div></div>
         </div>
-        <div class="card card-mb">
-          <div class="section-title">All Complaint Records — <span id="cDetailCount"></span></div>
-          <div class="tbl-wrap"><table>
-            <thead><tr><th>Date</th><th>RCA</th><th>Technician</th><th style="text-align:right">Res Hrs</th><th>Remarks</th></tr></thead>
-            <tbody id="cDetailBody"></tbody>
-          </table></div>
+        <div class="card card-mb"><div class="section-title">All Records — <span id="cDetailCount"></span></div>
+          <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>RCA</th><th>Technician</th><th style="text-align:right">Res Hrs</th><th>Remarks</th></tr></thead>
+          <tbody id="cDetailBody"></tbody></table></div>
         </div>
       </div>
     </div>
-
-    <!-- SUB: COMPLAINT BY ZONE -->
     <div class="sub-panel" id="cspanel-byzone">
       <div class="card card-mb">
         <div class="section-title">📍 Complaints by Zone <span style="font-size:10px;font-weight:400;color:var(--text3);text-transform:none;letter-spacing:0;">(zone mapping from Sheet 1)</span></div>
         <div id="cZoneBreakdown"><div class="no-data">Load data first</div></div>
       </div>
     </div>
-
-    <!-- SUB: COMPLAINT BY CITY -->
     <div class="sub-panel" id="cspanel-bycity">
       <div class="card card-mb">
         <div class="section-title">🌆 City Performance — Complaints</div>
         <div style="font-size:12px;color:var(--text3);margin-bottom:12px;">% of Total = (City Tickets ÷ Total Tickets) × 100</div>
-        <div class="tbl-wrap">
-          <table>
-            <thead><tr>
-              <th>#</th><th>City</th><th>Zone</th>
-              <th style="text-align:right">Tickets</th>
-              <th style="text-align:right">Avg Res Time</th>
-              <th style="text-align:right">% of Total</th>
-            </tr></thead>
-            <tbody id="cCityPerfBody"><tr><td colspan="6" class="no-data">Load Sheet 2 first</td></tr></tbody>
-          </table>
-        </div>
+        <div class="tbl-wrap"><table><thead><tr><th>#</th><th>City</th><th>Zone</th><th style="text-align:right">Tickets</th><th style="text-align:right">Avg Res Time</th><th style="text-align:right">% of Total</th></tr></thead>
+        <tbody id="cCityPerfBody"><tr><td colspan="6" class="no-data">Load Sheet 2 first</td></tr></tbody></table></div>
       </div>
-      <div class="card card-mb">
-        <div class="section-title">🏆 Most Complained Chargers — Top 15</div>
+      <div class="card card-mb"><div class="section-title">🏆 Most Complained Chargers — Top 15</div>
         <div class="tbl-wrap"><table><thead><tr><th>#</th><th>Charger Name</th><th>City</th><th style="text-align:right">Visits</th><th style="text-align:right">Avg Res Hrs</th><th>Top RCA</th></tr></thead>
         <tbody id="cWorstBody"><tr><td colspan="6" class="no-data">Load Sheet 2 first</td></tr></tbody></table></div>
       </div>
@@ -583,40 +631,32 @@
   <!-- MAIN PANEL: MONTHLY MAINTENANCE                -->
   <!-- ═══════════════════════════════════════════════ -->
   <div class="main-panel" id="mpanel-maintenance">
-    <div style="height:16px;"></div>
-    <div class="metrics" style="margin-bottom:1.5rem;">
+    <div class="metrics" style="margin-bottom:1rem;">
       <div class="metric" style="--metric-color:var(--teal)"><div class="metric-label">Total Activities</div><div class="metric-val" id="mntTotal">—</div></div>
       <div class="metric" style="--metric-color:var(--blue)"><div class="metric-label">Chargers Serviced</div><div class="metric-val" id="mntChargers">—</div></div>
       <div class="metric" style="--metric-color:var(--red)"><div class="metric-label">With Damage</div><div class="metric-val" id="mntDamage">—</div></div>
       <div class="metric" style="--metric-color:var(--amber)"><div class="metric-label">Avg Aux Battery</div><div class="metric-val" id="mntAvgV">—</div><div class="metric-sub">volts</div></div>
     </div>
-    <!-- Sub-tab bar -->
-    <div class="sub-tabs-wrap">
+    <div class="sub-tabs-wrap" style="margin-top:0;">
       <button class="sub-tab active" onclick="switchSubTab2('m','overview')"><span class="sub-tab-icon">⚡</span> Overview</button>
       <button class="sub-tab" onclick="switchSubTab2('m','bycharger')"><span class="sub-tab-icon">🔌</span> By Charger</button>
       <button class="sub-tab" onclick="switchSubTab2('m','byzone')"><span class="sub-tab-icon">📍</span> By Zone</button>
       <button class="sub-tab" onclick="switchSubTab2('m','bycity')"><span class="sub-tab-icon">🌆</span> By City</button>
     </div>
-
-    <!-- SUB: MAINTENANCE OVERVIEW -->
     <div class="sub-panel active" id="mspanel-overview">
       <div class="grid2">
         <div class="card"><div class="section-title">🔋 Aux Battery Voltage Distribution</div><div id="mntChartVolt"><div class="no-data">Load Sheet 2</div></div></div>
-        <div class="card"><div class="section-title">⚠️ Damage Frequency by Type</div><div id="mntChartDmg"><div class="no-data">Load Sheet 2</div></div></div>
+        <div class="card"><div class="section-title">⚠️ Damage by Type</div><div id="mntChartDmg"><div class="no-data">Load Sheet 2</div></div></div>
       </div>
-      <div class="card card-mb">
-        <div class="section-title">⚠️ Damaged Chargers</div>
+      <div class="card card-mb"><div class="section-title">⚠️ Damaged Chargers</div>
         <div class="tbl-wrap"><table><thead><tr><th>Charger Name</th><th>City</th><th>Damage</th><th>Remarks</th><th>Technician</th><th>Date</th></tr></thead>
         <tbody id="mntDamageBody"><tr><td colspan="6" class="no-data">Load Sheet 2 first</td></tr></tbody></table></div>
       </div>
-      <div class="card card-mb">
-        <div class="section-title">📋 All Maintenance Records — <span id="mntCount"></span></div>
+      <div class="card card-mb"><div class="section-title">📋 All Maintenance Records — <span id="mntCount"></span></div>
         <div class="tbl-wrap"><table><thead><tr><th>Charger Name</th><th>City</th><th>Technician</th><th>Remarks</th><th style="text-align:right">Aux V</th><th>Date</th></tr></thead>
         <tbody id="mntLogBody"><tr><td colspan="6" class="no-data">Load Sheet 2 first</td></tr></tbody></table></div>
       </div>
     </div>
-
-    <!-- SUB: MAINTENANCE BY CHARGER -->
     <div class="sub-panel" id="mspanel-bycharger">
       <div class="charger-wrap">
         <div class="section-title">Select Charger Name</div>
@@ -625,23 +665,15 @@
       </div>
       <div id="mDetailSection" class="hidden">
         <div class="detail-banner">
-          <div>
-            <div class="detail-id" id="mDetailName" style="font-size:18px;"></div>
-            <div style="font-size:13px;color:var(--text2);margin-top:4px;" id="mDetailMeta"></div>
-          </div>
+          <div><div class="detail-id" id="mDetailName" style="font-size:18px;"></div><div style="font-size:13px;color:var(--text2);margin-top:4px;" id="mDetailMeta"></div></div>
           <div class="detail-tags" id="mDetailTags"></div>
         </div>
-        <div class="card card-mb">
-          <div class="section-title">All Maintenance Records — <span id="mDetailCount"></span></div>
-          <div class="tbl-wrap"><table>
-            <thead><tr><th>Date</th><th>Technician</th><th style="text-align:right">Aux V</th><th>Damage</th><th>Remarks</th></tr></thead>
-            <tbody id="mDetailBody"></tbody>
-          </table></div>
+        <div class="card card-mb"><div class="section-title">Maintenance Records — <span id="mDetailCount"></span></div>
+          <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Technician</th><th style="text-align:right">Aux V</th><th>Damage</th><th>Remarks</th></tr></thead>
+          <tbody id="mDetailBody"></tbody></table></div>
         </div>
       </div>
     </div>
-
-    <!-- SUB: MAINTENANCE BY ZONE -->
     <div class="sub-panel" id="mspanel-byzone">
       <div class="grid2" style="margin-bottom:1rem;">
         <div class="card"><div class="section-title">📍 Activities by Zone</div><div id="mntChartZone"><div class="no-data">Load Sheet 2</div></div></div>
@@ -649,24 +681,11 @@
       </div>
       <div id="mntZoneBreakdown"><div class="no-data">Load data first</div></div>
     </div>
-
-    <!-- SUB: MAINTENANCE BY CITY -->
     <div class="sub-panel" id="mspanel-bycity">
-      <div class="card card-mb">
-        <div class="section-title">🌆 Maintenance by City</div>
+      <div class="card card-mb"><div class="section-title">🌆 Maintenance by City</div>
         <div style="font-size:12px;color:var(--text3);margin-bottom:12px;">% of Total = (City Activities ÷ Total Activities) × 100</div>
-        <div class="tbl-wrap">
-          <table>
-            <thead><tr>
-              <th>#</th><th>City</th><th>Zone</th>
-              <th style="text-align:right">Activities</th>
-              <th style="text-align:right">With Damage</th>
-              <th style="text-align:right">Avg Aux V</th>
-              <th style="text-align:right">% of Total</th>
-            </tr></thead>
-            <tbody id="mntCityBody"><tr><td colspan="7" class="no-data">Load Sheet 2 first</td></tr></tbody>
-          </table>
-        </div>
+        <div class="tbl-wrap"><table><thead><tr><th>#</th><th>City</th><th>Zone</th><th style="text-align:right">Activities</th><th style="text-align:right">With Damage</th><th style="text-align:right">Avg Aux V</th><th style="text-align:right">% of Total</th></tr></thead>
+        <tbody id="mntCityBody"><tr><td colspan="7" class="no-data">Load Sheet 2 first</td></tr></tbody></table></div>
       </div>
     </div>
   </div><!-- /mpanel-maintenance -->
@@ -675,37 +694,30 @@
   <!-- MAIN PANEL: REPLACEMENT                        -->
   <!-- ═══════════════════════════════════════════════ -->
   <div class="main-panel" id="mpanel-replacement">
-    <div style="height:16px;"></div>
-    <div class="metrics" style="margin-bottom:1.5rem;">
+    <div class="metrics" style="margin-bottom:1rem;">
       <div class="metric" style="--metric-color:var(--orange)"><div class="metric-label">Total Replacements</div><div class="metric-val" id="rTotal">—</div></div>
       <div class="metric" style="--metric-color:var(--blue)"><div class="metric-label">Chargers Affected</div><div class="metric-val" id="rChargers">—</div></div>
       <div class="metric" style="--metric-color:var(--purple)"><div class="metric-label">Unique Parts</div><div class="metric-val" id="rParts">—</div></div>
     </div>
-    <!-- Sub-tab bar -->
-    <div class="sub-tabs-wrap">
+    <div class="sub-tabs-wrap" style="margin-top:0;">
       <button class="sub-tab active" onclick="switchSubTab2('r','overview')"><span class="sub-tab-icon">⚡</span> Overview</button>
       <button class="sub-tab" onclick="switchSubTab2('r','bycharger')"><span class="sub-tab-icon">🔌</span> By Charger</button>
       <button class="sub-tab" onclick="switchSubTab2('r','byzone')"><span class="sub-tab-icon">📍</span> By Zone</button>
       <button class="sub-tab" onclick="switchSubTab2('r','bycity')"><span class="sub-tab-icon">🌆</span> By City</button>
     </div>
-
-    <!-- SUB: REPLACEMENT OVERVIEW -->
     <div class="sub-panel active" id="rspanel-overview">
       <div class="grid2">
         <div class="card"><div class="section-title">🔩 Parts Replaced (by count)</div><div id="rChartParts"><div class="no-data">Load Sheet 2</div></div></div>
-        <div class="card"><div class="section-title">🏆 Most Replaced Chargers — Top 15</div>
+        <div class="card"><div class="section-title">🏆 Most Replaced Chargers</div>
           <div class="tbl-wrap"><table><thead><tr><th>#</th><th>Charger Name</th><th>City</th><th>Parts</th><th style="text-align:right">Count</th></tr></thead>
           <tbody id="rWorstBody"><tr><td colspan="5" class="no-data">Load Sheet 2 first</td></tr></tbody></table></div>
         </div>
       </div>
-      <div class="card card-mb">
-        <div class="section-title">📋 All Replacement Records</div>
+      <div class="card card-mb"><div class="section-title">📋 All Replacement Records</div>
         <div class="tbl-wrap"><table><thead><tr><th>Charger Name</th><th>City</th><th>Part / Damage</th><th>Technician</th><th>Date</th></tr></thead>
         <tbody id="rLogBody"><tr><td colspan="5" class="no-data">Load Sheet 2 first</td></tr></tbody></table></div>
       </div>
     </div>
-
-    <!-- SUB: REPLACEMENT BY CHARGER -->
     <div class="sub-panel" id="rspanel-bycharger">
       <div class="charger-wrap">
         <div class="section-title">Select Charger Name</div>
@@ -714,23 +726,15 @@
       </div>
       <div id="rDetailSection" class="hidden">
         <div class="detail-banner">
-          <div>
-            <div class="detail-id" id="rDetailName" style="font-size:18px;"></div>
-            <div style="font-size:13px;color:var(--text2);margin-top:4px;" id="rDetailMeta"></div>
-          </div>
+          <div><div class="detail-id" id="rDetailName" style="font-size:18px;"></div><div style="font-size:13px;color:var(--text2);margin-top:4px;" id="rDetailMeta"></div></div>
           <div class="detail-tags" id="rDetailTags"></div>
         </div>
-        <div class="card card-mb">
-          <div class="section-title">Replacement Records — <span id="rDetailCount"></span></div>
-          <div class="tbl-wrap"><table>
-            <thead><tr><th>Date</th><th>Part / Damage</th><th>Technician</th><th>Remarks</th></tr></thead>
-            <tbody id="rDetailBody"></tbody>
-          </table></div>
+        <div class="card card-mb"><div class="section-title">Replacement Records — <span id="rDetailCount"></span></div>
+          <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Part / Damage</th><th>Technician</th><th>Remarks</th></tr></thead>
+          <tbody id="rDetailBody"></tbody></table></div>
         </div>
       </div>
     </div>
-
-    <!-- SUB: REPLACEMENT BY ZONE -->
     <div class="sub-panel" id="rspanel-byzone">
       <div class="grid2" style="margin-bottom:1rem;">
         <div class="card"><div class="section-title">📍 Replacements by Zone</div><div id="rChartZone"><div class="no-data">Load Sheet 2</div></div></div>
@@ -738,28 +742,18 @@
       </div>
       <div id="rZoneBreakdown"><div class="no-data">Load data first</div></div>
     </div>
-
-    <!-- SUB: REPLACEMENT BY CITY -->
     <div class="sub-panel" id="rspanel-bycity">
-      <div class="card card-mb">
-        <div class="section-title">🌆 Replacements by City</div>
+      <div class="card card-mb"><div class="section-title">🌆 Replacements by City</div>
         <div style="font-size:12px;color:var(--text3);margin-bottom:12px;">% of Total = (City Replacements ÷ Total Replacements) × 100</div>
-        <div class="tbl-wrap">
-          <table>
-            <thead><tr>
-              <th>#</th><th>City</th><th>Zone</th>
-              <th style="text-align:right">Replacements</th>
-              <th style="text-align:right">Unique Parts</th>
-              <th style="text-align:right">% of Total</th>
-            </tr></thead>
-            <tbody id="rCityBody"><tr><td colspan="6" class="no-data">Load Sheet 2 first</td></tr></tbody>
-          </table>
-        </div>
+        <div class="tbl-wrap"><table><thead><tr><th>#</th><th>City</th><th>Zone</th><th style="text-align:right">Replacements</th><th style="text-align:right">Unique Parts</th><th style="text-align:right">% of Total</th></tr></thead>
+        <tbody id="rCityBody"><tr><td colspan="6" class="no-data">Load Sheet 2 first</td></tr></tbody></table></div>
       </div>
     </div>
   </div><!-- /mpanel-replacement -->
+  </div><!-- /main-tab-container -->
 
 </main>
+
 
 <script>
 // ══════════════════════════════════════════════════════
@@ -1190,9 +1184,9 @@ function fmtDate(s){
 // ══════════════════════════════════════════════════════
 function switchMainTab(name){
   activeMainTab=name;
-  document.querySelectorAll('.main-tab').forEach((t,i)=>{
-    const names=['downtime','complaint','maintenance','replacement'];
-    t.classList.toggle('active',names[i]===name);
+  ['downtime','complaint','maintenance','replacement'].forEach(n=>{
+    const btn=document.getElementById('mtab-'+n);
+    if(btn)btn.classList.toggle('active',n===name);
   });
   document.querySelectorAll('.main-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('mpanel-'+name).classList.add('active');
@@ -1228,28 +1222,57 @@ function renderAll(){renderGlobalMetrics();renderActiveMain();}
 function renderGlobalMetrics(){
   const R=filteredRows,T=filteredTickets;
   let hrs=0;for(let i=0;i<R.length;i++)hrs+=Number(R[i].hours)||0;
-  const total=R.length,unique=new Set(R.map(r=>r.charger)).size;
+  const total=R.length;
+  // Unique chargers across BOTH sheets
+  const s1chars=new Set(R.map(r=>r.charger));
+  const s2chars=new Set(T.map(t=>t.name));
+  const unique=[...s1chars,...s2chars].filter(Boolean).length;
   const days=getDateRangeDays();
   const from=document.getElementById('dateFrom').value,to=document.getElementById('dateTo').value;
-  document.getElementById('mTotal').textContent=total;
-  document.getElementById('mChargers').textContent=unique;
-  document.getElementById('mHours').textContent=hrs.toFixed(1);
-  document.getElementById('mAvg').textContent=total?(hrs/total).toFixed(2):'—';
-  document.getElementById('mDateRange').textContent=from&&to?(fmtDate(from)+' – '+fmtDate(to)):'All time';
-  document.getElementById('mDays').textContent=days?days+' days':'';
-  if(unique>0&&days){
-    const perC=hrs/unique,perD=perC/days;
-    document.getElementById('mAvgPerDay').textContent=perD.toFixed(2);
-    document.getElementById('mAvgPerDaySub').textContent=`hrs · ${days} days`;
-    document.getElementById('mAvgPerDayFormula').textContent=`${hrs.toFixed(1)}÷${unique}=${perC.toFixed(2)}÷${days}`;
+
+  // Top-level KPIs
+  document.getElementById('mTotal').textContent=total.toLocaleString();
+  document.getElementById('mChargers').textContent=unique.toLocaleString();
+  const complaints=T.filter(t=>t.type==='complaint');
+  document.getElementById('mComplaints').textContent=complaints.length.toLocaleString();
+  document.getElementById('mMaint').textContent=T.filter(t=>t.type==='maintenance').length.toLocaleString();
+  document.getElementById('mReplace').textContent=T.filter(t=>t.type==='replacement').length.toLocaleString();
+  // Avg resolution hrs
+  const resComplaints=complaints.filter(t=>t.resHrs!==null);
+  let resSum=0;resComplaints.forEach(t=>resSum+=Number(t.resHrs)||0);
+  const avgRes=resComplaints.length?resSum/resComplaints.length:null;
+  document.getElementById('mAvgResHrs').textContent=avgRes!==null?avgRes.toFixed(2)+' hrs':'—';
+
+  // Update header date pill label
+  const lbl=document.getElementById('headerDateLabel');
+  if(lbl)lbl.textContent=from&&to?(fmtDate(from)+' – '+fmtDate(to)):'Select date range';
+
+  // Downtime section KPIs
+  const s1unique=new Set(R.map(r=>r.charger)).size;
+  if(document.getElementById('dtTotal'))document.getElementById('dtTotal').textContent=total.toLocaleString();
+  if(document.getElementById('dtChargers'))document.getElementById('dtChargers').textContent=s1unique.toLocaleString();
+  if(document.getElementById('dtHours'))document.getElementById('dtHours').textContent=hrs.toFixed(1)+' hrs';
+  if(document.getElementById('dtAvg'))document.getElementById('dtAvg').textContent=total?(hrs/total).toFixed(2)+' hrs':'—';
+  if(days&&s1unique>0){
+    const perC=hrs/s1unique,perD=perC/days;
+    if(document.getElementById('dtAvgPerDay'))document.getElementById('dtAvgPerDay').textContent=perD.toFixed(2)+' hrs';
+    if(document.getElementById('dtAvgPerDaySub'))document.getElementById('dtAvgPerDaySub').textContent=days+' days';
   } else {
-    document.getElementById('mAvgPerDay').textContent='—';
-    document.getElementById('mAvgPerDaySub').textContent='Set date range';
-    document.getElementById('mAvgPerDayFormula').textContent='';
+    if(document.getElementById('dtAvgPerDay'))document.getElementById('dtAvgPerDay').textContent='—';
+    if(document.getElementById('dtAvgPerDaySub'))document.getElementById('dtAvgPerDaySub').textContent='Set date range';
   }
-  document.getElementById('mComplaints').textContent=T.filter(t=>t.type==='complaint').length;
-  document.getElementById('mMaint').textContent=T.filter(t=>t.type==='maintenance').length;
-  document.getElementById('mReplace').textContent=T.filter(t=>t.type==='replacement').length;
+  if(document.getElementById('dtDateRange'))document.getElementById('dtDateRange').textContent=from&&to?(fmtDate(from)+' – '+fmtDate(to)):'All time';
+
+  // Legacy IDs still used by sub-panel logic
+  if(document.getElementById('mHours'))document.getElementById('mHours').textContent=hrs.toFixed(1);
+  if(document.getElementById('mAvg'))document.getElementById('mAvg').textContent=total?(hrs/total).toFixed(2):'—';
+  if(document.getElementById('mAvgPerDay')){
+    const s1u=new Set(R.map(r=>r.charger)).size;
+    if(s1u>0&&days){const perC=hrs/s1u,perD=perC/days;document.getElementById('mAvgPerDay').textContent=perD.toFixed(2);}
+    else document.getElementById('mAvgPerDay').textContent='—';
+    if(document.getElementById('mAvgPerDaySub'))document.getElementById('mAvgPerDaySub').textContent=days?(days+' days'):'Set date range';
+    if(document.getElementById('mAvgPerDayFormula'))document.getElementById('mAvgPerDayFormula').textContent='';
+  }
 }
 
 // ══════════════════════════════════════════════════════
@@ -1667,7 +1690,7 @@ function renderMaintenance(){
   document.getElementById('mntDamage').textContent=wDmg.length;
   document.getElementById('mntAvgV').textContent=avgV!==null?avgV.toFixed(1):'—';
   document.getElementById('mntCount').textContent=T.length+' records';
-  const byZ={};T.forEach(t=>{const k=t.zone||t.city||'?';byZ[k]=(byZ[k]||0)+1;});renderBar('mntChartZone',toArr(byZ).slice(0,12),'','#6c3fc4');
+  const czMap=buildCityZoneMap(); renderMaintenanceExtended(T, czMap);
   const vR={'< 12V':0,'12–12.5V':0,'12.5–13V':0,'> 13V':0};
   vs.forEach(v=>{if(v<12)vR['< 12V']++;else if(v<12.5)vR['12–12.5V']++;else if(v<13)vR['12.5–13V']++;else vR['> 13V']++;});
   renderBar('mntChartVolt',Object.entries(vR).map(([l,v])=>({l,v})),'','#0f7a7a');
@@ -1685,6 +1708,7 @@ function renderReplacement(){
   document.getElementById('rChargers').textContent=new Set(T.map(t=>t.name)).size;
   document.getElementById('rParts').textContent=new Set(wP.map(t=>t.damage.trim())).size;
   const byPart={};wP.forEach(t=>{const k=t.damage.trim();byPart[k]=(byPart[k]||0)+1;});renderBar('rChartParts',toArr(byPart),'','#c05621');
+  const czMapR=buildCityZoneMap(); renderReplacementExtended(T, czMapR);
   const byCity={};T.forEach(t=>{const k=t.city||'?';byCity[k]=(byCity[k]||0)+1;});renderBar('rChartCity',toArr(byCity).slice(0,12),'','#0f7a7a');
   const byName={};
   T.forEach(t=>{if(!byName[t.name])byName[t.name]={name:t.name,city:t.city,cnt:0,parts:[]};byName[t.name].cnt++;if(t.damage)byName[t.name].parts.push(t.damage);});
@@ -1744,6 +1768,202 @@ function renderBar(id,entries,unit,overrideColor){
 // UTILS
 // ══════════════════════════════════════════════════════
 function toArr(obj){return Object.entries(obj).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v}));}
+
+
+// ══════════════════════════════════════════════════════
+// SUB-TAB SWITCHING FOR COMPLAINT / MAINTENANCE / REPLACEMENT
+// ══════════════════════════════════════════════════════
+const subTabState = {c:'overview', m:'overview', r:'overview'};
+
+function switchSubTab2(prefix, name){
+  subTabState[prefix] = name;
+  // Update buttons — find sub-tabs within the active main panel
+  const panel = document.getElementById('mpanel-'+({'c':'complaint','m':'maintenance','r':'replacement'}[prefix]));
+  if(!panel) return;
+  panel.querySelectorAll('.sub-tab').forEach((t,i)=>{
+    const names=['overview','bycharger','byzone','bycity'];
+    t.classList.toggle('active', names[i]===name);
+  });
+  panel.querySelectorAll('.sub-panel').forEach(p=>p.classList.remove('active'));
+  const sp = document.getElementById(prefix+'spanel-'+name);
+  if(sp) sp.classList.add('active');
+  // Re-render if complaint
+  if(prefix==='c') renderComplaint();
+  else if(prefix==='m') renderMaintenance();
+  else if(prefix==='r') renderReplacement();
+}
+
+// ── Complaint By-Charger chip helpers ──
+let activeCCharger = null;
+function filterCChips(){
+  const T=filteredTickets.filter(t=>t.type==='complaint');
+  const names=[...new Set(T.map(t=>t.name))].sort();
+  const q=(document.getElementById('cChargerSearch').value||'').toLowerCase();
+  const shown=names.filter(n=>!q||n.toLowerCase().includes(q));
+  const grid=document.getElementById('cChargerGrid');
+  if(!grid)return;
+  if(!shown.length){grid.innerHTML='<div class="no-data">No match</div>';return;}
+  grid.innerHTML=shown.map(n=>`<div class="chip ${n===activeCCharger?'active':''}" onclick="selectCCharger('${n.replace(/'/g,'\'')}')">${n}</div>`).join('');
+}
+function selectCCharger(name){
+  activeCCharger=name;filterCChips();
+  const T=filteredTickets.filter(t=>t.type==='complaint'&&t.name===name);
+  const sec=document.getElementById('cDetailSection');if(!sec)return;
+  if(!T.length){sec.classList.add('hidden');return;}
+  document.getElementById('cDetailName').textContent=name;
+  document.getElementById('cDetailMeta').textContent=[T[0].city,T[0].zone].filter(Boolean).join(' · ');
+  document.getElementById('cDetailCount').textContent=T.length+' records';
+  let resSum=0,resCnt=0;const byRca={},rcaRes={};
+  T.forEach(t=>{byRca[t.rca]=(byRca[t.rca]||0)+1;if(t.resHrs!==null){if(!rcaRes[t.rca])rcaRes[t.rca]={s:0,n:0};rcaRes[t.rca].s+=Number(t.resHrs);rcaRes[t.rca].n++;resSum+=Number(t.resHrs);resCnt++;}});
+  renderBar('cDetailRcaChart',toArr(byRca),'');
+  renderBar('cDetailResChart',Object.entries(rcaRes).map(([l,v])=>({l,v:parseFloat((v.s/v.n).toFixed(2))})).sort((a,b)=>b.v-a.v),'hrs','#d4820a');
+  const avgRes=resCnt?resSum/resCnt:null;
+  document.getElementById('cDetailTags').innerHTML=`<span class="tag tag-blue">${T.length} tickets</span>`+(avgRes!==null?`<span class="tag tag-gray">Avg ${avgRes.toFixed(1)} h</span>`:'');
+  document.getElementById('cDetailBody').innerHTML=T.map(t=>{const s=rcaStyle(t.rca);return`<tr><td class="mono" style="color:var(--text2);font-size:11px;">${t.date?t.date.toLocaleDateString('en-IN'):'—'}</td><td><span class="badge" style="background:${s.bg};color:${s.text};font-size:11px;">${t.rca||'—'}</span></td><td style="font-size:12px;">${t.emp||'—'}</td><td style="text-align:right;" class="mono">${t.resHrs!==null?Number(t.resHrs).toFixed(1):'—'}</td><td style="font-size:11px;color:var(--text2);">${t.remarks||'—'}</td></tr>`;}).join('');
+  sec.classList.remove('hidden');
+}
+
+// ── Maintenance By-Charger chip helpers ──
+let activeMCharger = null;
+function filterMChips(){
+  const T=filteredTickets.filter(t=>t.type==='maintenance');
+  const names=[...new Set(T.map(t=>t.name))].sort();
+  const q=(document.getElementById('mChargerSearch').value||'').toLowerCase();
+  const shown=names.filter(n=>!q||n.toLowerCase().includes(q));
+  const grid=document.getElementById('mChargerGrid');if(!grid)return;
+  grid.innerHTML=shown.map(n=>`<div class="chip ${n===activeMCharger?'active':''}" onclick="selectMCharger('${n.replace(/'/g,'\'')}')">${n}</div>`).join('');
+}
+function selectMCharger(name){
+  activeMCharger=name;filterMChips();
+  const T=filteredTickets.filter(t=>t.type==='maintenance'&&t.name===name);
+  const sec=document.getElementById('mDetailSection');if(!sec)return;
+  if(!T.length){sec.classList.add('hidden');return;}
+  document.getElementById('mDetailName').textContent=name;
+  document.getElementById('mDetailMeta').textContent=[T[0].city,T[0].zone].filter(Boolean).join(' · ');
+  document.getElementById('mDetailCount').textContent=T.length+' records';
+  document.getElementById('mDetailTags').innerHTML=`<span class="tag tag-blue">${T.length} activities</span>`;
+  document.getElementById('mDetailBody').innerHTML=T.map(t=>`<tr><td class="mono" style="font-size:11px;color:var(--text2);">${t.date?t.date.toLocaleDateString('en-IN'):'—'}</td><td style="font-size:12px;">${t.emp||'—'}</td><td style="text-align:right;" class="mono">${t.auxV||'—'}</td><td>${t.damage?`<span class="badge" style="background:var(--red-light);color:var(--red);font-size:11px;">${t.damage}</span>`:'—'}</td><td style="font-size:11px;color:var(--text2);">${t.remarks||'—'}</td></tr>`).join('');
+  sec.classList.remove('hidden');
+}
+
+// ── Replacement By-Charger chip helpers ──
+let activeRCharger = null;
+function filterRChips(){
+  const T=filteredTickets.filter(t=>t.type==='replacement');
+  const names=[...new Set(T.map(t=>t.name))].sort();
+  const q=(document.getElementById('rChargerSearch').value||'').toLowerCase();
+  const shown=names.filter(n=>!q||n.toLowerCase().includes(q));
+  const grid=document.getElementById('rChargerGrid');if(!grid)return;
+  grid.innerHTML=shown.map(n=>`<div class="chip ${n===activeRCharger?'active':''}" onclick="selectRCharger('${n.replace(/'/g,'\'')}')">${n}</div>`).join('');
+}
+function selectRCharger(name){
+  activeRCharger=name;filterRChips();
+  const T=filteredTickets.filter(t=>t.type==='replacement'&&t.name===name);
+  const sec=document.getElementById('rDetailSection');if(!sec)return;
+  if(!T.length){sec.classList.add('hidden');return;}
+  document.getElementById('rDetailName').textContent=name;
+  document.getElementById('rDetailMeta').textContent=[T[0].city,T[0].zone].filter(Boolean).join(' · ');
+  document.getElementById('rDetailCount').textContent=T.length+' records';
+  document.getElementById('rDetailTags').innerHTML=`<span class="tag tag-orange">${T.length} replacements</span>`;
+  document.getElementById('rDetailBody').innerHTML=T.map(t=>`<tr><td class="mono" style="font-size:11px;color:var(--text2);">${t.date?t.date.toLocaleDateString('en-IN'):'—'}</td><td>${t.damage?`<span class="badge" style="background:var(--orange-light);color:var(--orange);font-size:11px;">${t.damage}</span>`:'—'}</td><td style="font-size:12px;">${t.emp||'—'}</td><td style="font-size:11px;color:var(--text2);">${t.remarks||'—'}</td></tr>`).join('');
+  sec.classList.remove('hidden');
+}
+
+// ── Extended Maintenance render with by-zone/by-city ──
+function renderMaintenanceExtended(T, cityZoneMap){
+  // By Zone
+  const zoneData={};
+  T.forEach(t=>{
+    const z=(t.zone&&t.zone!=='?')?t.zone:(cityZoneMap[(t.city||'').trim()]||'(Unmapped)');
+    if(!zoneData[z])zoneData[z]={tickets:0,damage:0,vs:[]};
+    zoneData[z].tickets++;if(t.damage)zoneData[z].damage++;
+    const v=parseFloat(t.auxV);if(!isNaN(v)&&v>0)zoneData[z].vs.push(v);
+  });
+  const byZ=Object.entries(zoneData).map(([l,v])=>({l,v:v.tickets})).sort((a,b)=>b.v-a.v);
+  renderBar('mntChartZone',byZ,'','#6c3fc4');
+  const byZv=Object.entries(zoneData).map(([l,d])=>({l,v:d.vs.length?parseFloat((d.vs.reduce((a,b)=>a+b,0)/d.vs.length).toFixed(1)):0})).filter(e=>e.v>0).sort((a,b)=>b.v-a.v);
+  renderBar('mntChartZoneVolt',byZv,'V','#0f7a7a');
+  // Zone breakdown list
+  const grandTotal=T.length;
+  let zHtml='';
+  Object.entries(zoneData).sort((a,b)=>b[1].tickets-a[1].tickets).forEach(([zone,d])=>{
+    const pct=grandTotal?(d.tickets/grandTotal*100):0;
+    const avgV=d.vs.length?(d.vs.reduce((a,b)=>a+b,0)/d.vs.length):null;
+    zHtml+=`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">
+      <div style="font-size:13px;font-weight:600;width:120px;">${zone}</div>
+      <div style="flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:#6c3fc4;border-radius:4px;"></div></div>
+      <div style="font-size:12px;font-family:'DM Mono',monospace;min-width:32px;text-align:right;">${d.tickets}</div>
+      <div style="font-size:12px;color:var(--amber);font-family:'DM Mono',monospace;min-width:60px;text-align:right;">${avgV!==null?avgV.toFixed(1)+' V':'—'}</div>
+      <div style="font-size:12px;font-weight:700;color:var(--blue);font-family:'DM Mono',monospace;min-width:50px;text-align:right;">${pct.toFixed(1)}%</div>
+    </div>`;
+  });
+  const mzb=document.getElementById('mntZoneBreakdown');if(mzb)mzb.innerHTML=zHtml||'<div class="no-data">No data</div>';
+  // By City
+  const cityData={};
+  T.forEach(t=>{
+    const c=t.city||'?';const z=(t.zone&&t.zone!=='?')?t.zone:(cityZoneMap[(t.city||'').trim()]||'—');
+    if(!cityData[c])cityData[c]={city:c,zone:z,tickets:0,damage:0,vs:[]};
+    cityData[c].tickets++;if(t.damage)cityData[c].damage++;
+    const v=parseFloat(t.auxV);if(!isNaN(v)&&v>0)cityData[c].vs.push(v);
+  });
+  const cityArr=Object.values(cityData).sort((a,b)=>b.tickets-a.tickets);
+  const mntCB=document.getElementById('mntCityBody');
+  if(mntCB)mntCB.innerHTML=cityArr.length?cityArr.map((c,i)=>{
+    const avgV=c.vs.length?(c.vs.reduce((a,b)=>a+b,0)/c.vs.length):null;
+    const pct=grandTotal?(c.tickets/grandTotal*100):0;
+    const rank=i<3?['🥇','🥈','🥉'][i]:(i+1);
+    return`<tr><td style="text-align:center;">${rank}</td><td style="font-weight:600;">${c.city}</td><td style="color:var(--text2);font-size:12px;">${c.zone}</td><td style="text-align:right;font-family:'DM Mono',monospace;">${c.tickets}</td><td style="text-align:right;color:var(--red);font-family:'DM Mono',monospace;">${c.damage}</td><td style="text-align:right;color:var(--amber);font-family:'DM Mono',monospace;">${avgV!==null?avgV.toFixed(1):'—'}</td><td style="text-align:right;font-weight:700;color:var(--blue);font-family:'DM Mono',monospace;">${pct.toFixed(2)}%</td></tr>`;
+  }).join(''):'<tr><td colspan="7" class="no-data">No data</td></tr>';
+}
+
+// ── Extended Replacement render with by-zone/by-city ──
+function renderReplacementExtended(T, cityZoneMap){
+  const grandTotal=T.length;
+  // By Zone
+  const zoneData={};
+  T.forEach(t=>{
+    const z=(t.zone&&t.zone!=='?')?t.zone:(cityZoneMap[(t.city||'').trim()]||'(Unmapped)');
+    if(!zoneData[z])zoneData[z]={tickets:0,parts:{}};
+    zoneData[z].tickets++;
+    if(t.damage){zoneData[z].parts[t.damage]=(zoneData[z].parts[t.damage]||0)+1;}
+  });
+  const byZ=Object.entries(zoneData).map(([l,v])=>({l,v:v.tickets})).sort((a,b)=>b.v-a.v);
+  renderBar('rChartZone',byZ,'','#6c3fc4');
+  // Top part per zone
+  const byZP=Object.entries(zoneData).map(([zone,d])=>{
+    const topPart=Object.entries(d.parts).sort((a,b)=>b[1]-a[1])[0];
+    return{l:zone+' ('+(topPart?topPart[0]:'—')+')',v:d.tickets};
+  }).sort((a,b)=>b.v-a.v);
+  renderBar('rChartZoneParts',byZP,'','#c05621');
+  // Zone breakdown
+  let zHtml='';
+  Object.entries(zoneData).sort((a,b)=>b[1].tickets-a[1].tickets).forEach(([zone,d])=>{
+    const pct=grandTotal?(d.tickets/grandTotal*100):0;
+    const topPart=Object.entries(d.parts).sort((a,b)=>b[1]-a[1])[0];
+    zHtml+=`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">
+      <div style="font-size:13px;font-weight:600;width:120px;">${zone}</div>
+      <div style="flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:#c05621;border-radius:4px;"></div></div>
+      <div style="font-size:12px;font-family:'DM Mono',monospace;min-width:32px;text-align:right;">${d.tickets}</div>
+      <div style="font-size:11px;color:var(--orange);min-width:80px;text-align:right;">${topPart?topPart[0]:'—'}</div>
+      <div style="font-size:12px;font-weight:700;color:var(--blue);font-family:'DM Mono',monospace;min-width:50px;text-align:right;">${pct.toFixed(1)}%</div>
+    </div>`;
+  });
+  const rzb=document.getElementById('rZoneBreakdown');if(rzb)rzb.innerHTML=zHtml||'<div class="no-data">No data</div>';
+  // By City
+  const cityData={};
+  T.forEach(t=>{
+    const c=t.city||'?';const z=(t.zone&&t.zone!=='?')?t.zone:(cityZoneMap[(t.city||'').trim()]||'—');
+    if(!cityData[c])cityData[c]={city:c,zone:z,tickets:0,parts:new Set()};
+    cityData[c].tickets++;if(t.damage)cityData[c].parts.add(t.damage);
+  });
+  const cityArr=Object.values(cityData).sort((a,b)=>b.tickets-a.tickets);
+  const rCB=document.getElementById('rCityBody');
+  if(rCB)rCB.innerHTML=cityArr.length?cityArr.map((c,i)=>{
+    const pct=grandTotal?(c.tickets/grandTotal*100):0;
+    const rank=i<3?['🥇','🥈','🥉'][i]:(i+1);
+    return`<tr><td style="text-align:center;">${rank}</td><td style="font-weight:600;">${c.city}</td><td style="color:var(--text2);font-size:12px;">${c.zone}</td><td style="text-align:right;font-family:'DM Mono',monospace;">${c.tickets}</td><td style="text-align:right;color:var(--purple);font-family:'DM Mono',monospace;">${c.parts.size}</td><td style="text-align:right;font-weight:700;color:var(--blue);font-family:'DM Mono',monospace;">${pct.toFixed(2)}%</td></tr>`;
+  }).join(''):'<tr><td colspan="6" class="no-data">No data</td></tr>';
+}
 
 // ══════════════════════════════════════════════════════
 // PERSIST
