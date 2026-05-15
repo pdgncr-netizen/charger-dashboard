@@ -483,6 +483,7 @@
   <!-- MAIN PANEL: DAILY COMPLAINTS                   -->
   <!-- ═══════════════════════════════════════════════ -->
   <div class="main-panel" id="mpanel-complaint">
+    <!-- KPI row always visible -->
     <div style="height:16px;"></div>
     <div class="metrics" style="margin-bottom:1.5rem;">
       <div class="metric" style="--metric-color:var(--blue)"><div class="metric-label">Total Complaints</div><div class="metric-val" id="cTotal">—</div></div>
@@ -491,53 +492,92 @@
       <div class="metric" style="--metric-color:var(--red)"><div class="metric-label">Repeat Offenders</div><div class="metric-val" id="cRepeat">—</div><div class="metric-sub">≥3 same RCA</div></div>
       <div class="metric" style="--metric-color:var(--teal)"><div class="metric-label">Technicians</div><div class="metric-val" id="cTechs">—</div></div>
     </div>
-    <div class="grid2">
-      <div class="card"><div class="section-title">🔧 RCA Breakdown — Count</div><div id="cChartRca"><div class="no-data">Load Sheet 2</div></div></div>
-      <div class="card"><div class="section-title">⏱ Avg Resolution Hrs by RCA</div><div id="cChartRcaAvg"><div class="no-data">Load Sheet 2</div></div></div>
-    </div>
-    <!-- Zone breakdown using Sheet1 zone→city mapping -->
-    <div class="card card-mb" id="cZoneBreakdownCard">
-      <div class="section-title">📍 Complaints by Zone <span style="font-size:10px;font-weight:400;color:var(--text3);text-transform:none;letter-spacing:0;">(zone mapping from Sheet 1)</span></div>
-      <div id="cZoneBreakdown"><div class="no-data">Load data first</div></div>
+    <!-- Sub-tab bar -->
+    <div class="sub-tabs-wrap">
+      <button class="sub-tab active" onclick="switchSubTab2('c','overview')"><span class="sub-tab-icon">⚡</span> Overview</button>
+      <button class="sub-tab" onclick="switchSubTab2('c','bycharger')"><span class="sub-tab-icon">🔌</span> By Charger</button>
+      <button class="sub-tab" onclick="switchSubTab2('c','byzone')"><span class="sub-tab-icon">📍</span> By Zone</button>
+      <button class="sub-tab" onclick="switchSubTab2('c','bycity')"><span class="sub-tab-icon">🌆</span> By City</button>
     </div>
 
-    <!-- City performance table -->
-    <div class="card card-mb">
-      <div class="section-title">🌆 City Performance — Complaints</div>
-      <div style="font-size:12px;color:var(--text3);margin-bottom:12px;">
-        % of Total = (City or Zone Tickets ÷ Total Tickets) × 100
+    <!-- SUB: COMPLAINT OVERVIEW -->
+    <div class="sub-panel active" id="cspanel-overview">
+      <div class="grid2">
+        <div class="card"><div class="section-title">🔧 RCA Breakdown — Count</div><div id="cChartRca"><div class="no-data">Load Sheet 2</div></div></div>
+        <div class="card"><div class="section-title">⏱ Avg Resolution Hrs by RCA</div><div id="cChartRcaAvg"><div class="no-data">Load Sheet 2</div></div></div>
       </div>
-      <div class="tbl-wrap">
-        <table id="cCityPerfTable">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>City</th>
-              <th>Zone</th>
+      <div class="card card-mb">
+        <div class="section-title">🔁 Repeat Offenders (≥3 visits, same RCA)</div>
+        <div class="tbl-wrap"><table><thead><tr><th>Charger Name</th><th>City</th><th>RCA</th><th style="text-align:right">Visits</th><th style="text-align:right">Avg Res Hrs</th></tr></thead>
+        <tbody id="cRepeatBody"><tr><td colspan="5" class="no-data">Load Sheet 2 first</td></tr></tbody></table></div>
+      </div>
+      <div class="card card-mb">
+        <div class="section-title">👷 Technician Performance</div>
+        <div id="cChartEmp"><div class="no-data">Load Sheet 2</div></div>
+      </div>
+    </div>
+
+    <!-- SUB: COMPLAINT BY CHARGER -->
+    <div class="sub-panel" id="cspanel-bycharger">
+      <div class="charger-wrap">
+        <div class="section-title">Select Charger Name</div>
+        <input type="text" class="charger-search" id="cChargerSearch" placeholder="Search charger name…" oninput="filterCChips()" />
+        <div class="charger-grid" id="cChargerGrid"><div class="no-data">Load data to see chargers</div></div>
+      </div>
+      <div id="cDetailSection" class="hidden">
+        <div class="detail-banner">
+          <div>
+            <div class="detail-id" id="cDetailName" style="font-size:18px;"></div>
+            <div style="font-size:13px;color:var(--text2);margin-top:4px;" id="cDetailMeta"></div>
+          </div>
+          <div class="detail-tags" id="cDetailTags"></div>
+        </div>
+        <div class="grid2">
+          <div class="card"><div class="section-title">RCA Breakdown — Count</div><div id="cDetailRcaChart"></div></div>
+          <div class="card"><div class="section-title">Avg Resolution by RCA</div><div id="cDetailResChart"></div></div>
+        </div>
+        <div class="card card-mb">
+          <div class="section-title">All Complaint Records — <span id="cDetailCount"></span></div>
+          <div class="tbl-wrap"><table>
+            <thead><tr><th>Date</th><th>RCA</th><th>Technician</th><th style="text-align:right">Res Hrs</th><th>Remarks</th></tr></thead>
+            <tbody id="cDetailBody"></tbody>
+          </table></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUB: COMPLAINT BY ZONE -->
+    <div class="sub-panel" id="cspanel-byzone">
+      <div class="card card-mb">
+        <div class="section-title">📍 Complaints by Zone <span style="font-size:10px;font-weight:400;color:var(--text3);text-transform:none;letter-spacing:0;">(zone mapping from Sheet 1)</span></div>
+        <div id="cZoneBreakdown"><div class="no-data">Load data first</div></div>
+      </div>
+    </div>
+
+    <!-- SUB: COMPLAINT BY CITY -->
+    <div class="sub-panel" id="cspanel-bycity">
+      <div class="card card-mb">
+        <div class="section-title">🌆 City Performance — Complaints</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:12px;">% of Total = (City Tickets ÷ Total Tickets) × 100</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>#</th><th>City</th><th>Zone</th>
               <th style="text-align:right">Tickets</th>
               <th style="text-align:right">Avg Res Time</th>
               <th style="text-align:right">% of Total</th>
-            </tr>
-          </thead>
-          <tbody id="cCityPerfBody"><tr><td colspan="6" class="no-data">Load Sheet 2 first</td></tr></tbody>
-        </table>
+            </tr></thead>
+            <tbody id="cCityPerfBody"><tr><td colspan="6" class="no-data">Load Sheet 2 first</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card card-mb">
+        <div class="section-title">🏆 Most Complained Chargers — Top 15</div>
+        <div class="tbl-wrap"><table><thead><tr><th>#</th><th>Charger Name</th><th>City</th><th style="text-align:right">Visits</th><th style="text-align:right">Avg Res Hrs</th><th>Top RCA</th></tr></thead>
+        <tbody id="cWorstBody"><tr><td colspan="6" class="no-data">Load Sheet 2 first</td></tr></tbody></table></div>
       </div>
     </div>
-    <div class="card card-mb">
-      <div class="section-title">🔁 Repeat Offenders (≥3 visits, same RCA)</div>
-      <div class="tbl-wrap"><table><thead><tr><th>Charger Name</th><th>City</th><th>RCA</th><th style="text-align:right">Visits</th><th style="text-align:right">Avg Res Hrs</th></tr></thead>
-      <tbody id="cRepeatBody"><tr><td colspan="5" class="no-data">Load Sheet 2 first</td></tr></tbody></table></div>
-    </div>
-    <div class="card card-mb">
-      <div class="section-title">🏆 Most Complained Chargers — Top 15</div>
-      <div class="tbl-wrap"><table><thead><tr><th>#</th><th>Charger Name</th><th>City</th><th style="text-align:right">Visits</th><th style="text-align:right">Avg Res Hrs</th><th>Top RCA</th></tr></thead>
-      <tbody id="cWorstBody"><tr><td colspan="6" class="no-data">Load Sheet 2 first</td></tr></tbody></table></div>
-    </div>
-    <div class="card card-mb">
-      <div class="section-title">👷 Technician Performance</div>
-      <div id="cChartEmp"><div class="no-data">Load Sheet 2</div></div>
-    </div>
-  </div>
+  </div><!-- /mpanel-complaint -->
 
   <!-- ═══════════════════════════════════════════════ -->
   <!-- MAIN PANEL: MONTHLY MAINTENANCE                -->
@@ -550,21 +590,86 @@
       <div class="metric" style="--metric-color:var(--red)"><div class="metric-label">With Damage</div><div class="metric-val" id="mntDamage">—</div></div>
       <div class="metric" style="--metric-color:var(--amber)"><div class="metric-label">Avg Aux Battery</div><div class="metric-val" id="mntAvgV">—</div><div class="metric-sub">volts</div></div>
     </div>
-    <div class="grid2">
-      <div class="card"><div class="section-title">📍 Activities by Zone / City</div><div id="mntChartZone"><div class="no-data">Load Sheet 2</div></div></div>
-      <div class="card"><div class="section-title">🔋 Aux Battery Voltage Distribution</div><div id="mntChartVolt"><div class="no-data">Load Sheet 2</div></div></div>
+    <!-- Sub-tab bar -->
+    <div class="sub-tabs-wrap">
+      <button class="sub-tab active" onclick="switchSubTab2('m','overview')"><span class="sub-tab-icon">⚡</span> Overview</button>
+      <button class="sub-tab" onclick="switchSubTab2('m','bycharger')"><span class="sub-tab-icon">🔌</span> By Charger</button>
+      <button class="sub-tab" onclick="switchSubTab2('m','byzone')"><span class="sub-tab-icon">📍</span> By Zone</button>
+      <button class="sub-tab" onclick="switchSubTab2('m','bycity')"><span class="sub-tab-icon">🌆</span> By City</button>
     </div>
-    <div class="card card-mb">
-      <div class="section-title">⚠️ Damaged Chargers</div>
-      <div class="tbl-wrap"><table><thead><tr><th>Charger Name</th><th>City</th><th>Damage</th><th>Remarks</th><th>Technician</th><th>Date</th></tr></thead>
-      <tbody id="mntDamageBody"><tr><td colspan="6" class="no-data">Load Sheet 2 first</td></tr></tbody></table></div>
+
+    <!-- SUB: MAINTENANCE OVERVIEW -->
+    <div class="sub-panel active" id="mspanel-overview">
+      <div class="grid2">
+        <div class="card"><div class="section-title">🔋 Aux Battery Voltage Distribution</div><div id="mntChartVolt"><div class="no-data">Load Sheet 2</div></div></div>
+        <div class="card"><div class="section-title">⚠️ Damage Frequency by Type</div><div id="mntChartDmg"><div class="no-data">Load Sheet 2</div></div></div>
+      </div>
+      <div class="card card-mb">
+        <div class="section-title">⚠️ Damaged Chargers</div>
+        <div class="tbl-wrap"><table><thead><tr><th>Charger Name</th><th>City</th><th>Damage</th><th>Remarks</th><th>Technician</th><th>Date</th></tr></thead>
+        <tbody id="mntDamageBody"><tr><td colspan="6" class="no-data">Load Sheet 2 first</td></tr></tbody></table></div>
+      </div>
+      <div class="card card-mb">
+        <div class="section-title">📋 All Maintenance Records — <span id="mntCount"></span></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Charger Name</th><th>City</th><th>Technician</th><th>Remarks</th><th style="text-align:right">Aux V</th><th>Date</th></tr></thead>
+        <tbody id="mntLogBody"><tr><td colspan="6" class="no-data">Load Sheet 2 first</td></tr></tbody></table></div>
+      </div>
     </div>
-    <div class="card card-mb">
-      <div class="section-title">📋 All Maintenance Records — <span id="mntCount"></span></div>
-      <div class="tbl-wrap"><table><thead><tr><th>Charger Name</th><th>City</th><th>Technician</th><th>Remarks</th><th style="text-align:right">Aux V</th><th>Date</th></tr></thead>
-      <tbody id="mntLogBody"><tr><td colspan="6" class="no-data">Load Sheet 2 first</td></tr></tbody></table></div>
+
+    <!-- SUB: MAINTENANCE BY CHARGER -->
+    <div class="sub-panel" id="mspanel-bycharger">
+      <div class="charger-wrap">
+        <div class="section-title">Select Charger Name</div>
+        <input type="text" class="charger-search" id="mChargerSearch" placeholder="Search charger name…" oninput="filterMChips()" />
+        <div class="charger-grid" id="mChargerGrid"><div class="no-data">Load data to see chargers</div></div>
+      </div>
+      <div id="mDetailSection" class="hidden">
+        <div class="detail-banner">
+          <div>
+            <div class="detail-id" id="mDetailName" style="font-size:18px;"></div>
+            <div style="font-size:13px;color:var(--text2);margin-top:4px;" id="mDetailMeta"></div>
+          </div>
+          <div class="detail-tags" id="mDetailTags"></div>
+        </div>
+        <div class="card card-mb">
+          <div class="section-title">All Maintenance Records — <span id="mDetailCount"></span></div>
+          <div class="tbl-wrap"><table>
+            <thead><tr><th>Date</th><th>Technician</th><th style="text-align:right">Aux V</th><th>Damage</th><th>Remarks</th></tr></thead>
+            <tbody id="mDetailBody"></tbody>
+          </table></div>
+        </div>
+      </div>
     </div>
-  </div>
+
+    <!-- SUB: MAINTENANCE BY ZONE -->
+    <div class="sub-panel" id="mspanel-byzone">
+      <div class="grid2" style="margin-bottom:1rem;">
+        <div class="card"><div class="section-title">📍 Activities by Zone</div><div id="mntChartZone"><div class="no-data">Load Sheet 2</div></div></div>
+        <div class="card"><div class="section-title">🔋 Avg Aux Voltage by Zone</div><div id="mntChartZoneVolt"><div class="no-data">Load Sheet 2</div></div></div>
+      </div>
+      <div id="mntZoneBreakdown"><div class="no-data">Load data first</div></div>
+    </div>
+
+    <!-- SUB: MAINTENANCE BY CITY -->
+    <div class="sub-panel" id="mspanel-bycity">
+      <div class="card card-mb">
+        <div class="section-title">🌆 Maintenance by City</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:12px;">% of Total = (City Activities ÷ Total Activities) × 100</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>#</th><th>City</th><th>Zone</th>
+              <th style="text-align:right">Activities</th>
+              <th style="text-align:right">With Damage</th>
+              <th style="text-align:right">Avg Aux V</th>
+              <th style="text-align:right">% of Total</th>
+            </tr></thead>
+            <tbody id="mntCityBody"><tr><td colspan="7" class="no-data">Load Sheet 2 first</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div><!-- /mpanel-maintenance -->
 
   <!-- ═══════════════════════════════════════════════ -->
   <!-- MAIN PANEL: REPLACEMENT                        -->
@@ -576,21 +681,83 @@
       <div class="metric" style="--metric-color:var(--blue)"><div class="metric-label">Chargers Affected</div><div class="metric-val" id="rChargers">—</div></div>
       <div class="metric" style="--metric-color:var(--purple)"><div class="metric-label">Unique Parts</div><div class="metric-val" id="rParts">—</div></div>
     </div>
-    <div class="grid2">
-      <div class="card"><div class="section-title">🔩 Parts Replaced</div><div id="rChartParts"><div class="no-data">Load Sheet 2</div></div></div>
-      <div class="card"><div class="section-title">🌆 Replacements by City</div><div id="rChartCity"><div class="no-data">Load Sheet 2</div></div></div>
+    <!-- Sub-tab bar -->
+    <div class="sub-tabs-wrap">
+      <button class="sub-tab active" onclick="switchSubTab2('r','overview')"><span class="sub-tab-icon">⚡</span> Overview</button>
+      <button class="sub-tab" onclick="switchSubTab2('r','bycharger')"><span class="sub-tab-icon">🔌</span> By Charger</button>
+      <button class="sub-tab" onclick="switchSubTab2('r','byzone')"><span class="sub-tab-icon">📍</span> By Zone</button>
+      <button class="sub-tab" onclick="switchSubTab2('r','bycity')"><span class="sub-tab-icon">🌆</span> By City</button>
     </div>
-    <div class="card card-mb">
-      <div class="section-title">🏆 Most Replaced — Top 15</div>
-      <div class="tbl-wrap"><table><thead><tr><th>#</th><th>Charger Name</th><th>City</th><th>Parts Replaced</th><th style="text-align:right">Count</th></tr></thead>
-      <tbody id="rWorstBody"><tr><td colspan="5" class="no-data">Load Sheet 2 first</td></tr></tbody></table></div>
+
+    <!-- SUB: REPLACEMENT OVERVIEW -->
+    <div class="sub-panel active" id="rspanel-overview">
+      <div class="grid2">
+        <div class="card"><div class="section-title">🔩 Parts Replaced (by count)</div><div id="rChartParts"><div class="no-data">Load Sheet 2</div></div></div>
+        <div class="card"><div class="section-title">🏆 Most Replaced Chargers — Top 15</div>
+          <div class="tbl-wrap"><table><thead><tr><th>#</th><th>Charger Name</th><th>City</th><th>Parts</th><th style="text-align:right">Count</th></tr></thead>
+          <tbody id="rWorstBody"><tr><td colspan="5" class="no-data">Load Sheet 2 first</td></tr></tbody></table></div>
+        </div>
+      </div>
+      <div class="card card-mb">
+        <div class="section-title">📋 All Replacement Records</div>
+        <div class="tbl-wrap"><table><thead><tr><th>Charger Name</th><th>City</th><th>Part / Damage</th><th>Technician</th><th>Date</th></tr></thead>
+        <tbody id="rLogBody"><tr><td colspan="5" class="no-data">Load Sheet 2 first</td></tr></tbody></table></div>
+      </div>
     </div>
-    <div class="card card-mb">
-      <div class="section-title">📋 All Replacement Records</div>
-      <div class="tbl-wrap"><table><thead><tr><th>Charger Name</th><th>City</th><th>Part / Damage</th><th>Technician</th><th>Date</th></tr></thead>
-      <tbody id="rLogBody"><tr><td colspan="5" class="no-data">Load Sheet 2 first</td></tr></tbody></table></div>
+
+    <!-- SUB: REPLACEMENT BY CHARGER -->
+    <div class="sub-panel" id="rspanel-bycharger">
+      <div class="charger-wrap">
+        <div class="section-title">Select Charger Name</div>
+        <input type="text" class="charger-search" id="rChargerSearch" placeholder="Search charger name…" oninput="filterRChips()" />
+        <div class="charger-grid" id="rChargerGrid"><div class="no-data">Load data to see chargers</div></div>
+      </div>
+      <div id="rDetailSection" class="hidden">
+        <div class="detail-banner">
+          <div>
+            <div class="detail-id" id="rDetailName" style="font-size:18px;"></div>
+            <div style="font-size:13px;color:var(--text2);margin-top:4px;" id="rDetailMeta"></div>
+          </div>
+          <div class="detail-tags" id="rDetailTags"></div>
+        </div>
+        <div class="card card-mb">
+          <div class="section-title">Replacement Records — <span id="rDetailCount"></span></div>
+          <div class="tbl-wrap"><table>
+            <thead><tr><th>Date</th><th>Part / Damage</th><th>Technician</th><th>Remarks</th></tr></thead>
+            <tbody id="rDetailBody"></tbody>
+          </table></div>
+        </div>
+      </div>
     </div>
-  </div>
+
+    <!-- SUB: REPLACEMENT BY ZONE -->
+    <div class="sub-panel" id="rspanel-byzone">
+      <div class="grid2" style="margin-bottom:1rem;">
+        <div class="card"><div class="section-title">📍 Replacements by Zone</div><div id="rChartZone"><div class="no-data">Load Sheet 2</div></div></div>
+        <div class="card"><div class="section-title">🔩 Top Parts by Zone</div><div id="rChartZoneParts"><div class="no-data">Load Sheet 2</div></div></div>
+      </div>
+      <div id="rZoneBreakdown"><div class="no-data">Load data first</div></div>
+    </div>
+
+    <!-- SUB: REPLACEMENT BY CITY -->
+    <div class="sub-panel" id="rspanel-bycity">
+      <div class="card card-mb">
+        <div class="section-title">🌆 Replacements by City</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:12px;">% of Total = (City Replacements ÷ Total Replacements) × 100</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>#</th><th>City</th><th>Zone</th>
+              <th style="text-align:right">Replacements</th>
+              <th style="text-align:right">Unique Parts</th>
+              <th style="text-align:right">% of Total</th>
+            </tr></thead>
+            <tbody id="rCityBody"><tr><td colspan="6" class="no-data">Load Sheet 2 first</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div><!-- /mpanel-replacement -->
 
 </main>
 
