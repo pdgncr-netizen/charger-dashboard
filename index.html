@@ -271,6 +271,23 @@
     </div>
   </div>
 
+  <!-- ═══ COLUMN MAPPER ═══ -->
+  <div id="colMapperWrap" class="hidden" style="margin-bottom:1.5rem;">
+    <div style="background:var(--surface);border:2px solid var(--blue);border-radius:var(--radius-lg);padding:1.5rem;box-shadow:var(--shadow);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:12px;flex-wrap:wrap;">
+        <div>
+          <div style="font-size:15px;font-weight:700;color:var(--text);">🗂️ Column Mapper — Verify your sheet columns</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:3px;">Auto-detected columns are shown. Fix any that are wrong, then click Apply. Your choices are saved for next time.</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button onclick="applyColumnMap()" style="font-size:13px;font-weight:600;padding:8px 18px;border-radius:9px;border:1px solid #0d47b5;background:#1a6ef5;color:#fff;cursor:pointer;">✅ Apply &amp; Re-parse</button>
+          <button onclick="document.getElementById('colMapperWrap').classList.add('hidden')" style="font-size:13px;padding:8px 14px;border-radius:9px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);cursor:pointer;">✕ Dismiss</button>
+        </div>
+      </div>
+      <div id="colMapperBody"></div>
+    </div>
+  </div>
+
   <!-- ═══ HOWTO ═══ -->
   <div class="howto" id="howto">
     <h3>🔗 Setup (one-time)</h3>
@@ -613,12 +630,10 @@ function parseDate(s){if(!s)return null;const d=new Date(s);return isNaN(d.getTi
 function safeNum(raw){
   if(raw===null||raw===undefined)return 0;
   if(typeof raw==='number')return isNaN(raw)?0:raw;
-  const s=String(raw).replace(/"/g,'').trim();
-  // Reject datetime strings (contain / or :) — not a numeric value
-  if(/[\/:]/.test(s)) return 0;
-  const stripped=s.replace(/hours?/gi,'').replace(/hrs?/gi,'').replace(/,/g,'').trim();
-  if(!stripped||!/^\d/.test(stripped)) return 0;
-  const v=parseFloat(stripped);
+  const s=String(raw).trim().replace(/,/g,'');
+  const m=s.match(/^-?(\d+\.?\d*)/);
+  if(!m)return 0;
+  const v=parseFloat(m[0]);
   return isNaN(v)?0:v;
 }
 
@@ -637,88 +652,173 @@ function detectUnit(rawValues){
 }
 
 // ══════════════════════════════════════════════════════
-// SHEET 1 PARSER — fixed site/charger name mapping
+// COLUMN MAPPER STATE
+// Maps field name → column index chosen by user (or auto-detected)
+// ══════════════════════════════════════════════════════
+let rawHeaders = [];   // actual header strings from CSV
+let colMap = {};       // { charger, site, rca, hours, city, zone, start, end }
+let rawCSV1 = '';      // stored raw CSV for re-parse after user adjusts cols
+
+const COL_FIELDS = [
+  { key:'charger', label:'Charger ID',        hint:'Unique ID like VMHENKK0002' },
+  { key:'site',    label:'Charger Name / Site',hint:'Human name like Modi Mall, Akashdeep Motors' },
+  { key:'hours',   label:'Downtime Hours',     hint:'Numeric hours of downtime per event' },
+  { key:'rca',     label:'Root Cause (RCA)',   hint:'Reason: Power Cut, CMS Issue, etc.' },
+  { key:'city',    label:'City',               hint:'City name' },
+  { key:'zone',    label:'Zone',               hint:'Zone like North, West, etc.' },
+  { key:'start',   label:'Downtime Start',     hint:'Date/time charger went down' },
+  { key:'end',     label:'Uptime / End',       hint:'Date/time charger came back up' },
+];
+
+function autoDetectCols(headers) {
+  const H = headers.map(h => h.toLowerCase());
+  const f = (...keys) => H.findIndex(h => keys.some(k => h.includes(k.toLowerCase())));
+  return {
+    charger: f('charger id','chargerid','charger_id'),
+    site:    f('charger name','site name','charger_name','name of site','site'),
+    rca:     f('root cause','rca'),
+    hours:   f('power down time','power_down','downtime hrs','downtime hour','hours','duration'),
+    city:    f('city'),
+    zone:    f('vida zone','zone'),
+    start:   f('charger downtime','downtime start','downtime (estimated)','downtime_start','start time','start date','start'),
+    end:     f('charger uptime','uptime','uptime_est','end time','end date','end'),
+  };
+}
+
+function showColumnMapper(headers, sampleRows) {
+  rawHeaders = headers;
+  const detected = autoDetectCols(headers);
+  // Merge with any user-saved mapping
+  const saved = JSON.parse(localStorage.getItem('cdash_colmap')||'{}');
+  colMap = {...detected, ...saved};
+
+  const NONE = '<option value="-1">— Not in sheet —</option>';
+  const opts = headers.map((h,i) => `<option value="${i}">${i}: ${h}</option>`).join('');
+
+  const rows = COL_FIELDS.map(f => {
+    const sel = `<select id="cm_${f.key}" style="font-size:12px;padding:4px 8px;border:1px solid var(--border2);border-radius:6px;background:var(--surface2);color:var(--text);font-family:'DM Mono',monospace;min-width:200px;">
+      ${NONE}${opts}
+    </select>`;
+    return `<tr>
+      <td style="padding:7px 10px;font-size:13px;font-weight:500;white-space:nowrap;">${f.label}</td>
+      <td style="padding:7px 10px;">${sel}</td>
+      <td style="padding:7px 10px;font-size:11px;color:var(--text3);">${f.hint}</td>
+    </tr>`;
+  }).join('');
+
+  // Sample data preview
+  const previewHtml = `<div style="overflow-x:auto;margin-top:8px;">
+    <table style="font-size:11px;border-collapse:collapse;font-family:'DM Mono',monospace;">
+      <tr>${headers.map((h,i)=>`<th style="padding:4px 8px;border:1px solid var(--border);background:var(--surface2);color:var(--text3);white-space:nowrap;">${i}: ${h}</th>`).join('')}</tr>
+      ${sampleRows.slice(0,3).map(r=>`<tr>${r.map(c=>`<td style="padding:4px 8px;border:1px solid var(--border);white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis;">${c}</td>`).join('')}</tr>`).join('')}
+    </table>
+  </div>`;
+
+  document.getElementById('colMapperBody').innerHTML = `
+    <table style="width:100%;border-collapse:collapse;">${rows}</table>
+    <div style="margin-top:14px;">
+      <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">📊 Your Sheet — First 3 Rows (column index shown)</div>
+      ${previewHtml}
+    </div>`;
+
+  // Set dropdowns to detected/saved values
+  COL_FIELDS.forEach(f => {
+    const sel = document.getElementById('cm_'+f.key);
+    if (!sel) return;
+    const val = (colMap[f.key] !== undefined ? colMap[f.key] : -1);
+    sel.value = String(val);
+  });
+
+  document.getElementById('colMapperWrap').classList.remove('hidden');
+}
+
+function applyColumnMap() {
+  COL_FIELDS.forEach(f => {
+    const sel = document.getElementById('cm_'+f.key);
+    if (sel) colMap[f.key] = parseInt(sel.value);
+  });
+  localStorage.setItem('cdash_colmap', JSON.stringify(colMap));
+  document.getElementById('colMapperWrap').classList.add('hidden');
+  if (rawCSV1) {
+    const parsed = parseS1withMap(rawCSV1);
+    allRows = parsed;
+    filteredRows = [...allRows];
+    setPill(1,'ok',allRows.length+' events loaded ✓');
+    const dates = allRows.map(r=>r.date).filter(Boolean);
+    if (dates.length) {
+      document.getElementById('dateFrom').value = new Date(Math.min(...dates)).toISOString().slice(0,10);
+      document.getElementById('dateTo').value   = new Date(Math.max(...dates)).toISOString().slice(0,10);
+    }
+    renderAll();
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// SHEET 1 PARSER — uses colMap set by user or auto-detect
 // ══════════════════════════════════════════════════════
 function parseS1(csv){
-  const lines=csv.trim().split(/\r?\n/);
-  if(lines.length<2)return[];
-  const H=lines[0].split(',').map(h=>clean(h).toLowerCase());
-  const f=(...keys)=>H.findIndex(h=>keys.some(k=>h.includes(k.toLowerCase())));
+  rawCSV1 = csv;
+  const lines = csv.trim().split(/\r?\n/);
+  if (lines.length < 2) return [];
+  const headers = splitCSVLine(lines[0]).map(h => clean(h));
+  const sampleRows = [];
+  for (let i=1; i<Math.min(4,lines.length); i++) sampleRows.push(splitCSVLine(lines[i]).map(clean));
 
-  // PRECISE column detection matching actual Google Sheet headers:
-  // Col A: 'Vida Zone (from Site Name)', B: 'City', C: 'Charger Name',
-  // D: 'Charger ID', E: 'Root Cause Analysis(RCA)',
-  // F: 'Charger Downtime (Estimated)', G: 'Charger Uptime (Estimated)',
-  // H: 'Expected Power Down Time (HRS)'
-  const iCharger = H.findIndex(h => h==='charger id' || h.includes('charger id') || h.includes('chargerid'));
-  // Site/name: prefer 'charger name' or 'site name' — must NOT be the same col as charger id
-  // 'Charger Name' is col C, 'Charger ID' is col D — must find different indices
-  // Search for exact 'charger name' first (not 'charger id')
-  const iSiteRaw = H.findIndex(h => h==='charger name' || (h.includes('charger name') && !h.includes('charger id')));
-  const iSite = (iSiteRaw>=0 && iSiteRaw!==iCharger) ? iSiteRaw : -1;
+  // Auto-detect columns
+  const saved = JSON.parse(localStorage.getItem('cdash_colmap')||'{}');
+  const detected = autoDetectCols(headers);
+  colMap = {...detected, ...saved};
 
-  const iRCA  =f('root cause','rca');
-  // Hours col: MUST be the numeric column, NOT the datetime 'Charger Downtime (Estimated)'
-  // Priority: 'expected power down time (hrs)' → 'power down time' → col ending in '(hrs)' or '(hours)'
-  // Explicitly exclude any col that also matches start/uptime patterns
-  const isTimestamp = h => h.includes('estimated') || h.includes('uptime') ||
-                           (h.includes('downtime') && !h.includes('power'));
-  let iHours = H.findIndex(h => !isTimestamp(h) && h.includes('expected power down time'));
-  if(iHours<0) iHours = H.findIndex(h => !isTimestamp(h) && h.includes('power down time'));
-  if(iHours<0) iHours = H.findIndex(h => !isTimestamp(h) && (h.endsWith('(hrs)') || h.endsWith('(hours)')));
-  if(iHours<0) iHours = H.findIndex(h => !isTimestamp(h) && h === 'hours');
-  console.log('[S1 cols] charger='+iCharger+' site='+iSite+' hours='+iHours+' zone='+iZone+' city='+iCity+' rca='+iRCA);
-  console.log('[S1 headers]', H.map((h,i)=>i+':'+h).join(' | '));
-  const iCity =f('city');
-  const iZone =f('vida zone','zone');
-  const iStart=f('charger downtime (estimated)','charger downtime','downtime_start','start time');
-  const iEnd  =f('charger uptime','uptime (estimated)','uptime_est','end time','end');
+  // Show mapper so user can verify / fix
+  showColumnMapper(headers, sampleRows);
+
+  return parseS1withMap(csv);
+}
+
+function parseS1withMap(csv) {
+  const lines = csv.trim().split(/\r?\n/);
+  if (lines.length < 2) return [];
+
+  const iCharger = colMap.charger ?? -1;
+  const iSite    = colMap.site    ?? -1;
+  const iRCA     = colMap.rca     ?? -1;
+  const iHours   = colMap.hours   ?? -1;
+  const iCity    = colMap.city    ?? -1;
+  const iZone    = colMap.zone    ?? -1;
+  const iStart   = colMap.start   ?? -1;
+  const iEnd     = colMap.end     ?? -1;
 
   // Detect unit from raw hour values
-  const rawH=[];
-  for(let i=1;i<lines.length;i++){
-    const c=splitCSVLine(lines[i]);
-    if(iHours>=0&&c[iHours])rawH.push(clean(c[iHours]));
+  const rawH = [];
+  for (let i=1; i<lines.length; i++) {
+    const c = splitCSVLine(lines[i]);
+    if (iHours >= 0 && c[iHours]) rawH.push(clean(c[iHours]));
   }
-  const{multiplier,unit}=detectUnit(rawH);
-  hoursMultiplier=multiplier;
+  const {multiplier, unit} = detectUnit(rawH);
+  hoursMultiplier = multiplier;
   document.getElementById('pillUnit').classList.remove('hidden');
-  document.getElementById('pillUnitTxt').textContent='Unit: '+unit;
+  document.getElementById('pillUnitTxt').textContent = 'Unit: '+unit;
 
-  const rows=[];
-  let _dbgDone=false; // log first valid row for debugging
-  for(let i=1;i<lines.length;i++){
-    const c=splitCSVLine(lines[i]);
-    const charger=clean(c[iCharger]);
-    if(!charger)continue;
-    const startRaw=clean(iStart>=0?c[iStart]:'');
-    const rawHVal=clean(iHours>=0?c[iHours]:'0');
-    const hours=safeNum(rawHVal)*multiplier;
-    if(!_dbgDone){
-      console.log('[S1 first row] charger='+charger+' site='+(iSite>=0?clean(c[iSite]):'N/A')+
-        ' city='+(iCity>=0?clean(c[iCity]):'N/A')+' zone='+(iZone>=0?clean(c[iZone]):'N/A')+
-        ' rawHrs='+rawHVal+' parsedHrs='+hours);
-      _dbgDone=true;
-    }
-
-    // Site name: use column if found and different from charger id column
-    let site='';
-    if(iSite>=0&&c[iSite]){
-      site=clean(c[iSite]);
-      // Don't use it if it looks like a charger ID (all caps with digits) AND equals charger col
-      if(site===charger)site='';
-    }
+  const rows = [];
+  for (let i=1; i<lines.length; i++) {
+    const c = splitCSVLine(lines[i]);
+    const charger = iCharger >= 0 ? clean(c[iCharger]) : '';
+    if (!charger) continue;
+    const startRaw = iStart >= 0 ? clean(c[iStart]) : '';
+    const rawHVal  = iHours >= 0 ? clean(c[iHours]) : '0';
+    const hours    = safeNum(rawHVal) * multiplier;
+    const site     = iSite >= 0 ? clean(c[iSite]) : '';
 
     rows.push({
       charger,
-      site,
-      rca:  clean(c[iRCA]),
+      site:  (site && site !== charger) ? site : '',
+      rca:   iRCA  >= 0 ? clean(c[iRCA])  : '',
       hours,
-      city: clean(c[iCity]),
-      zone: clean(c[iZone]),
-      start:startRaw,
-      end:  clean(iEnd>=0?c[iEnd]:''),
-      date: parseDate(startRaw),
+      city:  iCity >= 0 ? clean(c[iCity]) : '',
+      zone:  iZone >= 0 ? clean(c[iZone]) : '',
+      start: startRaw,
+      end:   iEnd  >= 0 ? clean(c[iEnd])  : '',
+      date:  parseDate(startRaw),
     });
   }
   return rows;
@@ -1011,7 +1111,7 @@ function renderOverview(){
   }
 
   // Worst chargers table
-  const summary=buildChargerSummary(rows,days); // show all chargers
+  const summary=buildChargerSummary(rows,days).slice(0,20);
   if(!summary.length){
     document.getElementById('overviewDowntimePctBody').innerHTML='<tr><td colspan="8" class="no-data">No data</td></tr>';
   } else {
@@ -1022,7 +1122,7 @@ function renderOverview(){
       const cls=pct!==null?pctClass(pct):'';
       const barW=pct!==null?Math.min(pct/100*60,60):0; // max 60px width
       // Site name: fall back to charger ID if blank
-      const siteName=c.site?c.site:'—'; // charger name from col C
+      const siteName=c.site&&c.site!==c.charger?c.site:'—';
       return `<tr>
         <td style="text-align:center;">${rank}</td>
         <td class="mono" style="font-size:12px;font-weight:600;">${c.charger}</td>
