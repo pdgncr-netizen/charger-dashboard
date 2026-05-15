@@ -505,7 +505,7 @@
     <div class="card card-mb">
       <div class="section-title">🌆 City Performance — Complaints</div>
       <div style="font-size:12px;color:var(--text3);margin-bottom:12px;">
-        Resolution % = tickets with recorded resolution time ÷ total tickets × 100
+        % of Total = (City or Zone Tickets ÷ Total Tickets) × 100
       </div>
       <div class="tbl-wrap">
         <table id="cCityPerfTable">
@@ -516,11 +516,10 @@
               <th>Zone</th>
               <th style="text-align:right">Tickets</th>
               <th style="text-align:right">Avg Res Time</th>
-              <th style="text-align:right">Resolution %</th>
-              <th style="min-width:100px;">Performance</th>
+              <th style="text-align:right">% of Total</th>
             </tr>
           </thead>
-          <tbody id="cCityPerfBody"><tr><td colspan="7" class="no-data">Load Sheet 2 first</td></tr></tbody>
+          <tbody id="cCityPerfBody"><tr><td colspan="6" class="no-data">Load Sheet 2 first</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -1347,6 +1346,7 @@ function renderComplaint(){
   renderBar('cChartRcaAvg',Object.entries(rcaRes).map(([l,v])=>({l,v:parseFloat((v.s/v.n).toFixed(2))})).sort((a,b)=>b.v-a.v),'hrs','#d4820a');
 
   // ── ZONE BREAKDOWN (using Sheet1 mapping) ──────────────────────────
+  const grandTotal = T.length; // total tickets across all zones/cities
   const zoneData = {};
   T.forEach(t => {
     const z = (t.zone && t.zone!=='?') ? t.zone : (cityZoneMap[(t.city||'').trim()] || '(Unmapped)');
@@ -1371,19 +1371,19 @@ function renderComplaint(){
 
     const cityRows = cities.map(([city,v]) => {
       const avgR = v.resCnt ? v.resSum/v.resCnt : null;
-      const resPct = v.tickets ? (v.resCnt/v.tickets*100) : 0;
-      const resPctColor = resPct>=80?'#1f7a3e':resPct>=50?'#d4820a':'#c0392b';
+      const pctOfTotal = grandTotal ? (v.tickets/grandTotal*100) : 0;
+      const barColor = pctOfTotal >= 20 ? '#1a6ef5' : pctOfTotal >= 10 ? '#0f7a7a' : '#6c3fc4';
       const barW = zTotal ? Math.round(v.tickets/zTotal*100) : 0;
       return `<tr style="font-size:12px;">
         <td style="padding:7px 12px;color:var(--text2);padding-left:28px;">↳ ${city}</td>
         <td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;font-weight:600;">${v.tickets}</td>
         <td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:var(--amber);">${avgR!==null?avgR.toFixed(1)+' h':'—'}</td>
         <td style="padding:7px 12px;text-align:right;">
-          <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:${resPctColor};">${resPct.toFixed(0)}%</span>
-        </td>
-        <td style="padding:7px 12px;">
-          <div style="height:6px;background:var(--surface2);border-radius:3px;width:100px;overflow:hidden;border:1px solid var(--border);">
-            <div style="height:100%;width:${barW}%;background:${zColor};border-radius:3px;"></div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;">
+            <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:${barColor};">${pctOfTotal.toFixed(2)}%</span>
+            <div style="height:4px;background:var(--surface2);border-radius:2px;width:70px;overflow:hidden;">
+              <div style="height:100%;width:${barW}%;background:${barColor};border-radius:2px;"></div>
+            </div>
           </div>
         </td>
       </tr>`;
@@ -1407,8 +1407,8 @@ function renderComplaint(){
               <div style="font-size:16px;font-weight:700;font-family:'DM Mono',monospace;color:var(--amber);">${zAvgRes!==null?zAvgRes.toFixed(1)+' h':'—'}</div>
             </div>
             <div style="text-align:right;">
-              <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;">Resolution %</div>
-              <div style="font-size:16px;font-weight:700;font-family:'DM Mono',monospace;color:${zResPct>=80?'#1f7a3e':zResPct>=50?'#d4820a':'#c0392b'};">${zResPct.toFixed(0)}%</div>
+              <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;">% of Total</div>
+              <div style="font-size:16px;font-weight:700;font-family:'DM Mono',monospace;color:var(--blue);">${grandTotal?(zTotal/grandTotal*100).toFixed(2):'—'}%</div>
             </div>
           </div>
         </div>
@@ -1418,8 +1418,7 @@ function renderComplaint(){
               <th style="padding:6px 12px;font-size:10px;color:var(--text3);text-align:left;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">City</th>
               <th style="padding:6px 12px;font-size:10px;color:var(--text3);text-align:right;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Tickets</th>
               <th style="padding:6px 12px;font-size:10px;color:var(--text3);text-align:right;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Avg Res Time</th>
-              <th style="padding:6px 12px;font-size:10px;color:var(--text3);text-align:right;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Resolution %</th>
-              <th style="padding:6px 12px;font-size:10px;color:var(--text3);text-align:left;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Share</th>
+              <th style="padding:6px 12px;font-size:10px;color:var(--text3);text-align:right;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">% of Total</th>
             </tr>
           </thead>
           <tbody>${cityRows}</tbody>
@@ -1441,12 +1440,14 @@ function renderComplaint(){
   const cityArr = Object.values(cityPerf).sort((a,b)=>b.tickets-a.tickets);
   const maxTickets = cityArr.length ? cityArr[0].tickets : 1;
 
+  const totalTickets = T.length;
   document.getElementById('cCityPerfBody').innerHTML = cityArr.length ? cityArr.map((c,i) => {
     const avgR = c.resCnt ? c.resSum/c.resCnt : null;
-    const resPct = c.tickets ? (c.resCnt/c.tickets*100) : 0;
-    const resPctColor = resPct>=80?'#1f7a3e':resPct>=50?'#d4820a':'#c0392b';
+    const pctOfTotal = totalTickets ? (c.tickets/totalTickets*100) : 0;
     const barW = Math.round(c.tickets/maxTickets*100);
     const rank = i<3?['🥇','🥈','🥉'][i]:`<span style="font-size:11px;font-weight:700;color:var(--text3);font-family:'DM Mono',monospace">${i+1}</span>`;
+    // Color the % bar from blue→teal based on share size
+    const barColor = pctOfTotal >= 20 ? '#1a6ef5' : pctOfTotal >= 10 ? '#0f7a7a' : '#6c3fc4';
     return `<tr>
       <td style="text-align:center;">${rank}</td>
       <td style="font-weight:600;">${c.city}</td>
@@ -1456,21 +1457,15 @@ function renderComplaint(){
         <span style="font-family:'DM Mono',monospace;font-weight:600;color:var(--amber);">${avgR!==null?avgR.toFixed(1)+' h':'—'}</span>
       </td>
       <td style="text-align:right;">
-        <span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:${resPctColor};">${resPct.toFixed(0)}%</span>
-        <div style="height:4px;background:var(--surface2);border-radius:2px;margin-top:4px;overflow:hidden;">
-          <div style="height:100%;width:${resPct}%;background:${resPctColor};border-radius:2px;"></div>
-        </div>
-      </td>
-      <td>
-        <div style="display:flex;align-items:center;gap:6px;">
-          <div style="flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;min-width:60px;">
-            <div style="height:100%;width:${barW}%;background:#0f7a7a;border-radius:4px;"></div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;">
+          <span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:${barColor};">${pctOfTotal.toFixed(2)}%</span>
+          <div style="height:4px;background:var(--surface2);border-radius:2px;width:80px;overflow:hidden;">
+            <div style="height:100%;width:${barW}%;background:${barColor};border-radius:2px;"></div>
           </div>
-          <span style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;min-width:28px;">${barW}%</span>
         </div>
       </td>
     </tr>`;
-  }).join('') : '<tr><td colspan="7" class="no-data">No data</td></tr>';
+  }).join('') : '<tr><td colspan="6" class="no-data">No data</td></tr>';
 
   // Repeat offenders table
   document.getElementById('cRepeatBody').innerHTML=repList.length?repList.map(r=>{
