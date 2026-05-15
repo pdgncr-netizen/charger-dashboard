@@ -495,9 +495,34 @@
       <div class="card"><div class="section-title">🔧 RCA Breakdown — Count</div><div id="cChartRca"><div class="no-data">Load Sheet 2</div></div></div>
       <div class="card"><div class="section-title">⏱ Avg Resolution Hrs by RCA</div><div id="cChartRcaAvg"><div class="no-data">Load Sheet 2</div></div></div>
     </div>
-    <div class="grid2">
-      <div class="card"><div class="section-title">📍 Complaints by Zone</div><div id="cChartZone"><div class="no-data">Load Sheet 2</div></div></div>
-      <div class="card"><div class="section-title">🌆 Complaints by City</div><div id="cChartCity"><div class="no-data">Load Sheet 2</div></div></div>
+    <!-- Zone breakdown using Sheet1 zone→city mapping -->
+    <div class="card card-mb" id="cZoneBreakdownCard">
+      <div class="section-title">📍 Complaints by Zone <span style="font-size:10px;font-weight:400;color:var(--text3);text-transform:none;letter-spacing:0;">(zone mapping from Sheet 1)</span></div>
+      <div id="cZoneBreakdown"><div class="no-data">Load data first</div></div>
+    </div>
+
+    <!-- City performance table -->
+    <div class="card card-mb">
+      <div class="section-title">🌆 City Performance — Complaints</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:12px;">
+        Resolution % = tickets with recorded resolution time ÷ total tickets × 100
+      </div>
+      <div class="tbl-wrap">
+        <table id="cCityPerfTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>City</th>
+              <th>Zone</th>
+              <th style="text-align:right">Tickets</th>
+              <th style="text-align:right">Avg Res Time</th>
+              <th style="text-align:right">Resolution %</th>
+              <th style="min-width:100px;">Performance</th>
+            </tr>
+          </thead>
+          <tbody id="cCityPerfBody"><tr><td colspan="7" class="no-data">Load Sheet 2 first</td></tr></tbody>
+        </table>
+      </div>
     </div>
     <div class="card card-mb">
       <div class="section-title">🔁 Repeat Offenders (≥3 visits, same RCA)</div>
@@ -1266,41 +1291,203 @@ function renderCity(){
 }
 
 // ══════════════════════════════════════════════════════
+// ZONE MAPPING FROM SHEET1
+// Builds city→zone lookup from downtime sheet data
+// ══════════════════════════════════════════════════════
+function buildCityZoneMap() {
+  const map = {};
+  allRows.forEach(r => {
+    const city = (r.city || '').trim();
+    const zone = (r.zone || '').trim();
+    if (city && zone && !map[city]) map[city] = zone;
+  });
+  return map;
+}
+
+// Enrich Sheet2 tickets with zone from Sheet1 city→zone map
+function enrichTicketZones(tickets, cityZoneMap) {
+  return tickets.map(t => {
+    if (t.zone && t.zone !== '?' && t.zone !== '') return t;
+    const z = cityZoneMap[(t.city || '').trim()];
+    return z ? {...t, zone: z} : t;
+  });
+}
+
+// ══════════════════════════════════════════════════════
 // COMPLAINT TAB
 // ══════════════════════════════════════════════════════
 function renderComplaint(){
-  const T=filteredTickets.filter(t=>t.type==='complaint');
-  const res=T.filter(t=>t.resHrs!==null);
-  let rs=0;res.forEach(t=>rs+=Number(t.resHrs)||0);
-  const avgRes=res.length?rs/res.length:null;
+  const cityZoneMap = buildCityZoneMap();
+  const rawT = filteredTickets.filter(t=>t.type==='complaint');
+  // Enrich zones using Sheet1 mapping
+  const T = enrichTicketZones(rawT, cityZoneMap);
+
+  const res = T.filter(t=>t.resHrs!==null);
+  let rs=0; res.forEach(t=>rs+=Number(t.resHrs)||0);
+  const avgRes = res.length ? rs/res.length : null;
+
   const combo={};
   T.forEach(t=>{const k=t.name+'||'+t.rca;if(!combo[k])combo[k]={name:t.name,city:t.city,rca:t.rca,visits:[],r:[]};combo[k].visits.push(t);if(t.resHrs!==null)combo[k].r.push(Number(t.resHrs));});
   const repList=Object.values(combo).filter(c=>c.visits.length>=3).sort((a,b)=>b.visits.length-a.visits.length);
+
   const byName={};
   T.forEach(t=>{if(!byName[t.name])byName[t.name]={name:t.name,city:t.city,cnt:0,res:[],rcas:{}};byName[t.name].cnt++;if(t.resHrs!==null)byName[t.name].res.push(Number(t.resHrs));byName[t.name].rcas[t.rca]=(byName[t.name].rcas[t.rca]||0)+1;});
   const worst=Object.values(byName).sort((a,b)=>b.cnt-a.cnt).slice(0,15);
+
   document.getElementById('cTotal').textContent=T.length;
   document.getElementById('cAvgRes').textContent=avgRes!==null?avgRes.toFixed(1):'—';
   document.getElementById('cChargers').textContent=new Set(T.map(t=>t.name)).size;
   document.getElementById('cRepeat').textContent=repList.length;
   document.getElementById('cTechs').textContent=new Set(T.map(t=>t.emp).filter(Boolean)).size;
+
+  // RCA charts
   const byR={};T.forEach(t=>{byR[t.rca]=(byR[t.rca]||0)+1;});
   renderBar('cChartRca',toArr(byR),'');
   const rcaRes={};T.forEach(t=>{if(t.resHrs!==null){if(!rcaRes[t.rca])rcaRes[t.rca]={s:0,n:0};rcaRes[t.rca].s+=Number(t.resHrs);rcaRes[t.rca].n++;}});
   renderBar('cChartRcaAvg',Object.entries(rcaRes).map(([l,v])=>({l,v:parseFloat((v.s/v.n).toFixed(2))})).sort((a,b)=>b.v-a.v),'hrs','#d4820a');
-  const byZ={};T.forEach(t=>{const k=t.zone||'?';byZ[k]=(byZ[k]||0)+1;});renderBar('cChartZone',toArr(byZ).slice(0,12),'','#6c3fc4');
-  const byCity={};T.forEach(t=>{const k=t.city||'?';byCity[k]=(byCity[k]||0)+1;});renderBar('cChartCity',toArr(byCity).slice(0,12),'','#0f7a7a');
+
+  // ── ZONE BREAKDOWN (using Sheet1 mapping) ──────────────────────────
+  const zoneData = {};
+  T.forEach(t => {
+    const z = (t.zone && t.zone!=='?') ? t.zone : (cityZoneMap[(t.city||'').trim()] || '(Unmapped)');
+    const c = (t.city || '?');
+    if (!zoneData[z]) zoneData[z] = {};
+    if (!zoneData[z][c]) zoneData[z][c] = {tickets:0, resSum:0, resCnt:0};
+    zoneData[z][c].tickets++;
+    if (t.resHrs!==null) { zoneData[z][c].resSum+=Number(t.resHrs); zoneData[z][c].resCnt++; }
+  });
+
+  const zoneColors = ['#6c3fc4','#1a6ef5','#0f7a7a','#d4820a','#1f7a3e','#c0392b'];
+  const zoneNames = Object.keys(zoneData).sort();
+  let zoneHtml = '';
+  zoneNames.forEach((zone, zi) => {
+    const zColor = zoneColors[zi % zoneColors.length];
+    const cities = Object.entries(zoneData[zone]).sort((a,b)=>b[1].tickets-a[1].tickets);
+    const zTotal = cities.reduce((s,[,v])=>s+v.tickets,0);
+    let zResSum=0,zResCnt=0;
+    cities.forEach(([,v])=>{zResSum+=v.resSum;zResCnt+=v.resCnt;});
+    const zAvgRes = zResCnt ? zResSum/zResCnt : null;
+    const zResPct = zTotal ? (zResCnt/zTotal*100) : 0;
+
+    const cityRows = cities.map(([city,v]) => {
+      const avgR = v.resCnt ? v.resSum/v.resCnt : null;
+      const resPct = v.tickets ? (v.resCnt/v.tickets*100) : 0;
+      const resPctColor = resPct>=80?'#1f7a3e':resPct>=50?'#d4820a':'#c0392b';
+      const barW = zTotal ? Math.round(v.tickets/zTotal*100) : 0;
+      return `<tr style="font-size:12px;">
+        <td style="padding:7px 12px;color:var(--text2);padding-left:28px;">↳ ${city}</td>
+        <td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;font-weight:600;">${v.tickets}</td>
+        <td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:var(--amber);">${avgR!==null?avgR.toFixed(1)+' h':'—'}</td>
+        <td style="padding:7px 12px;text-align:right;">
+          <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:${resPctColor};">${resPct.toFixed(0)}%</span>
+        </td>
+        <td style="padding:7px 12px;">
+          <div style="height:6px;background:var(--surface2);border-radius:3px;width:100px;overflow:hidden;border:1px solid var(--border);">
+            <div style="height:100%;width:${barW}%;background:${zColor};border-radius:3px;"></div>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+
+    zoneHtml += `
+      <div style="margin-bottom:16px;border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+        <div style="background:var(--surface2);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--border);">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:10px;height:10px;border-radius:50%;background:${zColor};flex-shrink:0;"></div>
+            <span style="font-size:14px;font-weight:700;color:var(--text);">${zone}</span>
+            <span style="font-size:11px;color:var(--text3);">${cities.length} cit${cities.length!==1?'ies':'y'}</span>
+          </div>
+          <div style="display:flex;gap:20px;flex-wrap:wrap;">
+            <div style="text-align:right;">
+              <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;">Total Tickets</div>
+              <div style="font-size:16px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text);">${zTotal}</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;">Avg Res Time</div>
+              <div style="font-size:16px;font-weight:700;font-family:'DM Mono',monospace;color:var(--amber);">${zAvgRes!==null?zAvgRes.toFixed(1)+' h':'—'}</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;">Resolution %</div>
+              <div style="font-size:16px;font-weight:700;font-family:'DM Mono',monospace;color:${zResPct>=80?'#1f7a3e':zResPct>=50?'#d4820a':'#c0392b'};">${zResPct.toFixed(0)}%</div>
+            </div>
+          </div>
+        </div>
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="background:var(--surface);">
+              <th style="padding:6px 12px;font-size:10px;color:var(--text3);text-align:left;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">City</th>
+              <th style="padding:6px 12px;font-size:10px;color:var(--text3);text-align:right;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Tickets</th>
+              <th style="padding:6px 12px;font-size:10px;color:var(--text3);text-align:right;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Avg Res Time</th>
+              <th style="padding:6px 12px;font-size:10px;color:var(--text3);text-align:right;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Resolution %</th>
+              <th style="padding:6px 12px;font-size:10px;color:var(--text3);text-align:left;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Share</th>
+            </tr>
+          </thead>
+          <tbody>${cityRows}</tbody>
+        </table>
+      </div>`;
+  });
+
+  document.getElementById('cZoneBreakdown').innerHTML = zoneHtml || '<div class="no-data">No zone data available — ensure Sheet 1 has zone and city columns mapped</div>';
+
+  // ── CITY PERFORMANCE TABLE ─────────────────────────────────────────
+  const cityPerf = {};
+  T.forEach(t => {
+    const c = t.city || '?';
+    const z = (t.zone && t.zone!=='?') ? t.zone : (cityZoneMap[(t.city||'').trim()] || '—');
+    if (!cityPerf[c]) cityPerf[c] = {city:c, zone:z, tickets:0, resSum:0, resCnt:0};
+    cityPerf[c].tickets++;
+    if (t.resHrs!==null) { cityPerf[c].resSum+=Number(t.resHrs); cityPerf[c].resCnt++; }
+  });
+  const cityArr = Object.values(cityPerf).sort((a,b)=>b.tickets-a.tickets);
+  const maxTickets = cityArr.length ? cityArr[0].tickets : 1;
+
+  document.getElementById('cCityPerfBody').innerHTML = cityArr.length ? cityArr.map((c,i) => {
+    const avgR = c.resCnt ? c.resSum/c.resCnt : null;
+    const resPct = c.tickets ? (c.resCnt/c.tickets*100) : 0;
+    const resPctColor = resPct>=80?'#1f7a3e':resPct>=50?'#d4820a':'#c0392b';
+    const barW = Math.round(c.tickets/maxTickets*100);
+    const rank = i<3?['🥇','🥈','🥉'][i]:`<span style="font-size:11px;font-weight:700;color:var(--text3);font-family:'DM Mono',monospace">${i+1}</span>`;
+    return `<tr>
+      <td style="text-align:center;">${rank}</td>
+      <td style="font-weight:600;">${c.city}</td>
+      <td style="font-size:12px;color:var(--text2);">${c.zone}</td>
+      <td style="text-align:right;font-weight:700;font-family:'DM Mono',monospace;">${c.tickets}</td>
+      <td style="text-align:right;">
+        <span style="font-family:'DM Mono',monospace;font-weight:600;color:var(--amber);">${avgR!==null?avgR.toFixed(1)+' h':'—'}</span>
+      </td>
+      <td style="text-align:right;">
+        <span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:${resPctColor};">${resPct.toFixed(0)}%</span>
+        <div style="height:4px;background:var(--surface2);border-radius:2px;margin-top:4px;overflow:hidden;">
+          <div style="height:100%;width:${resPct}%;background:${resPctColor};border-radius:2px;"></div>
+        </div>
+      </td>
+      <td>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div style="flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;min-width:60px;">
+            <div style="height:100%;width:${barW}%;background:#0f7a7a;border-radius:4px;"></div>
+          </div>
+          <span style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;min-width:28px;">${barW}%</span>
+        </div>
+      </td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="7" class="no-data">No data</td></tr>';
+
+  // Repeat offenders table
   document.getElementById('cRepeatBody').innerHTML=repList.length?repList.map(r=>{
     let a=0;r.r.forEach(v=>a+=v);const avg=r.r.length?a/r.r.length:null;
     const s=rcaStyle(r.rca);
     return`<tr><td style="font-weight:600">${r.name}</td><td>${r.city||'—'}</td><td><span class="badge" style="background:${s.bg};color:${s.text}">${r.rca||'—'}</span></td><td style="text-align:right;font-weight:700">${r.visits.length}</td><td style="text-align:right" class="mono">${avg!==null?avg.toFixed(1)+'h':'—'}</td></tr>`;
   }).join(''):'<tr><td colspan="5" class="no-data">No repeat offenders</td></tr>';
+
+  // Most complained chargers
   document.getElementById('cWorstBody').innerHTML=worst.length?worst.map((c,i)=>{
     let a=0;c.res.forEach(v=>a+=v);const avg=c.res.length?a/c.res.length:null;
     const top=Object.entries(c.rcas).sort((a,b)=>b[1]-a[1])[0];
     const rank=['🥇','🥈','🥉'][i]||(i+1);const s=rcaStyle(top?top[0]:'');
     return`<tr><td style="font-weight:700;color:var(--text3)">${rank}</td><td style="font-weight:600">${c.name}</td><td>${c.city||'—'}</td><td style="text-align:right;font-weight:700;font-size:15px">${c.cnt}</td><td style="text-align:right" class="mono">${avg!==null?avg.toFixed(1)+'h':'—'}</td><td><span class="badge" style="background:${s.bg};color:${s.text};font-size:11px">${top?top[0]+' ('+top[1]+')':'—'}</span></td></tr>`;
   }).join(''):'<tr><td colspan="6" class="no-data">No data</td></tr>';
+
+  // Technician chart
   const byEmp={};T.forEach(t=>{if(t.emp){const k=t.emp.trim();byEmp[k]=(byEmp[k]||0)+1;}});
   renderBar('cChartEmp',toArr(byEmp).slice(0,15),'tickets','#1a6ef5');
 }
