@@ -92,7 +92,7 @@
     .main-tab.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
 
     /* ── SUB TABS ── */
-    .sub-tabs-wrap { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 8px 12px; margin: 0 0 1.5rem; box-shadow: none; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+    .sub-tabs-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 10px 14px; margin: 10px 0 1.5rem; box-shadow: var(--shadow); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
     .sub-tab { font-size: 12px; font-weight: 500; padding: 6px 14px; border-radius: 7px; border: 1px solid transparent; background: none; cursor: pointer; color: var(--text2); transition: all 0.15s; white-space: nowrap; display: flex; align-items: center; gap: 5px; }
     .sub-tab:hover { background: var(--surface2); color: var(--text); }
     .sub-tab.active { background: var(--blue-light); color: var(--blue-dark); border-color: rgba(26,110,245,0.25); font-weight: 600; }
@@ -207,7 +207,7 @@
 
     .no-data { text-align: center; padding: 2rem 0; color: var(--text3); font-size: 14px; }
     .hidden { display: none !important; }
-    .main-panel { display: none; padding: 1.5rem; }
+    .main-panel { display: none; }
     .main-panel.active { display: block; }
     .sub-panel { display: none; }
     .sub-panel.active { display: block; }
@@ -216,10 +216,8 @@
     .top-kpi-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 12px; margin-bottom: 1.5rem; }
     @media (max-width: 1100px) { .top-kpi-grid { grid-template-columns: repeat(3,1fr); } }
     @media (max-width: 650px)  { .top-kpi-grid { grid-template-columns: repeat(2,1fr); } }
-    .top-kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.2rem 1.2rem 1.1rem; box-shadow: var(--shadow); display: flex; align-items: flex-start; gap: 14px; position: relative; overflow: hidden; transition: transform 0.15s, box-shadow 0.15s; }
-    .top-kpi-card:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.1), 0 0 0 0.5px rgba(0,0,0,0.06); }
-    .top-kpi-card::before { content:''; position:absolute; top:0; left:0; bottom:0; width:4px; background:var(--kc,var(--blue)); border-radius:4px 0 0 4px; }
-    .top-kpi-card::after { content:''; position:absolute; bottom:0; left:0; right:0; height:0; }
+    .top-kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.1rem 1.1rem 1rem; box-shadow: var(--shadow); display: flex; align-items: flex-start; gap: 12px; position: relative; overflow: hidden; }
+    .top-kpi-card::after { content:''; position:absolute; bottom:0; left:0; right:0; height:3px; background:var(--kc,var(--blue)); }
     .top-kpi-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .top-kpi-body { flex: 1; min-width: 0; }
     .top-kpi-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; line-height: 1.3; margin-bottom: 4px; }
@@ -227,12 +225,12 @@
     .top-kpi-sub { font-size: 11px; color: var(--text3); margin-top: 3px; }
 
     /* ── MAIN TABS BAR ── */
-    .main-tabs-bar { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 5px; gap: 3px; margin-bottom: 0; box-shadow: var(--shadow); flex-wrap: wrap; }
-    .main-tab-btn { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 500; padding: 9px 20px; border-radius: 9px; border: none; background: none; cursor: pointer; color: var(--text2); transition: all 0.15s; white-space: nowrap; font-family: 'DM Sans', sans-serif; position: relative; }
+    .main-tabs-bar { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 6px; gap: 4px; margin-bottom: 0; box-shadow: var(--shadow); flex-wrap: wrap; }
+    .main-tab-btn { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 500; padding: 9px 18px; border-radius: 9px; border: none; background: none; cursor: pointer; color: var(--text2); transition: all 0.15s; white-space: nowrap; font-family: 'DM Sans', sans-serif; position: relative; }
     .main-tab-btn:hover { background: var(--surface2); color: var(--text); }
-    .main-tab-btn.active { background: var(--surface2); color: var(--text); font-weight: 600; }
-    .main-tab-btn.active::after { content:''; position:absolute; bottom:0; left:12px; right:12px; height:2.5px; background:var(--blue); border-radius:99px 99px 0 0; }
-    [data-theme="dark"] .main-tab-btn.active { background: rgba(255,255,255,0.07); color: var(--text); }
+    .main-tab-btn.active { background: var(--text); color: var(--surface); }
+    [data-theme="dark"] .main-tab-btn.active { background: var(--text); color: #0f0f0e; }
+    .main-tab-btn.active::after { content:''; position:absolute; bottom:-7px; left:50%; transform:translateX(-50%); width:24px; height:3px; background:var(--blue); border-radius:99px; }
 
     /* ── DOWNTIME DETAIL KPIS ── */
     .dt-kpi-row { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 12px; margin-bottom: 1.5rem; }
@@ -241,6 +239,13 @@
     .dt-kpi-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 3px; }
     .dt-kpi-val { font-size: 20px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; line-height: 1; }
     .dt-kpi-sub { font-size: 10px; color: var(--text3); margin-top: 2px; }
+
+    /* ── Charger list table ── */
+    #chargerListTable tbody tr:hover td { background: var(--blue-light) !important; }
+    #chargerListTable tbody tr.selected td { background: var(--blue-light); }
+    #chargerListTable th { cursor: default; }
+    #chargerListTable th[onclick] { cursor: pointer; }
+    #chargerListTable th[onclick]:hover { color: var(--blue); }
   </style>
 </head>
 <body>
@@ -409,10 +414,8 @@
     </div>
   </div>
 
-  <!-- ═══ MAIN TAB BAR + PANELS ═══ -->
-  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow);overflow:hidden;margin-bottom:1.5rem;">
-  <!-- Tab bar — full-width, flush top -->
-  <div class="main-tabs-bar" style="border:none;border-radius:0 0 0 0;box-shadow:none;border-bottom:1px solid var(--border);margin-bottom:0;padding:8px 12px 0;">
+  <!-- ═══ MAIN TAB BAR ═══ -->
+  <div class="main-tabs-bar">
     <button class="main-tab-btn active" onclick="switchMainTab('downtime')" id="mtab-downtime">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
       Charger Downtime
@@ -436,7 +439,34 @@
   <!-- MAIN PANEL: CHARGER DOWNTIME                   -->
   <!-- ═══════════════════════════════════════════════ -->
   <div class="main-panel active" id="mpanel-downtime">
-    <!-- Sub-tab bar (directly after main tab, no KPI row above it) -->
+    <!-- Downtime Detail KPIs -->
+    <div class="dt-kpi-row" style="margin-top:1rem;">
+      <div class="dt-kpi-card">
+        <div class="dt-kpi-icon" style="background:rgba(26,110,245,0.12);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a6ef5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+        <div><div class="dt-kpi-label">Total Events</div><div class="dt-kpi-val" id="dtTotal">—</div></div>
+      </div>
+      <div class="dt-kpi-card">
+        <div class="dt-kpi-icon" style="background:rgba(108,63,196,0.12);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6c3fc4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="14" height="12" rx="2"/><path d="M23 13V11a2 2 0 0 0-2-2h-3"/></svg></div>
+        <div><div class="dt-kpi-label">Unique Chargers</div><div class="dt-kpi-val" id="dtChargers">—</div></div>
+      </div>
+      <div class="dt-kpi-card">
+        <div class="dt-kpi-icon" style="background:rgba(192,57,43,0.12);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div><div class="dt-kpi-label">Total Downtime</div><div class="dt-kpi-val" id="dtHours">—</div></div>
+      </div>
+      <div class="dt-kpi-card">
+        <div class="dt-kpi-icon" style="background:rgba(15,122,122,0.12);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0f7a7a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg></div>
+        <div><div class="dt-kpi-label">Avg / Charger / Day</div><div class="dt-kpi-val" id="dtAvgPerDay">—</div><div class="dt-kpi-sub" id="dtAvgPerDaySub">Set date range</div></div>
+      </div>
+      <div class="dt-kpi-card">
+        <div class="dt-kpi-icon" style="background:rgba(212,130,10,0.12);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d4820a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div><div class="dt-kpi-label">Avg / Event</div><div class="dt-kpi-val" id="dtAvg">—</div></div>
+      </div>
+      <div class="dt-kpi-card">
+        <div class="dt-kpi-icon" style="background:rgba(26,110,245,0.08);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6c3fc4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+        <div><div class="dt-kpi-label">Date Range</div><div style="font-size:12px;font-weight:600;color:var(--text);margin-top:2px;line-height:1.3;" id="dtDateRange">—</div></div>
+      </div>
+    </div>
+    <!-- Sub-tab bar -->
     <div class="sub-tabs-wrap" style="margin-top:0;">
       <button class="sub-tab active" onclick="switchSubTab('overview')"><span class="sub-tab-icon">⚡</span> Overview</button>
       <button class="sub-tab" onclick="switchSubTab('bycharger')"><span class="sub-tab-icon">🔌</span> By Charger</button>
@@ -445,54 +475,6 @@
     </div>
     <!-- SUB: OVERVIEW -->
     <div class="sub-panel active" id="spanel-overview">
-
-      <!-- ── Charger Downtime Overview heading + detail KPIs ── -->
-      <div style="margin:1.25rem 0 1rem;">
-        <div style="font-size:18px;font-weight:700;color:var(--text);letter-spacing:-0.3px;margin-bottom:1rem;">Charger Downtime – Overview</div>
-        <div class="dt-kpi-row">
-          <div class="dt-kpi-card">
-            <div class="dt-kpi-icon" style="background:rgba(26,110,245,0.12);">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a6ef5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            </div>
-            <div><div class="dt-kpi-label">Total Events</div><div class="dt-kpi-val" id="dtTotal">—</div></div>
-          </div>
-          <div class="dt-kpi-card">
-            <div class="dt-kpi-icon" style="background:rgba(108,63,196,0.12);">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6c3fc4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="14" height="12" rx="2"/><path d="M23 13V11a2 2 0 0 0-2-2h-3"/></svg>
-            </div>
-            <div><div class="dt-kpi-label">Unique Chargers</div><div class="dt-kpi-val" id="dtChargers">—</div></div>
-          </div>
-          <div class="dt-kpi-card">
-            <div class="dt-kpi-icon" style="background:rgba(192,57,43,0.12);">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            </div>
-            <div><div class="dt-kpi-label">Total Downtime</div><div class="dt-kpi-val" id="dtHours">—</div><div class="dt-kpi-sub">hrs</div></div>
-          </div>
-          <div class="dt-kpi-card">
-            <div class="dt-kpi-icon" style="background:rgba(15,122,122,0.12);">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0f7a7a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
-            </div>
-            <div>
-              <div class="dt-kpi-label">Avg / Charger / Day</div>
-              <div class="dt-kpi-val" id="dtAvgPerDay">—</div>
-              <div class="dt-kpi-sub" id="dtAvgPerDaySub">Set date range</div>
-            </div>
-          </div>
-          <div class="dt-kpi-card">
-            <div class="dt-kpi-icon" style="background:rgba(212,130,10,0.12);">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d4820a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            </div>
-            <div><div class="dt-kpi-label">Avg / Event</div><div class="dt-kpi-val" id="dtAvg">—</div><div class="dt-kpi-sub">hrs</div></div>
-          </div>
-          <div class="dt-kpi-card">
-            <div class="dt-kpi-icon" style="background:rgba(108,63,196,0.08);">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6c3fc4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            </div>
-            <div><div class="dt-kpi-label">Date Range</div><div style="font-size:12px;font-weight:600;color:var(--text);margin-top:2px;line-height:1.3;" id="dtDateRange">—</div></div>
-          </div>
-        </div>
-      </div>
-
       <div class="grid2" style="align-items:start;">
         <div class="card"><div class="section-title">RCA Distribution — All</div><div id="globalRcaChart"><div class="no-data">Load data first</div></div></div>
         <div class="card"><div class="section-title">Avg Downtime Per Charger Per Day</div><div id="avgCalcBox"><div class="no-data">Load data first</div></div></div>
@@ -512,11 +494,55 @@
     </div>
     <!-- SUB: BY CHARGER -->
     <div class="sub-panel" id="spanel-bycharger">
-      <div class="charger-wrap">
-        <div class="section-title">Select Charger ID</div>
-        <input type="text" class="charger-search" id="chargerSearch" placeholder="Search charger ID…" oninput="filterChips()" />
-        <div class="charger-grid" id="chargerGrid"><div class="no-data">Load data to see chargers</div></div>
+
+      <!-- ── Charger List Table ── -->
+      <div class="card card-mb">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+          <div>
+            <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:2px;">All Chargers</div>
+            <div style="font-size:12px;color:var(--text3);">Click any row to view full downtime detail</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <input type="text" id="chargerSearch"
+              placeholder="🔍 Search charger ID or name…"
+              oninput="renderChargerList()"
+              style="font-size:13px;padding:7px 12px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;min-width:220px;" />
+            <select id="chargerZoneFilter" onchange="renderChargerList()"
+              style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;cursor:pointer;">
+              <option value="">All Zones</option>
+            </select>
+            <select id="chargerSortBy" onchange="renderChargerList()"
+              style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;cursor:pointer;">
+              <option value="pct">Sort: Downtime %</option>
+              <option value="hrs">Sort: Total Hrs</option>
+              <option value="incidents">Sort: Incidents</option>
+              <option value="id">Sort: Charger ID</option>
+            </select>
+            <span id="chargerListCount" style="font-size:12px;color:var(--text3);white-space:nowrap;"></span>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table id="chargerListTable">
+            <thead>
+              <tr>
+                <th style="width:40px;text-align:center;">#</th>
+                <th onclick="toggleChargerSort('name')" style="cursor:pointer;user-select:none;">Charger Name <span id="csort-name"></span></th>
+                <th onclick="toggleChargerSort('id')" style="cursor:pointer;user-select:none;">Charger ID <span id="csort-id"></span></th>
+                <th onclick="toggleChargerSort('incidents')" style="text-align:right;cursor:pointer;user-select:none;">Tickets <span id="csort-incidents"></span></th>
+                <th onclick="toggleChargerSort('hrs')" style="text-align:right;cursor:pointer;user-select:none;">Total HRS <span id="csort-hrs"></span></th>
+                <th onclick="toggleChargerSort('pct')" style="text-align:right;cursor:pointer;user-select:none;">Downtime % <span id="csort-pct"></span></th>
+                <th>City</th>
+                <th>Zone</th>
+              </tr>
+            </thead>
+            <tbody id="chargerListBody">
+              <tr><td colspan="8" class="no-data">Load data to see chargers</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
+
+      <!-- ── Charger Detail (expands below list on row click) ── -->
       <div id="detailSection" class="hidden">
         <div class="detail-banner">
           <div><div class="detail-id" id="detailId"></div><div style="font-size:13px;color:var(--text2);margin-top:4px;" id="detailSite"></div></div>
@@ -562,7 +588,7 @@
   <!-- MAIN PANEL: DAILY COMPLAINTS                   -->
   <!-- ═══════════════════════════════════════════════ -->
   <div class="main-panel" id="mpanel-complaint">
-    <div class="metrics" style="margin-bottom:1rem;">
+    <div class="metrics" style="margin-top:1rem;margin-bottom:1rem;">
       <div class="metric" style="--metric-color:var(--blue)"><div class="metric-label">Total Complaints</div><div class="metric-val" id="cTotal">—</div></div>
       <div class="metric" style="--metric-color:var(--green)"><div class="metric-label">Avg Resolution</div><div class="metric-val" id="cAvgRes">—</div><div class="metric-sub">hours</div></div>
       <div class="metric" style="--metric-color:var(--purple)"><div class="metric-label">Unique Chargers</div><div class="metric-val" id="cChargers">—</div></div>
@@ -631,7 +657,7 @@
   <!-- MAIN PANEL: MONTHLY MAINTENANCE                -->
   <!-- ═══════════════════════════════════════════════ -->
   <div class="main-panel" id="mpanel-maintenance">
-    <div class="metrics" style="margin-bottom:1rem;">
+    <div class="metrics" style="margin-top:1rem;margin-bottom:1rem;">
       <div class="metric" style="--metric-color:var(--teal)"><div class="metric-label">Total Activities</div><div class="metric-val" id="mntTotal">—</div></div>
       <div class="metric" style="--metric-color:var(--blue)"><div class="metric-label">Chargers Serviced</div><div class="metric-val" id="mntChargers">—</div></div>
       <div class="metric" style="--metric-color:var(--red)"><div class="metric-label">With Damage</div><div class="metric-val" id="mntDamage">—</div></div>
@@ -694,7 +720,7 @@
   <!-- MAIN PANEL: REPLACEMENT                        -->
   <!-- ═══════════════════════════════════════════════ -->
   <div class="main-panel" id="mpanel-replacement">
-    <div class="metrics" style="margin-bottom:1rem;">
+    <div class="metrics" style="margin-top:1rem;margin-bottom:1rem;">
       <div class="metric" style="--metric-color:var(--orange)"><div class="metric-label">Total Replacements</div><div class="metric-val" id="rTotal">—</div></div>
       <div class="metric" style="--metric-color:var(--blue)"><div class="metric-label">Chargers Affected</div><div class="metric-val" id="rChargers">—</div></div>
       <div class="metric" style="--metric-color:var(--purple)"><div class="metric-label">Unique Parts</div><div class="metric-val" id="rParts">—</div></div>
@@ -750,7 +776,6 @@
       </div>
     </div>
   </div><!-- /mpanel-replacement -->
-  </div><!-- /main-tab-container -->
 
 </main>
 
@@ -1210,7 +1235,7 @@ function renderActiveMain(){
 }
 function renderActiveSub(){
   if(activeSubTab==='overview')renderOverview();
-  else if(activeSubTab==='bycharger'){renderChargerChips();if(activeCharger)renderDetail(activeCharger);}
+  else if(activeSubTab==='bycharger'){renderChargerList();if(activeCharger)renderDetail(activeCharger);}
   else if(activeSubTab==='byzone')renderZone();
   else if(activeSubTab==='bycity')renderCity();
 }
@@ -1365,19 +1390,100 @@ function renderOverview(){
 // ══════════════════════════════════════════════════════
 // BY CHARGER SUB-TAB
 // ══════════════════════════════════════════════════════
-function renderChargerChips(){
-  const ids=[...new Set(filteredRows.map(r=>r.charger))].sort();
-  const q=(document.getElementById('chargerSearch').value||'').toLowerCase();
-  const shown=ids.filter(id=>!q||id.toLowerCase().includes(q));
-  const grid=document.getElementById('chargerGrid');
-  if(!shown.length){grid.innerHTML='<div class="no-data">No chargers match</div>';return;}
-  grid.innerHTML=shown.map(id=>`<div class="chip ${id===activeCharger?'active':''}" onclick="selectCharger('${id}')">${id}</div>`).join('');
+// ── Charger List Table ─────────────────────────────────────────────
+let chargerSortCol = 'pct';
+let chargerSortAsc = false;
+
+function renderChargerList(){
+  const days = getDateRangeDays();
+  const q = (document.getElementById('chargerSearch').value||'').toLowerCase();
+  const zFilter = (document.getElementById('chargerZoneFilter')||{}).value || '';
+  const sortBy = (document.getElementById('chargerSortBy')||{}).value || chargerSortCol;
+  chargerSortCol = sortBy;
+
+  // Populate zone filter dropdown (once)
+  const zSel = document.getElementById('chargerZoneFilter');
+  if(zSel && zSel.options.length <= 1){
+    const zones = [...new Set(filteredRows.map(r=>r.zone||'').filter(Boolean))].sort();
+    zones.forEach(z => { const o=document.createElement('option'); o.value=z; o.textContent=z; zSel.appendChild(o); });
+  }
+
+  // Build per-charger summary
+  const map = {};
+  filteredRows.forEach(r=>{
+    if(!map[r.charger]) map[r.charger]={charger:r.charger,site:r.site||'',city:r.city||'',zone:r.zone||'',hrs:0,incidents:0};
+    map[r.charger].hrs += Number(r.hours)||0;
+    map[r.charger].incidents++;
+    if(r.site && !map[r.charger].site) map[r.charger].site=r.site;
+  });
+  const avail = days ? days*24 : null;
+  let list = Object.values(map).map(c=>({...c, pct: avail?(c.hrs/avail)*100:null}));
+
+  // Filter
+  if(q) list = list.filter(c => c.charger.toLowerCase().includes(q) || (c.site||'').toLowerCase().includes(q) || (c.city||'').toLowerCase().includes(q));
+  if(zFilter) list = list.filter(c => c.zone === zFilter);
+
+  // Sort
+  list.sort((a,b)=>{
+    let va=a[chargerSortCol]??0, vb=b[chargerSortCol]??0;
+    if(chargerSortCol==='id') {va=a.charger;vb=b.charger;}
+    if(chargerSortCol==='name') {va=a.site||a.charger;vb=b.site||b.charger;}
+    if(typeof va==='string') return chargerSortAsc?va.localeCompare(vb):vb.localeCompare(va);
+    return chargerSortAsc?va-vb:vb-va;
+  });
+
+  // Update count
+  const countEl = document.getElementById('chargerListCount');
+  if(countEl) countEl.textContent = list.length+' chargers';
+
+  // Sort indicator arrows
+  ['name','id','incidents','hrs','pct'].forEach(col=>{
+    const el = document.getElementById('csort-'+col);
+    if(el) el.textContent = col===chargerSortCol?(chargerSortAsc?' ▲':' ▼'):'';
+  });
+
+  const body = document.getElementById('chargerListBody');
+  if(!list.length){body.innerHTML='<tr><td colspan="8" class="no-data">No chargers match</td></tr>';return;}
+
+  body.innerHTML = list.map((c,i) => {
+    const pctStr = c.pct!==null ? c.pct.toFixed(2)+'%' : '—';
+    const col = c.pct!==null ? pctColor(c.pct) : 'var(--text3)';
+    const cls = c.pct!==null ? pctClass(c.pct) : '';
+    const siteName = c.site && c.site!==c.charger ? c.site : '—';
+    const isActive = c.charger === activeCharger;
+    return `<tr onclick="selectChargerFromList('${c.charger}')" style="cursor:pointer;${isActive?'background:var(--blue-light);':''}" title="Click to view detail">
+      <td style="text-align:center;font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;">${i+1}</td>
+      <td style="font-weight:600;font-size:13px;${isActive?'color:var(--blue);':''}">${siteName}</td>
+      <td class="mono" style="font-size:12px;color:var(--text2);">${c.charger}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;">${c.incidents}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;">${c.hrs.toFixed(1)}</td>
+      <td style="text-align:right;"><span class="pct-pill ${cls}">${pctStr}</span></td>
+      <td style="color:var(--text2);font-size:12px;">${c.city||'—'}</td>
+      <td style="color:var(--text2);font-size:12px;">${c.zone||'—'}</td>
+    </tr>`;
+  }).join('');
 }
-function filterChips(){renderChargerChips();}
-function selectCharger(id){
-  activeCharger=id;renderChargerChips();renderDetail(id);
+
+function toggleChargerSort(col){
+  if(chargerSortCol===col) chargerSortAsc=!chargerSortAsc;
+  else { chargerSortCol=col; chargerSortAsc=false; }
+  const sel = document.getElementById('chargerSortBy');
+  if(sel) sel.value = col==='name'||col==='id' ? 'id' : col;
+  renderChargerList();
+}
+
+function selectChargerFromList(id){
+  activeCharger=id;
+  renderChargerList(); // re-render to highlight selected row
+  renderDetail(id);
+  document.getElementById('detailSection').classList.remove('hidden');
   document.getElementById('detailSection').scrollIntoView({behavior:'smooth',block:'start'});
 }
+
+// Legacy alias kept for compatibility
+function renderChargerChips(){renderChargerList();}
+function filterChips(){renderChargerList();}
+function selectCharger(id){selectChargerFromList(id);}
 
 function renderDetail(id){
   const rows=filteredRows.filter(r=>r.charger===id);
@@ -1561,19 +1667,23 @@ function renderComplaint(){
 
     const cityRows = cities.map(([city,v]) => {
       const avgR = v.resCnt ? v.resSum/v.resCnt : null;
-      const pctOfTotal = grandTotal ? (v.tickets/grandTotal*100) : 0;
-      const barColor = pctOfTotal >= 20 ? '#1a6ef5' : pctOfTotal >= 10 ? '#0f7a7a' : '#6c3fc4';
-      const barW = zTotal ? Math.round(v.tickets/zTotal*100) : 0;
+      // % of Total = city tickets ÷ ZONE total × 100  (city share within its zone)
+      const pctOfTotal = zTotal ? (v.tickets/zTotal*100) : 0;
+      // % of Grand Total shown as secondary label
+      const pctOfGrand = grandTotal ? (v.tickets/grandTotal*100) : 0;
+      const barColor = pctOfTotal >= 40 ? '#1a6ef5' : pctOfTotal >= 20 ? '#0f7a7a' : '#6c3fc4';
+      const barW = Math.round(pctOfTotal); // bar width = % of zone
       return `<tr style="font-size:12px;">
         <td style="padding:7px 12px;color:var(--text2);padding-left:28px;">↳ ${city}</td>
         <td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;font-weight:600;">${v.tickets}</td>
         <td style="padding:7px 12px;text-align:right;font-family:'DM Mono',monospace;color:var(--amber);">${avgR!==null?avgR.toFixed(1)+' h':'—'}</td>
         <td style="padding:7px 12px;text-align:right;">
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;">
-            <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:${barColor};">${pctOfTotal.toFixed(2)}%</span>
+            <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:${barColor};" title="% of zone: ${pctOfTotal.toFixed(2)}%  |  % of all: ${pctOfGrand.toFixed(2)}%">${pctOfTotal.toFixed(2)}%</span>
             <div style="height:4px;background:var(--surface2);border-radius:2px;width:70px;overflow:hidden;">
               <div style="height:100%;width:${barW}%;background:${barColor};border-radius:2px;"></div>
             </div>
+            <span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;">${pctOfGrand.toFixed(2)}% of all</span>
           </div>
         </td>
       </tr>`;
@@ -1608,7 +1718,7 @@ function renderComplaint(){
               <th style="padding:6px 12px;font-size:10px;color:var(--text3);text-align:left;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">City</th>
               <th style="padding:6px 12px;font-size:10px;color:var(--text3);text-align:right;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Tickets</th>
               <th style="padding:6px 12px;font-size:10px;color:var(--text3);text-align:right;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Avg Res Time</th>
-              <th style="padding:6px 12px;font-size:10px;color:var(--text3);text-align:right;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">% of Total</th>
+              <th style="padding:6px 12px;font-size:10px;color:var(--text3);text-align:right;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;" title="City ÷ Zone × 100">% of Zone</th>
             </tr>
           </thead>
           <tbody>${cityRows}</tbody>
