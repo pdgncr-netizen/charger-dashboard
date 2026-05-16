@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Charger Operations Dashboard</title>
+  <title>Operation Clarity — by Manish</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
@@ -246,6 +246,20 @@
     #chargerListTable th { cursor: default; }
     #chargerListTable th[onclick] { cursor: pointer; }
     #chargerListTable th[onclick]:hover { color: var(--blue); }
+
+    /* ── KPI POPUP ── */
+    #kpiPopup { display: none; }
+    #kpiPopup.open { display: flex !important; }
+    .popup-stat-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+    .popup-stat-row:last-child { border-bottom: none; }
+    .popup-stat-num { font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 700; min-width: 60px; text-align: right; }
+    .popup-stat-label { font-size: 13px; color: var(--text2); flex: 1; }
+    .popup-stat-bar { height: 6px; border-radius: 3px; transition: width 0.4s ease; }
+    .popup-tbl th { padding: 7px 10px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text3); border-bottom: 1px solid var(--border); text-align: left; }
+    .popup-tbl td { padding: 8px 10px; font-size: 12px; border-bottom: 1px solid var(--border); }
+    .popup-tbl tr:last-child td { border-bottom: none; }
+    .popup-tbl tr:hover td { background: var(--surface2); }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -259,8 +273,8 @@
       <path d="M10 16 L18 16" stroke="white" stroke-width="2" stroke-linecap="round"/>
     </svg>
     <div>
-      <div style="font-size:16px;font-weight:700;letter-spacing:-0.3px;">Dashboard</div>
-      <div style="font-size:11px;color:var(--text3);margin-top:1px;">Overview of Charger Operations</div>
+      <div style="font-size:16px;font-weight:700;letter-spacing:-0.3px;">Operation Clarity</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:1px;">by Manish · Charger Operations</div>
     </div>
   </div>
   <div class="header-right">
@@ -271,7 +285,7 @@
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="color:var(--text3);"><polyline points="6 9 12 15 18 9"/></svg>
     </div>
     <!-- Export button -->
-    <div style="display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border2);border-radius:9px;padding:7px 14px;cursor:pointer;font-size:12px;font-weight:500;color:var(--text2);">
+    <div id="exportBtn" onclick="exportPresentation()" style="display:flex;align-items:center;gap:6px;background:var(--blue);border:1px solid var(--blue-dark);border-radius:9px;padding:7px 16px;cursor:pointer;font-size:12px;font-weight:600;color:#fff;transition:background 0.15s;" onmouseover="this.style.background='var(--blue-dark)'" onmouseout="this.style.background='var(--blue)'">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       Export
     </div>
@@ -353,7 +367,7 @@
       </div>
       <div class="top-kpi-body">
         <div class="top-kpi-label">Total Power Cut Events</div>
-        <div class="top-kpi-val" id="mTotal">—</div>
+        <div class="top-kpi-val" id="mTotal" onclick="openKpiPopup('downtime')()" style="cursor:pointer;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'" title="Click to view details">—</div>
         <div class="top-kpi-sub" id="topKpiAllLoc1" style="color:var(--blue);font-size:11px;margin-top:2px;">All locations</div>
       </div>
     </div>
@@ -364,7 +378,7 @@
       </div>
       <div class="top-kpi-body">
         <div class="top-kpi-label">Daily Complaints</div>
-        <div class="top-kpi-val" id="mComplaints">—</div>
+        <div class="top-kpi-val" id="mComplaints" onclick="openKpiPopup('complaint')()" style="cursor:pointer;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'" title="Click to view details">—</div>
         <div class="top-kpi-sub" style="color:var(--purple);font-size:11px;margin-top:2px;">All locations</div>
       </div>
     </div>
@@ -375,7 +389,7 @@
       </div>
       <div class="top-kpi-body">
         <div class="top-kpi-label">Monthly Maintenance</div>
-        <div class="top-kpi-val" id="mMaint">—</div>
+        <div class="top-kpi-val" id="mMaint" onclick="openKpiPopup('maintenance')()" style="cursor:pointer;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'" title="Click to view details">—</div>
         <div class="top-kpi-sub" style="color:var(--red);font-size:11px;margin-top:2px;">All locations</div>
       </div>
     </div>
@@ -386,7 +400,7 @@
       </div>
       <div class="top-kpi-body">
         <div class="top-kpi-label">Replacement</div>
-        <div class="top-kpi-val" id="mReplace">—</div>
+        <div class="top-kpi-val" id="mReplace" onclick="openKpiPopup('replacement')()" style="cursor:pointer;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'" title="Click to view details">—</div>
         <div class="top-kpi-sub" style="color:var(--amber);font-size:11px;margin-top:2px;">All locations</div>
       </div>
     </div>
@@ -397,7 +411,7 @@
       </div>
       <div class="top-kpi-body">
         <div class="top-kpi-label">Chargers Serviced</div>
-        <div class="top-kpi-val" id="mChargers">—</div>
+        <div class="top-kpi-val" id="mChargers" onclick="openKpiPopup('serviced')()" style="cursor:pointer;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'" title="Click to view details">—</div>
         <div class="top-kpi-sub" style="color:var(--green);font-size:11px;margin-top:2px;">Monthly Maintenance</div>
       </div>
     </div>
@@ -408,7 +422,7 @@
       </div>
       <div class="top-kpi-body">
         <div class="top-kpi-label">Avg Resolution Hrs of Daily Complaints</div>
-        <div class="top-kpi-val" id="mAvgResHrs">—</div>
+        <div class="top-kpi-val" id="mAvgResHrs" onclick="openKpiPopup('avgres')()" style="cursor:pointer;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'" title="Click to view details">—</div>
         <div class="top-kpi-sub" style="color:var(--teal);font-size:11px;margin-top:2px;">hrs · All locations</div>
       </div>
     </div>
@@ -2423,6 +2437,524 @@ function selectRChargerFromList(name){
 }
 function filterRChips(){renderRReplacementList();}
 
+
+// ══════════════════════════════════════════════════════════════
+// KPI POPUP SYSTEM
+// ══════════════════════════════════════════════════════════════
+function openKpiPopup(type) {
+  const overlay = document.getElementById('kpiPopupOverlay');
+  const popup   = document.getElementById('kpiPopup');
+  const title   = document.getElementById('kpiPopupTitle');
+  const sub     = document.getElementById('kpiPopupSub');
+  const body    = document.getElementById('kpiPopupBody');
+
+  const from = document.getElementById('dateFrom').value;
+  const to   = document.getElementById('dateTo').value;
+  const dateLabel = from && to ? `${fmtDate(from)} – ${fmtDate(to)}` : 'All time';
+
+  overlay.style.display = 'block';
+  popup.classList.add('open');
+
+  if (type === 'downtime') {
+    title.textContent = '⚡ Total Power Cut Events';
+    sub.textContent   = `${dateLabel} · ${filteredRows.length} events across ${new Set(filteredRows.map(r=>r.charger)).size} chargers`;
+    // RCA breakdown
+    const byR = {};
+    filteredRows.forEach(r => { byR[r.rca||'Unknown'] = (byR[r.rca||'Unknown']||0) + 1; });
+    const rcaArr = Object.entries(byR).sort((a,b)=>b[1]-a[1]);
+    const maxR = rcaArr[0]?.[1]||1;
+    // Zone breakdown
+    const byZ = {};
+    filteredRows.forEach(r => { byZ[r.zone||'Unknown'] = (byZ[r.zone||'Unknown']||0) + 1; });
+    const zArr = Object.entries(byZ).sort((a,b)=>b[1]-a[1]);
+    // Top chargers by incidents
+    const byC = {};
+    filteredRows.forEach(r => { if(!byC[r.charger])byC[r.charger]={name:r.site||r.charger,city:r.city||'—',cnt:0,hrs:0}; byC[r.charger].cnt++; byC[r.charger].hrs+=Number(r.hours)||0; });
+    const topC = Object.values(byC).sort((a,b)=>b.cnt-a.cnt).slice(0,10);
+
+    body.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+        <div style="background:var(--surface2);border-radius:10px;padding:12px 14px;">
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Total Events</div>
+          <div style="font-size:28px;font-weight:700;color:var(--blue);font-family:'DM Mono',monospace;">${filteredRows.length.toLocaleString()}</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:10px;padding:12px 14px;">
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Total Downtime</div>
+          <div style="font-size:28px;font-weight:700;color:var(--red);font-family:'DM Mono',monospace;">${filteredRows.reduce((s,r)=>s+Number(r.hours)||0,0).toFixed(1)} hrs</div>
+        </div>
+      </div>
+      <div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">RCA Breakdown</div>
+      ${rcaArr.map(([rca,cnt])=>{const s=rcaStyle(rca);const pct=Math.round(cnt/maxR*100);return`<div class="popup-stat-row"><div class="popup-stat-label">${rca}</div><div style="width:140px;height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;"><div class="popup-stat-bar" style="width:${pct}%;background:${s.bar||'var(--blue)'};"></div></div><div class="popup-stat-num" style="color:var(--text);">${cnt}</div></div>`}).join('')}
+      <div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;margin:14px 0 8px;">Top 10 Chargers by Incidents</div>
+      <table class="popup-tbl" style="width:100%;border-collapse:collapse;">
+        <thead><tr><th>#</th><th>Charger Name</th><th>City</th><th style="text-align:right">Events</th><th style="text-align:right">Total Hrs</th></tr></thead>
+        <tbody>${topC.map((c,i)=>`<tr><td style="color:var(--text3);font-size:11px;">${i+1}</td><td style="font-weight:500;">${c.name}</td><td style="color:var(--text2);">${c.city}</td><td style="text-align:right;font-family:'DM Mono',monospace;font-weight:600;">${c.cnt}</td><td style="text-align:right;font-family:'DM Mono',monospace;color:var(--red);">${c.hrs.toFixed(1)}</td></tr>`).join('')}</tbody>
+      </table>`;
+  }
+
+  else if (type === 'complaint') {
+    const czMap = buildCityZoneMap();
+    const rawC = filteredTickets.filter(t=>t.type==='complaint');
+    const T = enrichTicketZones(rawC, czMap);
+    title.textContent = '💬 Daily Complaints';
+    sub.textContent   = `${dateLabel} · ${T.length} complaints`;
+    const byRca={}, byCity={}, byEmp={};
+    let resSum=0,resCnt=0;
+    T.forEach(t=>{
+      byRca[t.rca||'Unknown']=(byRca[t.rca||'Unknown']||0)+1;
+      byCity[t.city||'?']=(byCity[t.city||'?']||0)+1;
+      if(t.emp)byEmp[t.emp.trim()]=(byEmp[t.emp.trim()]||0)+1;
+      if(t.resHrs!==null){resSum+=Number(t.resHrs);resCnt++;}
+    });
+    const rcaArr=Object.entries(byRca).sort((a,b)=>b[1]-a[1]);
+    const cityArr=Object.entries(byCity).sort((a,b)=>b[1]-a[1]).slice(0,10);
+    const empArr=Object.entries(byEmp).sort((a,b)=>b[1]-a[1]).slice(0,8);
+    const avgRes=resCnt?resSum/resCnt:null;
+    const maxRC=rcaArr[0]?.[1]||1, maxCC=cityArr[0]?.[1]||1;
+
+    body.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
+        <div style="background:var(--surface2);border-radius:10px;padding:10px 12px;"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:3px;">Total</div><div style="font-size:24px;font-weight:700;color:var(--purple);font-family:'DM Mono',monospace;">${T.length}</div></div>
+        <div style="background:var(--surface2);border-radius:10px;padding:10px 12px;"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:3px;">Avg Res Time</div><div style="font-size:24px;font-weight:700;color:var(--amber);font-family:'DM Mono',monospace;">${avgRes!==null?avgRes.toFixed(1)+' h':'—'}</div></div>
+        <div style="background:var(--surface2);border-radius:10px;padding:10px 12px;"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:3px;">Unique Chargers</div><div style="font-size:24px;font-weight:700;color:var(--blue);font-family:'DM Mono',monospace;">${new Set(T.map(t=>t.name)).size}</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">RCA Breakdown</div>
+          ${rcaArr.map(([rca,cnt])=>{const s=rcaStyle(rca);return`<div class="popup-stat-row"><div class="popup-stat-label">${rca}</div><div style="width:80px;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;"><div style="height:100%;width:${Math.round(cnt/maxRC*100)}%;background:${s.bar||'var(--purple)'};border-radius:3px;"></div></div><div class="popup-stat-num" style="color:var(--purple);">${cnt}</div></div>`}).join('')}
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Top Cities</div>
+          ${cityArr.map(([city,cnt])=>`<div class="popup-stat-row"><div class="popup-stat-label">${city}</div><div style="width:80px;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;"><div style="height:100%;width:${Math.round(cnt/maxCC*100)}%;background:#6c3fc4;border-radius:3px;"></div></div><div class="popup-stat-num" style="color:var(--purple);">${cnt}</div></div>`).join('')}
+        </div>
+      </div>
+      ${empArr.length?`<div style="margin-top:14px;"><div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Top Technicians</div><div style="display:flex;flex-wrap:wrap;gap:8px;">${empArr.map(([e,c])=>`<span style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:5px 12px;font-size:12px;font-weight:500;">${e} <span style="color:var(--purple);font-family:'DM Mono',monospace;font-weight:700;">${c}</span></span>`).join('')}</div></div>`:''}`;
+  }
+
+  else if (type === 'maintenance') {
+    const czMap = buildCityZoneMap();
+    const rawM = filteredTickets.filter(t=>t.type==='maintenance');
+    const T = enrichTicketZones(rawM, czMap);
+    title.textContent = '🔧 Monthly Maintenance';
+    sub.textContent   = `${dateLabel} · ${T.length} activities`;
+    const byZone={}, byCity={};
+    const wDmg=T.filter(t=>t.damage&&t.damage.trim());
+    const vs=T.map(t=>parseFloat(t.auxV)).filter(v=>!isNaN(v)&&v>0);
+    const avgV=vs.length?(vs.reduce((a,b)=>a+b,0)/vs.length):null;
+    T.forEach(t=>{
+      const z=t.zone||cityZoneMap?.[t.city]||'?';
+      byZone[z]=(byZone[z]||0)+1;
+      byCity[t.city||'?']=(byCity[t.city||'?']||0)+1;
+    });
+    const zArr=Object.entries(byZone).sort((a,b)=>b[1]-a[1]);
+    const cityArr2=Object.entries(byCity).sort((a,b)=>b[1]-a[1]).slice(0,10);
+    const maxZ=zArr[0]?.[1]||1, maxCM=cityArr2[0]?.[1]||1;
+    const zoneColors={'North':'#1a6ef5','South':'#d4820a','East':'#1f7a3e','West':'#c0392b','Central':'#6c3fc4'};
+
+    body.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;">
+        <div style="background:var(--surface2);border-radius:10px;padding:10px 12px;"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:3px;">Activities</div><div style="font-size:22px;font-weight:700;color:var(--teal);font-family:'DM Mono',monospace;">${T.length}</div></div>
+        <div style="background:var(--surface2);border-radius:10px;padding:10px 12px;"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:3px;">Chargers</div><div style="font-size:22px;font-weight:700;color:var(--blue);font-family:'DM Mono',monospace;">${new Set(T.map(t=>t.name)).size}</div></div>
+        <div style="background:var(--surface2);border-radius:10px;padding:10px 12px;"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:3px;">With Damage</div><div style="font-size:22px;font-weight:700;color:var(--red);font-family:'DM Mono',monospace;">${wDmg.length}</div></div>
+        <div style="background:var(--surface2);border-radius:10px;padding:10px 12px;"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:3px;">Avg Aux V</div><div style="font-size:22px;font-weight:700;color:var(--amber);font-family:'DM Mono',monospace;">${avgV!==null?avgV.toFixed(1):'—'}</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">By Zone</div>
+          ${zArr.map(([z,cnt])=>`<div class="popup-stat-row"><div class="popup-stat-label">${z}</div><div style="width:80px;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;"><div style="height:100%;width:${Math.round(cnt/maxZ*100)}%;background:${zoneColors[z]||'#0f7a7a'};border-radius:3px;"></div></div><div class="popup-stat-num" style="color:var(--teal);">${cnt}</div></div>`).join('')}
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Top Cities</div>
+          ${cityArr2.map(([city,cnt])=>`<div class="popup-stat-row"><div class="popup-stat-label">${city}</div><div style="width:80px;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;"><div style="height:100%;width:${Math.round(cnt/maxCM*100)}%;background:#0f7a7a;border-radius:3px;"></div></div><div class="popup-stat-num" style="color:var(--teal);">${cnt}</div></div>`).join('')}
+        </div>
+      </div>`;
+  }
+
+  else if (type === 'replacement') {
+    const czMap = buildCityZoneMap();
+    const rawR = filteredTickets.filter(t=>t.type==='replacement');
+    const T = enrichTicketZones(rawR, czMap);
+    title.textContent = '🔄 Replacement';
+    sub.textContent   = `${dateLabel} · ${T.length} replacements`;
+    const byPart={}, byCity={};
+    T.forEach(t=>{
+      if(t.damage)byPart[t.damage.trim()]=(byPart[t.damage.trim()]||0)+1;
+      byCity[t.city||'?']=(byCity[t.city||'?']||0)+1;
+    });
+    const partArr=Object.entries(byPart).sort((a,b)=>b[1]-a[1]).slice(0,12);
+    const cityArrR=Object.entries(byCity).sort((a,b)=>b[1]-a[1]).slice(0,10);
+    const maxP=partArr[0]?.[1]||1, maxCR=cityArrR[0]?.[1]||1;
+
+    body.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
+        <div style="background:var(--surface2);border-radius:10px;padding:10px 12px;"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:3px;">Total</div><div style="font-size:24px;font-weight:700;color:var(--orange);font-family:'DM Mono',monospace;">${T.length}</div></div>
+        <div style="background:var(--surface2);border-radius:10px;padding:10px 12px;"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:3px;">Chargers</div><div style="font-size:24px;font-weight:700;color:var(--blue);font-family:'DM Mono',monospace;">${new Set(T.map(t=>t.name)).size}</div></div>
+        <div style="background:var(--surface2);border-radius:10px;padding:10px 12px;"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:3px;">Unique Parts</div><div style="font-size:24px;font-weight:700;color:var(--purple);font-family:'DM Mono',monospace;">${new Set(T.filter(t=>t.damage).map(t=>t.damage.trim())).size}</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Parts Replaced</div>
+          ${partArr.map(([part,cnt])=>`<div class="popup-stat-row"><div class="popup-stat-label" style="font-size:11px;">${part}</div><div style="width:80px;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;"><div style="height:100%;width:${Math.round(cnt/maxP*100)}%;background:#c05621;border-radius:3px;"></div></div><div class="popup-stat-num" style="color:var(--orange);">${cnt}</div></div>`).join('')}
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Top Cities</div>
+          ${cityArrR.map(([city,cnt])=>`<div class="popup-stat-row"><div class="popup-stat-label">${city}</div><div style="width:80px;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;"><div style="height:100%;width:${Math.round(cnt/maxCR*100)}%;background:#c05621;border-radius:3px;"></div></div><div class="popup-stat-num" style="color:var(--orange);">${cnt}</div></div>`).join('')}
+        </div>
+      </div>`;
+  }
+
+  else if (type === 'serviced') {
+    const T = filteredTickets.filter(t=>t.type==='maintenance');
+    const names = [...new Set(T.map(t=>t.name).filter(Boolean))].sort();
+    title.textContent = '🔌 Chargers Serviced (Maintenance)';
+    sub.textContent   = `${dateLabel} · ${names.length} unique chargers`;
+    const byName={};
+    T.forEach(t=>{if(!byName[t.name])byName[t.name]={name:t.name,city:t.city||'—',zone:t.zone||'—',cnt:0};byName[t.name].cnt++;});
+    const list=Object.values(byName).sort((a,b)=>b.cnt-a.cnt);
+
+    body.innerHTML = `
+      <div style="margin-bottom:10px;font-size:12px;color:var(--text3);">${names.length} chargers received maintenance in this period</div>
+      <table class="popup-tbl" style="width:100%;border-collapse:collapse;">
+        <thead><tr><th>#</th><th>Charger Name</th><th>City</th><th>Zone</th><th style="text-align:right">Activities</th></tr></thead>
+        <tbody>${list.map((c,i)=>`<tr><td style="color:var(--text3);font-size:11px;">${i+1}</td><td style="font-weight:500;">${c.name}</td><td style="color:var(--text2);">${c.city}</td><td style="color:var(--text2);">${c.zone}</td><td style="text-align:right;font-family:'DM Mono',monospace;font-weight:600;color:var(--teal);">${c.cnt}</td></tr>`).join('')}</tbody>
+      </table>`;
+  }
+
+  else if (type === 'avgres') {
+    const T = filteredTickets.filter(t=>t.type==='complaint'&&t.resHrs!==null);
+    title.textContent = '⏱ Avg Resolution Hrs — Daily Complaints';
+    sub.textContent   = `${dateLabel} · ${T.length} resolved complaints`;
+    const byRca={};
+    T.forEach(t=>{if(!byRca[t.rca||'?'])byRca[t.rca||'?']={s:0,n:0};byRca[t.rca||'?'].s+=Number(t.resHrs);byRca[t.rca||'?'].n++;});
+    const rcaArr=Object.entries(byRca).map(([r,v])=>({r,avg:v.s/v.n,cnt:v.n})).sort((a,b)=>b.avg-a.avg);
+    const maxAvg=rcaArr[0]?.avg||1;
+    const allSum=T.reduce((s,t)=>s+Number(t.resHrs),0);
+    const allAvg=T.length?allSum/T.length:0;
+
+    // Resolution time distribution buckets
+    const buckets={'< 1h':0,'1–3h':0,'3–6h':0,'6–12h':0,'12–24h':0,'> 24h':0};
+    T.forEach(t=>{const h=Number(t.resHrs);if(h<1)buckets['< 1h']++;else if(h<3)buckets['1–3h']++;else if(h<6)buckets['3–6h']++;else if(h<12)buckets['6–12h']++;else if(h<24)buckets['12–24h']++;else buckets['> 24h']++;});
+    const maxBucket=Math.max(...Object.values(buckets));
+
+    body.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
+        <div style="background:var(--surface2);border-radius:10px;padding:10px 12px;"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:3px;">Avg (Overall)</div><div style="font-size:24px;font-weight:700;color:var(--teal);font-family:'DM Mono',monospace;">${allAvg.toFixed(2)} h</div></div>
+        <div style="background:var(--surface2);border-radius:10px;padding:10px 12px;"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:3px;">Resolved</div><div style="font-size:24px;font-weight:700;color:var(--green);font-family:'DM Mono',monospace;">${T.length}</div></div>
+        <div style="background:var(--surface2);border-radius:10px;padding:10px 12px;"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:3px;">Unresolved</div><div style="font-size:24px;font-weight:700;color:var(--red);font-family:'DM Mono',monospace;">${filteredTickets.filter(t=>t.type==='complaint').length - T.length}</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Avg Res Hrs by RCA</div>
+          ${rcaArr.map(({r,avg,cnt})=>{const s=rcaStyle(r);return`<div class="popup-stat-row"><div class="popup-stat-label">${r}<span style="font-size:10px;color:var(--text3);margin-left:4px;">(${cnt})</span></div><div style="width:80px;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;"><div style="height:100%;width:${Math.round(avg/maxAvg*100)}%;background:${s.bar||'var(--teal)'};border-radius:3px;"></div></div><div class="popup-stat-num" style="color:var(--teal);">${avg.toFixed(1)}h</div></div>`}).join('')}
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Resolution Time Distribution</div>
+          ${Object.entries(buckets).map(([b,cnt])=>`<div class="popup-stat-row"><div class="popup-stat-label">${b}</div><div style="width:80px;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;"><div style="height:100%;width:${maxBucket?Math.round(cnt/maxBucket*100):0}%;background:#0f7a7a;border-radius:3px;"></div></div><div class="popup-stat-num" style="color:var(--teal);">${cnt}</div></div>`).join('')}
+        </div>
+      </div>`;
+  }
+}
+
+function closeKpiPopup() {
+  document.getElementById('kpiPopupOverlay').style.display = 'none';
+  document.getElementById('kpiPopup').classList.remove('open');
+}
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeKpiPopup(); });
+
+// ══════════════════════════════════════════════════════════════
+// EXPORT PRESENTATION (HTML Report — auto-download)
+// ══════════════════════════════════════════════════════════════
+function exportPresentation() {
+  const btn = document.getElementById('exportBtn');
+  const toast = document.getElementById('exportToast');
+  const toastTitle = document.getElementById('exportToastTitle');
+  const toastSub = document.getElementById('exportToastSub');
+
+  // Show toast
+  toast.style.display = 'block';
+  toastTitle.textContent = 'Building report…';
+  toastSub.textContent = 'Compiling data slides';
+  if(btn) btn.style.opacity = '0.6';
+
+  setTimeout(() => {
+    const from = document.getElementById('dateFrom').value;
+    const to   = document.getElementById('dateTo').value;
+    const dateLabel = from && to ? `${fmtDate(from)} – ${fmtDate(to)}` : 'All Time';
+    const now = new Date().toLocaleString('en-IN');
+
+    // ─── Gather all data ───────────────────────────────────────────
+    const R = filteredRows;
+    const T = filteredTickets;
+    const czMap = buildCityZoneMap();
+    const enriched = enrichTicketZones(T, czMap);
+    const complaints = enriched.filter(t=>t.type==='complaint');
+    const maintenance = enriched.filter(t=>t.type==='maintenance');
+    const replacements = enriched.filter(t=>t.type==='replacement');
+
+    let totalHrs = 0; R.forEach(r=>totalHrs+=Number(r.hours)||0);
+    const unique = new Set(R.map(r=>r.charger)).size;
+    const days = getDateRangeDays();
+    const avgPerDay = unique && days ? (totalHrs/unique/days).toFixed(2) : '—';
+
+    const resC = complaints.filter(t=>t.resHrs!==null);
+    let rSum=0; resC.forEach(t=>rSum+=Number(t.resHrs)||0);
+    const avgRes = resC.length ? (rSum/resC.length).toFixed(2) : '—';
+
+    // Top RCA downtime
+    const byRdwn={};
+    R.forEach(r=>{byRdwn[r.rca||'Unknown']=(byRdwn[r.rca||'Unknown']||0)+Number(r.hours);});
+    const topRdwn=Object.entries(byRdwn).sort((a,b)=>b[1]-a[1]).slice(0,8);
+
+    // Top complaint RCA
+    const byRc={};
+    complaints.forEach(t=>{byRc[t.rca||'Unknown']=(byRc[t.rca||'Unknown']||0)+1;});
+    const topRc=Object.entries(byRc).sort((a,b)=>b[1]-a[1]).slice(0,6);
+
+    // Zone breakdown (complaints)
+    const byZc={};
+    complaints.forEach(t=>{const z=t.zone||czMap[t.city]||'?';byZc[z]=(byZc[z]||0)+1;});
+    const zoneC=Object.entries(byZc).sort((a,b)=>b[1]-a[1]);
+
+    // Top cities complaints
+    const byCityC={};
+    complaints.forEach(t=>{byCityC[t.city||'?']=(byCityC[t.city||'?']||0)+1;});
+    const topCityC=Object.entries(byCityC).sort((a,b)=>b[1]-a[1]).slice(0,8);
+
+    // Worst chargers downtime
+    const byChDwn={};
+    R.forEach(r=>{if(!byChDwn[r.charger])byChDwn[r.charger]={name:r.site||r.charger,hrs:0,incidents:0,city:r.city||'—',zone:r.zone||'—'};byChDwn[r.charger].hrs+=Number(r.hours)||0;byChDwn[r.charger].incidents++;});
+    const worstDwn=Object.values(byChDwn).sort((a,b)=>b.hrs-a.hrs).slice(0,10);
+
+    // Top replacement parts
+    const byPart={};
+    replacements.forEach(t=>{if(t.damage)byPart[t.damage.trim()]=(byPart[t.damage.trim()]||0)+1;});
+    const topParts=Object.entries(byPart).sort((a,b)=>b[1]-a[1]).slice(0,8);
+
+    const isDark = document.documentElement.getAttribute('data-theme')==='dark';
+
+    // ─── Build HTML report ─────────────────────────────────────────
+    const ACCENT = '#1a6ef5';
+    const BG = isDark ? '#0f0f0e' : '#f5f4f0';
+    const SURF = isDark ? '#1c1c1a' : '#ffffff';
+    const SURF2 = isDark ? '#252523' : '#f0efe9';
+    const TEXT = isDark ? '#f0efe9' : '#1a1a18';
+    const TEXT2 = isDark ? '#a8a8a0' : '#6b6b63';
+    const BORDER = isDark ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.10)';
+
+    function slide(num, title, color, content) {
+      return `
+      <div style="background:${SURF};border:1px solid ${BORDER};border-radius:16px;margin-bottom:28px;overflow:hidden;page-break-inside:avoid;">
+        <div style="background:${color};padding:18px 24px;display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-size:18px;font-weight:700;color:#fff;">${title}</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.7);font-family:monospace;">Slide ${num}</div>
+        </div>
+        <div style="padding:20px 24px;">${content}</div>
+      </div>`;
+    }
+
+    function kpiBox(label, val, color) {
+      return `<div style="background:${SURF2};border-radius:10px;padding:14px 16px;text-align:center;border-bottom:3px solid ${color};">
+        <div style="font-size:10px;color:${TEXT2};text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">${label}</div>
+        <div style="font-size:26px;font-weight:700;color:${color};font-family:monospace;">${val}</div>
+      </div>`;
+    }
+
+    function barRow(label, val, maxVal, color, unit='') {
+      const w = maxVal > 0 ? Math.round(val/maxVal*100) : 0;
+      const disp = typeof val==='number' ? (Number.isInteger(val)?val:val.toFixed(1)) : val;
+      return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <div style="font-size:12px;color:${TEXT2};width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${label}</div>
+        <div style="flex:1;height:16px;background:${SURF2};border-radius:4px;overflow:hidden;">
+          <div style="height:100%;width:${w}%;background:${color};border-radius:4px;"></div>
+        </div>
+        <div style="font-size:12px;font-weight:600;font-family:monospace;min-width:60px;text-align:right;color:${TEXT};">${disp}${unit}</div>
+      </div>`;
+    }
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Operation Clarity — ${dateLabel}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',Arial,sans-serif;background:${BG};color:${TEXT};padding:32px;}
+  @media print{body{padding:0;}@page{margin:1cm;}}
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div style="background:linear-gradient(135deg,#1a6ef5 0%,#0d47b5 60%,#6c3fc4 100%);border-radius:20px;padding:48px 40px;margin-bottom:28px;color:#fff;">
+  <div style="font-size:13px;opacity:0.7;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">Operation Clarity · by Manish</div>
+  <div style="font-size:36px;font-weight:800;letter-spacing:-1px;margin-bottom:8px;">Charger Operations Report</div>
+  <div style="font-size:18px;opacity:0.85;margin-bottom:32px;">${dateLabel}</div>
+  <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;">
+    ${[
+      ['Power Cut Events', R.length.toLocaleString(), 'rgba(255,255,255,0.9)'],
+      ['Total Downtime', totalHrs.toFixed(1)+' hrs', 'rgba(255,255,255,0.9)'],
+      ['Daily Complaints', complaints.length.toLocaleString(), 'rgba(255,255,255,0.9)'],
+      ['Maintenance', maintenance.length.toLocaleString(), 'rgba(255,255,255,0.9)'],
+      ['Replacement', replacements.length.toLocaleString(), 'rgba(255,255,255,0.9)'],
+      ['Avg Res Hrs', avgRes+' h', 'rgba(255,255,255,0.9)'],
+    ].map(([l,v,c])=>`<div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:12px;text-align:center;">
+      <div style="font-size:9px;opacity:0.7;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;">${l}</div>
+      <div style="font-size:20px;font-weight:700;font-family:monospace;">${v}</div>
+    </div>`).join('')}
+  </div>
+  <div style="margin-top:20px;font-size:11px;opacity:0.55;">Generated: ${now}</div>
+</div>
+
+<!-- SLIDE 1: DOWNTIME OVERVIEW -->
+${slide(1, '⚡ Charger Downtime Overview', '#1a6ef5', `
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+    ${kpiBox('Total Events', R.length.toLocaleString(), '#1a6ef5')}
+    ${kpiBox('Unique Chargers', unique.toLocaleString(), '#6c3fc4')}
+    ${kpiBox('Total Downtime', totalHrs.toFixed(1)+' hrs', '#c0392b')}
+    ${kpiBox('Avg / Charger / Day', avgPerDay+' hrs', '#0f7a7a')}
+  </div>
+  <div style="font-size:13px;font-weight:600;color:${TEXT2};text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">RCA Distribution — Downtime Hours</div>
+  ${topRdwn.map(([rca,hrs])=>barRow(rca,hrs,topRdwn[0][1],'#1a6ef5',' hrs')).join('')}
+`)}
+
+<!-- SLIDE 2: WORST CHARGERS -->
+${slide(2, '📊 Worst Chargers by Downtime', '#6c3fc4', `
+  <table style="width:100%;border-collapse:collapse;font-size:12px;">
+    <thead><tr style="background:${SURF2};">
+      <th style="padding:8px 10px;text-align:left;color:${TEXT2};font-size:10px;text-transform:uppercase;letter-spacing:0.05em;">#</th>
+      <th style="padding:8px 10px;text-align:left;color:${TEXT2};font-size:10px;text-transform:uppercase;letter-spacing:0.05em;">Charger</th>
+      <th style="padding:8px 10px;text-align:left;color:${TEXT2};font-size:10px;text-transform:uppercase;letter-spacing:0.05em;">City</th>
+      <th style="padding:8px 10px;text-align:left;color:${TEXT2};font-size:10px;text-transform:uppercase;letter-spacing:0.05em;">Zone</th>
+      <th style="padding:8px 10px;text-align:right;color:${TEXT2};font-size:10px;text-transform:uppercase;letter-spacing:0.05em;">Events</th>
+      <th style="padding:8px 10px;text-align:right;color:${TEXT2};font-size:10px;text-transform:uppercase;letter-spacing:0.05em;">Total Hrs</th>
+    </tr></thead>
+    <tbody>${worstDwn.map((c,i)=>`<tr style="border-bottom:1px solid ${BORDER};">
+      <td style="padding:8px 10px;color:${TEXT2};">${i+1}</td>
+      <td style="padding:8px 10px;font-weight:600;">${c.name}</td>
+      <td style="padding:8px 10px;color:${TEXT2};">${c.city}</td>
+      <td style="padding:8px 10px;color:${TEXT2};">${c.zone}</td>
+      <td style="padding:8px 10px;text-align:right;font-family:monospace;">${c.incidents}</td>
+      <td style="padding:8px 10px;text-align:right;font-family:monospace;font-weight:700;color:#c0392b;">${c.hrs.toFixed(1)}</td>
+    </tr>`).join('')}</tbody>
+  </table>
+`)}
+
+<!-- SLIDE 3: DAILY COMPLAINTS -->
+${slide(3, '💬 Daily Complaints Analysis', '#6c3fc4', `
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+    ${kpiBox('Total Complaints', complaints.length.toLocaleString(), '#6c3fc4')}
+    ${kpiBox('Avg Res Time', avgRes+' hrs', '#d4820a')}
+    ${kpiBox('Unique Chargers', new Set(complaints.map(t=>t.name)).size.toLocaleString(), '#1a6ef5')}
+    ${kpiBox('Resolved', resC.length.toLocaleString(), '#1f7a3e')}
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+    <div>
+      <div style="font-size:13px;font-weight:600;color:${TEXT2};text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">RCA Breakdown</div>
+      ${topRc.map(([rca,cnt])=>barRow(rca,cnt,topRc[0][1],'#6c3fc4','')).join('')}
+    </div>
+    <div>
+      <div style="font-size:13px;font-weight:600;color:${TEXT2};text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">By Zone</div>
+      ${zoneC.map(([z,cnt])=>barRow(z,cnt,zoneC[0][1],'#1a6ef5','')).join('')}
+    </div>
+  </div>
+  <div style="margin-top:20px;">
+    <div style="font-size:13px;font-weight:600;color:${TEXT2};text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">Top Cities</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 20px;">
+      ${topCityC.map(([city,cnt])=>barRow(city,cnt,topCityC[0][1],'#0f7a7a','')).join('')}
+    </div>
+  </div>
+`)}
+
+<!-- SLIDE 4: MAINTENANCE -->
+${slide(4, '🔧 Monthly Maintenance', '#c0392b', `
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+    ${kpiBox('Total Activities', maintenance.length.toLocaleString(), '#0f7a7a')}
+    ${kpiBox('Chargers Serviced', new Set(maintenance.map(t=>t.name)).size.toLocaleString(), '#1a6ef5')}
+    ${kpiBox('With Damage', maintenance.filter(t=>t.damage&&t.damage.trim()).length.toLocaleString(), '#c0392b')}
+    ${kpiBox('Replacements', replacements.length.toLocaleString(), '#c05621')}
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+    <div>
+      <div style="font-size:13px;font-weight:600;color:${TEXT2};text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">Maintenance by Zone</div>
+      ${(()=>{const byZ={};maintenance.forEach(t=>{const z=t.zone||czMap[t.city]||'?';byZ[z]=(byZ[z]||0)+1;});const arr=Object.entries(byZ).sort((a,b)=>b[1]-a[1]);return arr.map(([z,cnt])=>barRow(z,cnt,arr[0][1],'#0f7a7a','')).join('');})()}
+    </div>
+    <div>
+      <div style="font-size:13px;font-weight:600;color:${TEXT2};text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">Parts Replaced (Top)</div>
+      ${topParts.slice(0,6).map(([p,cnt])=>barRow(p,cnt,topParts[0][1],'#c05621','')).join('')}
+    </div>
+  </div>
+`)}
+
+<!-- SLIDE 5: SUMMARY -->
+${slide(5, '📋 Executive Summary', '#1f7a3e', `
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+    <div>
+      <div style="font-size:14px;font-weight:700;color:${TEXT};margin-bottom:14px;">Key Findings</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="background:rgba(26,110,245,0.1);border-left:3px solid #1a6ef5;padding:10px 14px;border-radius:0 8px 8px 0;">
+          <div style="font-size:12px;color:#1a6ef5;font-weight:600;">Total Downtime</div>
+          <div style="font-size:20px;font-weight:700;font-family:monospace;color:${TEXT};">${totalHrs.toFixed(1)} hrs across ${unique} chargers</div>
+        </div>
+        <div style="background:rgba(108,63,196,0.1);border-left:3px solid #6c3fc4;padding:10px 14px;border-radius:0 8px 8px 0;">
+          <div style="font-size:12px;color:#6c3fc4;font-weight:600;">Complaint Resolution</div>
+          <div style="font-size:20px;font-weight:700;font-family:monospace;color:${TEXT};">${avgRes} hrs average</div>
+        </div>
+        <div style="background:rgba(15,122,122,0.1);border-left:3px solid #0f7a7a;padding:10px 14px;border-radius:0 8px 8px 0;">
+          <div style="font-size:12px;color:#0f7a7a;font-weight:600;">Maintenance Coverage</div>
+          <div style="font-size:20px;font-weight:700;font-family:monospace;color:${TEXT};">${new Set(maintenance.map(t=>t.name)).size} chargers serviced</div>
+        </div>
+        <div style="background:rgba(192,57,43,0.1);border-left:3px solid #c0392b;padding:10px 14px;border-radius:0 8px 8px 0;">
+          <div style="font-size:12px;color:#c0392b;font-weight:600;">Replacements</div>
+          <div style="font-size:20px;font-weight:700;font-family:monospace;color:${TEXT};">${replacements.length} across ${new Set(replacements.map(t=>t.name)).size} chargers</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:14px;font-weight:700;color:${TEXT};margin-bottom:14px;">Period Summary</div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        ${[
+          ['Date Range', dateLabel],
+          ['Days in Period', days||'—'],
+          ['Power Cut Events', R.length.toLocaleString()],
+          ['Total Downtime Hrs', totalHrs.toFixed(1)],
+          ['Avg/Charger/Day', avgPerDay+' hrs'],
+          ['Daily Complaints', complaints.length.toLocaleString()],
+          ['Avg Resolution Time', avgRes+' hrs'],
+          ['Maintenance Activities', maintenance.length.toLocaleString()],
+          ['Replacement Events', replacements.length.toLocaleString()],
+        ].map(([l,v])=>`<tr style="border-bottom:1px solid ${BORDER};"><td style="padding:7px 10px;color:${TEXT2};">${l}</td><td style="padding:7px 10px;font-weight:600;font-family:monospace;text-align:right;">${v}</td></tr>`).join('')}
+      </table>
+    </div>
+  </div>
+  <div style="margin-top:20px;padding-top:16px;border-top:1px solid ${BORDER};font-size:11px;color:${TEXT2};text-align:center;">
+    Operation Clarity · by Manish · Generated ${now}
+  </div>
+`)}
+
+</body>
+</html>`;
+
+    // ─── Download the file ─────────────────────────────────────────
+    toastTitle.textContent = 'Downloading…';
+    toastSub.textContent = '5 slides generated';
+    const blob = new Blob([html], {type:'text/html'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `OperationClarity_${(from||'').replace(/-/g,'')}_${(to||'').replace(/-/g,'')}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    setTimeout(()=>{
+      toast.style.display = 'none';
+      if(btn) btn.style.opacity = '1';
+    }, 2000);
+  }, 200);
+}
+
 // ══════════════════════════════════════════════════════
 // PERSIST
 // ══════════════════════════════════════════════════════
@@ -2448,5 +2980,30 @@ window.addEventListener('load',()=>{
 });
 ['sheetUrl','sheet2Url','proxyUrl'].forEach(id=>document.getElementById(id).addEventListener('change',saveURLs));
 </script>
+
+<!-- ═══ KPI POPUP MODAL ═══ -->
+<div id="kpiPopupOverlay" onclick="closeKpiPopup()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9998;backdrop-filter:blur(3px);"></div>
+<div id="kpiPopup" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9999;width:min(92vw,760px);max-height:88vh;background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:0 24px 80px rgba(0,0,0,0.35);overflow:hidden;flex-direction:column;">
+  <div id="kpiPopupHeader" style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0;">
+    <div>
+      <div id="kpiPopupTitle" style="font-size:16px;font-weight:700;color:var(--text);"></div>
+      <div id="kpiPopupSub" style="font-size:12px;color:var(--text3);margin-top:2px;"></div>
+    </div>
+    <button onclick="closeKpiPopup()" style="width:32px;height:32px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;">✕</button>
+  </div>
+  <div id="kpiPopupBody" style="overflow-y:auto;padding:16px 20px;"></div>
+</div>
+
+<!-- ═══ EXPORT PROGRESS TOAST ═══ -->
+<div id="exportToast" style="display:none;position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 20px;box-shadow:0 8px 32px rgba(0,0,0,0.25);min-width:240px;">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div id="exportSpinner" style="width:16px;height:16px;border:2px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0;"></div>
+    <div>
+      <div style="font-size:13px;font-weight:600;color:var(--text);" id="exportToastTitle">Preparing export…</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:2px;" id="exportToastSub">Building report</div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
