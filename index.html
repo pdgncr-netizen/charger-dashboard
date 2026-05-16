@@ -396,9 +396,9 @@
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1f7a3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="14" height="12" rx="2"/><path d="M23 13V11a2 2 0 0 0-2-2h-3"/><line x1="5" y1="12" x2="5" y2="12"/><line x1="9" y1="12" x2="9" y2="12"/></svg>
       </div>
       <div class="top-kpi-body">
-        <div class="top-kpi-label">Total Unique Chargers</div>
+        <div class="top-kpi-label">Chargers Serviced</div>
         <div class="top-kpi-val" id="mChargers">—</div>
-        <div class="top-kpi-sub" style="color:var(--green);font-size:11px;margin-top:2px;">Sheet1 &amp; Sheet2</div>
+        <div class="top-kpi-sub" style="color:var(--green);font-size:11px;margin-top:2px;">Monthly Maintenance</div>
       </div>
     </div>
     <!-- Avg Resolution Hrs -->
@@ -613,11 +613,34 @@
       <div class="card card-mb"><div class="section-title">👷 Technician Performance</div><div id="cChartEmp"><div class="no-data">Load Sheet 2</div></div></div>
     </div>
     <div class="sub-panel" id="cspanel-bycharger">
-      <div class="charger-wrap">
-        <div class="section-title">Select Charger Name</div>
-        <input type="text" class="charger-search" id="cChargerSearch" placeholder="Search charger name…" oninput="filterCChips()" />
-        <div class="charger-grid" id="cChargerGrid"><div class="no-data">Load data to see chargers</div></div>
+      <!-- Sortable Charger List -->
+      <div class="card card-mb">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+          <div class="section-title" style="margin-bottom:0;">Complaint Charger List — <span id="cChargerListCount" style="font-weight:400;color:var(--text3);">—</span></div>
+          <input type="text" id="cChargerSearch" placeholder="Search name or city…" oninput="renderCComplaintList()" style="flex:1;min-width:180px;max-width:280px;font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:8px;background:var(--surface2);color:var(--text);outline:none;" />
+          <select id="cChargerZoneFilter" onchange="renderCComplaintList()" style="font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:8px;background:var(--surface2);color:var(--text);outline:none;">
+            <option value="">All Zones</option>
+          </select>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:36px;">#</th>
+                <th onclick="toggleCSort('name')" style="cursor:pointer;">Charger Name<span id="ccsort-name"></span></th>
+                <th onclick="toggleCSort('tickets')" style="cursor:pointer;text-align:right;">Tickets<span id="ccsort-tickets"></span></th>
+                <th onclick="toggleCSort('avgRes')" style="cursor:pointer;text-align:right;">Avg Res Hrs<span id="ccsort-avgRes"></span></th>
+                <th onclick="toggleCSort('pctOfTotal')" style="cursor:pointer;text-align:right;">% of Total<span id="ccsort-pctOfTotal"></span></th>
+                <th>City</th>
+                <th>Zone</th>
+                <th>Top RCA</th>
+              </tr>
+            </thead>
+            <tbody id="cChargerListBody"><tr><td colspan="8" class="no-data">Load Sheet 2 first</td></tr></tbody>
+          </table>
+        </div>
       </div>
+      <!-- Detail section (shown when row clicked) -->
       <div id="cDetailSection" class="hidden">
         <div class="detail-banner">
           <div><div class="detail-id" id="cDetailName" style="font-size:18px;"></div><div style="font-size:13px;color:var(--text2);margin-top:4px;" id="cDetailMeta"></div></div>
@@ -684,10 +707,31 @@
       </div>
     </div>
     <div class="sub-panel" id="mspanel-bycharger">
-      <div class="charger-wrap">
-        <div class="section-title">Select Charger Name</div>
-        <input type="text" class="charger-search" id="mChargerSearch" placeholder="Search charger name…" oninput="filterMChips()" />
-        <div class="charger-grid" id="mChargerGrid"><div class="no-data">Load data to see chargers</div></div>
+      <div class="card card-mb">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+          <div class="section-title" style="margin-bottom:0;">Maintenance Charger List — <span id="mChargerListCount" style="font-weight:400;color:var(--text3);">—</span></div>
+          <input type="text" id="mChargerSearch" placeholder="Search name or city…" oninput="renderMMaintenanceList()" style="flex:1;min-width:180px;max-width:280px;font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:8px;background:var(--surface2);color:var(--text);outline:none;" />
+          <select id="mChargerZoneFilter" onchange="renderMMaintenanceList()" style="font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:8px;background:var(--surface2);color:var(--text);outline:none;">
+            <option value="">All Zones</option>
+          </select>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:36px;">#</th>
+                <th onclick="toggleMSort('name')" style="cursor:pointer;">Charger Name<span id="mcsort-name"></span></th>
+                <th onclick="toggleMSort('activities')" style="cursor:pointer;text-align:right;">Activities<span id="mcsort-activities"></span></th>
+                <th onclick="toggleMSort('damage')" style="cursor:pointer;text-align:right;">With Damage<span id="mcsort-damage"></span></th>
+                <th onclick="toggleMSort('avgV')" style="cursor:pointer;text-align:right;">Avg Aux V<span id="mcsort-avgV"></span></th>
+                <th onclick="toggleMSort('pctOfTotal')" style="cursor:pointer;text-align:right;">% of Total<span id="mcsort-pctOfTotal"></span></th>
+                <th>City</th>
+                <th>Zone</th>
+              </tr>
+            </thead>
+            <tbody id="mChargerListBody"><tr><td colspan="8" class="no-data">Load Sheet 2 first</td></tr></tbody>
+          </table>
+        </div>
       </div>
       <div id="mDetailSection" class="hidden">
         <div class="detail-banner">
@@ -745,10 +789,31 @@
       </div>
     </div>
     <div class="sub-panel" id="rspanel-bycharger">
-      <div class="charger-wrap">
-        <div class="section-title">Select Charger Name</div>
-        <input type="text" class="charger-search" id="rChargerSearch" placeholder="Search charger name…" oninput="filterRChips()" />
-        <div class="charger-grid" id="rChargerGrid"><div class="no-data">Load data to see chargers</div></div>
+      <div class="card card-mb">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+          <div class="section-title" style="margin-bottom:0;">Replacement Charger List — <span id="rChargerListCount" style="font-weight:400;color:var(--text3);">—</span></div>
+          <input type="text" id="rChargerSearch" placeholder="Search name or city…" oninput="renderRReplacementList()" style="flex:1;min-width:180px;max-width:280px;font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:8px;background:var(--surface2);color:var(--text);outline:none;" />
+          <select id="rChargerZoneFilter" onchange="renderRReplacementList()" style="font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:8px;background:var(--surface2);color:var(--text);outline:none;">
+            <option value="">All Zones</option>
+          </select>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:36px;">#</th>
+                <th onclick="toggleRSort('name')" style="cursor:pointer;">Charger Name<span id="rcsort-name"></span></th>
+                <th onclick="toggleRSort('replacements')" style="cursor:pointer;text-align:right;">Replacements<span id="rcsort-replacements"></span></th>
+                <th onclick="toggleRSort('uniqueParts')" style="cursor:pointer;text-align:right;">Unique Parts<span id="rcsort-uniqueParts"></span></th>
+                <th onclick="toggleRSort('pctOfTotal')" style="cursor:pointer;text-align:right;">% of Total<span id="rcsort-pctOfTotal"></span></th>
+                <th>City</th>
+                <th>Zone</th>
+                <th>Parts</th>
+              </tr>
+            </thead>
+            <tbody id="rChargerListBody"><tr><td colspan="8" class="no-data">Load Sheet 2 first</td></tr></tbody>
+          </table>
+        </div>
       </div>
       <div id="rDetailSection" class="hidden">
         <div class="detail-banner">
@@ -1257,7 +1322,9 @@ function renderGlobalMetrics(){
 
   // Top-level KPIs
   document.getElementById('mTotal').textContent=total.toLocaleString();
-  document.getElementById('mChargers').textContent=unique.toLocaleString();
+  // "Chargers Serviced" = unique charger names in maintenance tickets
+  const maintChargers = new Set(T.filter(t=>t.type==='maintenance').map(t=>t.name).filter(Boolean));
+  document.getElementById('mChargers').textContent = maintChargers.size.toLocaleString();
   const complaints=T.filter(t=>t.type==='complaint');
   document.getElementById('mComplaints').textContent=complaints.length.toLocaleString();
   document.getElementById('mMaint').textContent=T.filter(t=>t.type==='maintenance').length.toLocaleString();
@@ -1596,6 +1663,15 @@ function buildCityZoneMap() {
     const zone = (r.zone || '').trim();
     if (city && zone && !map[city]) map[city] = zone;
   });
+  // ── Hardcoded overrides for cities not in Sheet1 or mapped incorrectly ──
+  const OVERRIDES = {
+    '110 Jabalpur': 'West',
+    'Jabalpur': 'West',
+    '110': 'West',
+  };
+  Object.entries(OVERRIDES).forEach(([city, zone]) => {
+    if (!map[city]) map[city] = zone;   // only fill gaps, don't overwrite Sheet1
+  });
   return map;
 }
 
@@ -1898,9 +1974,9 @@ function switchSubTab2(prefix, name){
   const sp = document.getElementById(prefix+'spanel-'+name);
   if(sp) sp.classList.add('active');
   // Re-render if complaint
-  if(prefix==='c') renderComplaint();
-  else if(prefix==='m') renderMaintenance();
-  else if(prefix==='r') renderReplacement();
+  if(prefix==='c'){renderComplaint();if(name==='bycharger')renderCComplaintList();}
+  else if(prefix==='m'){renderMaintenance();if(name==='bycharger')renderMMaintenanceList();}
+  else if(prefix==='r'){renderReplacement();if(name==='bycharger')renderRReplacementList();}
 }
 
 // ── Complaint By-Charger chip helpers ──
@@ -2074,6 +2150,278 @@ function renderReplacementExtended(T, cityZoneMap){
     return`<tr><td style="text-align:center;">${rank}</td><td style="font-weight:600;">${c.city}</td><td style="color:var(--text2);font-size:12px;">${c.zone}</td><td style="text-align:right;font-family:'DM Mono',monospace;">${c.tickets}</td><td style="text-align:right;color:var(--purple);font-family:'DM Mono',monospace;">${c.parts.size}</td><td style="text-align:right;font-weight:700;color:var(--blue);font-family:'DM Mono',monospace;">${pct.toFixed(2)}%</td></tr>`;
   }).join(''):'<tr><td colspan="6" class="no-data">No data</td></tr>';
 }
+
+
+// ══════════════════════════════════════════════════════
+// COMPLAINT CHARGER LIST (sortable, same design as downtime)
+// ══════════════════════════════════════════════════════
+let cSortCol = 'tickets', cSortAsc = false;
+let activeCChargerList = null;
+
+function renderCComplaintList(){
+  const cityZoneMap = buildCityZoneMap();
+  const rawT = filteredTickets.filter(t=>t.type==='complaint');
+  const T = enrichTicketZones(rawT, cityZoneMap);
+  const grandTotal = T.length;
+
+  const q = (document.getElementById('cChargerSearch')||{}).value?.toLowerCase()||'';
+  const zFilter = (document.getElementById('cChargerZoneFilter')||{}).value||'';
+
+  // Populate zone filter
+  const zSel = document.getElementById('cChargerZoneFilter');
+  if(zSel && zSel.options.length <= 1){
+    const zones=[...new Set(T.map(t=>t.zone||'').filter(Boolean))].sort();
+    zones.forEach(z=>{const o=document.createElement('option');o.value=z;o.textContent=z;zSel.appendChild(o);});
+  }
+
+  // Build per-charger summary
+  const map={};
+  T.forEach(t=>{
+    const k=t.name;
+    if(!map[k])map[k]={name:k,city:t.city||'',zone:t.zone||'',tickets:0,resSum:0,resCnt:0,rcas:{}};
+    map[k].tickets++;
+    if(t.resHrs!==null){map[k].resSum+=Number(t.resHrs);map[k].resCnt++;}
+    map[k].rcas[t.rca]=(map[k].rcas[t.rca]||0)+1;
+  });
+  let list=Object.values(map).map(c=>({
+    ...c,
+    avgRes: c.resCnt?c.resSum/c.resCnt:null,
+    pctOfTotal: grandTotal?(c.tickets/grandTotal*100):0,
+    topRca: Object.entries(c.rcas).sort((a,b)=>b[1]-a[1])[0]?.[0]||'—'
+  }));
+
+  if(q) list=list.filter(c=>c.name.toLowerCase().includes(q)||c.city.toLowerCase().includes(q));
+  if(zFilter) list=list.filter(c=>c.zone===zFilter);
+
+  // Sort
+  list.sort((a,b)=>{
+    let va=a[cSortCol]??0, vb=b[cSortCol]??0;
+    if(cSortCol==='name'){va=a.name;vb=b.name;}
+    if(typeof va==='string') return cSortAsc?va.localeCompare(vb):vb.localeCompare(va);
+    return cSortAsc?va-vb:vb-va;
+  });
+
+  const countEl=document.getElementById('cChargerListCount');
+  if(countEl)countEl.textContent=list.length+' chargers';
+
+  ['name','tickets','avgRes','pctOfTotal'].forEach(col=>{
+    const el=document.getElementById('ccsort-'+col);
+    if(el)el.textContent=col===cSortCol?(cSortAsc?' ▲':' ▼'):'';
+  });
+
+  const body=document.getElementById('cChargerListBody');
+  if(!body)return;
+  if(!list.length){body.innerHTML='<tr><td colspan="8" class="no-data">No chargers match</td></tr>';return;}
+
+  body.innerHTML=list.map((c,i)=>{
+    const avgStr=c.avgRes!==null?c.avgRes.toFixed(1)+' h':'—';
+    const isActive=c.name===activeCChargerList;
+    const rcaS=rcaStyle(c.topRca);
+    return`<tr onclick="selectCChargerFromList('${c.name.replace(/'/g,"\'")}')" style="cursor:pointer;${isActive?'background:var(--blue-light);':''}" title="Click to view detail">
+      <td style="text-align:center;font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;">${i+1}</td>
+      <td style="font-weight:600;font-size:13px;${isActive?'color:var(--blue);':''}">${c.name}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-weight:700;">${c.tickets}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;color:var(--amber);">${avgStr}</td>
+      <td style="text-align:right;">
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
+          <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:${c.pctOfTotal>=20?'#1a6ef5':c.pctOfTotal>=10?'#0f7a7a':'#6c3fc4'};">${c.pctOfTotal.toFixed(2)}%</span>
+          <div style="height:3px;background:var(--surface2);border-radius:2px;width:60px;overflow:hidden;"><div style="height:100%;width:${Math.min(c.pctOfTotal*5,100)}%;background:${c.pctOfTotal>=20?'#1a6ef5':c.pctOfTotal>=10?'#0f7a7a':'#6c3fc4'};border-radius:2px;"></div></div>
+        </div>
+      </td>
+      <td style="color:var(--text2);font-size:12px;">${c.city||'—'}</td>
+      <td style="color:var(--text2);font-size:12px;">${c.zone||'—'}</td>
+      <td><span class="badge" style="background:${rcaS.bg};color:${rcaS.text};font-size:10px;">${c.topRca}</span></td>
+    </tr>`;
+  }).join('');
+}
+function toggleCSort(col){
+  if(cSortCol===col)cSortAsc=!cSortAsc;else{cSortCol=col;cSortAsc=false;}
+  renderCComplaintList();
+}
+function selectCChargerFromList(name){
+  activeCChargerList=name;
+  renderCComplaintList();
+  selectCCharger(name);
+  document.getElementById('cDetailSection')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+// alias
+function filterCChips(){renderCComplaintList();}
+
+// ══════════════════════════════════════════════════════
+// MAINTENANCE CHARGER LIST (sortable)
+// ══════════════════════════════════════════════════════
+let mSortCol='activities', mSortAsc=false;
+let activeMChargerList=null;
+
+function renderMMaintenanceList(){
+  const cityZoneMap=buildCityZoneMap();
+  const rawT=filteredTickets.filter(t=>t.type==='maintenance');
+  const T=enrichTicketZones(rawT, cityZoneMap);
+  const grandTotal=T.length;
+
+  const q=(document.getElementById('mChargerSearch')||{}).value?.toLowerCase()||'';
+  const zFilter=(document.getElementById('mChargerZoneFilter')||{}).value||'';
+
+  const zSel=document.getElementById('mChargerZoneFilter');
+  if(zSel&&zSel.options.length<=1){
+    const zones=[...new Set(T.map(t=>t.zone||'').filter(Boolean))].sort();
+    zones.forEach(z=>{const o=document.createElement('option');o.value=z;o.textContent=z;zSel.appendChild(o);});
+  }
+
+  const map={};
+  T.forEach(t=>{
+    const k=t.name;
+    if(!map[k])map[k]={name:k,city:t.city||'',zone:t.zone||'',activities:0,damage:0,vs:[]};
+    map[k].activities++;
+    if(t.damage&&t.damage.trim())map[k].damage++;
+    const v=parseFloat(t.auxV);if(!isNaN(v)&&v>0)map[k].vs.push(v);
+  });
+  let list=Object.values(map).map(c=>({
+    ...c,
+    avgV:c.vs.length?(c.vs.reduce((a,b)=>a+b,0)/c.vs.length):null,
+    pctOfTotal:grandTotal?(c.activities/grandTotal*100):0
+  }));
+
+  if(q)list=list.filter(c=>c.name.toLowerCase().includes(q)||c.city.toLowerCase().includes(q));
+  if(zFilter)list=list.filter(c=>c.zone===zFilter);
+
+  list.sort((a,b)=>{
+    let va=a[mSortCol]??0,vb=b[mSortCol]??0;
+    if(mSortCol==='name'){va=a.name;vb=b.name;}
+    if(typeof va==='string')return mSortAsc?va.localeCompare(vb):vb.localeCompare(va);
+    return mSortAsc?va-vb:vb-va;
+  });
+
+  const countEl=document.getElementById('mChargerListCount');
+  if(countEl)countEl.textContent=list.length+' chargers';
+  ['name','activities','damage','avgV','pctOfTotal'].forEach(col=>{
+    const el=document.getElementById('mcsort-'+col);
+    if(el)el.textContent=col===mSortCol?(mSortAsc?' ▲':' ▼'):'';
+  });
+
+  const body=document.getElementById('mChargerListBody');
+  if(!body)return;
+  if(!list.length){body.innerHTML='<tr><td colspan="8" class="no-data">No chargers match</td></tr>';return;}
+
+  body.innerHTML=list.map((c,i)=>{
+    const isActive=c.name===activeMChargerList;
+    const barColor=c.pctOfTotal>=20?'#1a6ef5':c.pctOfTotal>=10?'#0f7a7a':'#6c3fc4';
+    return`<tr onclick="selectMChargerFromList('${c.name.replace(/'/g,"\'")}')" style="cursor:pointer;${isActive?'background:var(--blue-light);':''}" title="Click for detail">
+      <td style="text-align:center;font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;">${i+1}</td>
+      <td style="font-weight:600;font-size:13px;${isActive?'color:var(--blue);':''}">${c.name}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-weight:700;">${c.activities}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;color:${c.damage>0?'var(--red)':'var(--text2)'};">${c.damage}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;color:var(--amber);">${c.avgV!==null?c.avgV.toFixed(1)+' V':'—'}</td>
+      <td style="text-align:right;">
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
+          <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:${barColor};">${c.pctOfTotal.toFixed(2)}%</span>
+          <div style="height:3px;background:var(--surface2);border-radius:2px;width:60px;overflow:hidden;"><div style="height:100%;width:${Math.min(c.pctOfTotal*5,100)}%;background:${barColor};border-radius:2px;"></div></div>
+        </div>
+      </td>
+      <td style="color:var(--text2);font-size:12px;">${c.city||'—'}</td>
+      <td style="color:var(--text2);font-size:12px;">${c.zone||'—'}</td>
+    </tr>`;
+  }).join('');
+}
+function toggleMSort(col){
+  if(mSortCol===col)mSortAsc=!mSortAsc;else{mSortCol=col;mSortAsc=false;}
+  renderMMaintenanceList();
+}
+function selectMChargerFromList(name){
+  activeMChargerList=name;
+  renderMMaintenanceList();
+  selectMCharger(name);
+  document.getElementById('mDetailSection')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function filterMChips(){renderMMaintenanceList();}
+
+// ══════════════════════════════════════════════════════
+// REPLACEMENT CHARGER LIST (sortable)
+// ══════════════════════════════════════════════════════
+let rSortCol='replacements', rSortAsc=false;
+let activeRChargerList=null;
+
+function renderRReplacementList(){
+  const cityZoneMap=buildCityZoneMap();
+  const rawT=filteredTickets.filter(t=>t.type==='replacement');
+  const T=enrichTicketZones(rawT, cityZoneMap);
+  const grandTotal=T.length;
+
+  const q=(document.getElementById('rChargerSearch')||{}).value?.toLowerCase()||'';
+  const zFilter=(document.getElementById('rChargerZoneFilter')||{}).value||'';
+
+  const zSel=document.getElementById('rChargerZoneFilter');
+  if(zSel&&zSel.options.length<=1){
+    const zones=[...new Set(T.map(t=>t.zone||'').filter(Boolean))].sort();
+    zones.forEach(z=>{const o=document.createElement('option');o.value=z;o.textContent=z;zSel.appendChild(o);});
+  }
+
+  const map={};
+  T.forEach(t=>{
+    const k=t.name;
+    if(!map[k])map[k]={name:k,city:t.city||'',zone:t.zone||'',replacements:0,parts:new Set()};
+    map[k].replacements++;
+    if(t.damage&&t.damage.trim())map[k].parts.add(t.damage.trim());
+  });
+  let list=Object.values(map).map(c=>({
+    ...c,
+    uniqueParts:c.parts.size,
+    partsStr:[...c.parts].slice(0,3).join(', ')+(c.parts.size>3?'…':''),
+    pctOfTotal:grandTotal?(c.replacements/grandTotal*100):0
+  }));
+
+  if(q)list=list.filter(c=>c.name.toLowerCase().includes(q)||c.city.toLowerCase().includes(q));
+  if(zFilter)list=list.filter(c=>c.zone===zFilter);
+
+  list.sort((a,b)=>{
+    let va=a[rSortCol]??0,vb=b[rSortCol]??0;
+    if(rSortCol==='name'){va=a.name;vb=b.name;}
+    if(typeof va==='string')return rSortAsc?va.localeCompare(vb):vb.localeCompare(va);
+    return rSortAsc?va-vb:vb-va;
+  });
+
+  const countEl=document.getElementById('rChargerListCount');
+  if(countEl)countEl.textContent=list.length+' chargers';
+  ['name','replacements','uniqueParts','pctOfTotal'].forEach(col=>{
+    const el=document.getElementById('rcsort-'+col);
+    if(el)el.textContent=col===rSortCol?(rSortAsc?' ▲':' ▼'):'';
+  });
+
+  const body=document.getElementById('rChargerListBody');
+  if(!body)return;
+  if(!list.length){body.innerHTML='<tr><td colspan="8" class="no-data">No chargers match</td></tr>';return;}
+
+  body.innerHTML=list.map((c,i)=>{
+    const isActive=c.name===activeRChargerList;
+    const barColor=c.pctOfTotal>=20?'#1a6ef5':c.pctOfTotal>=10?'#0f7a7a':'#6c3fc4';
+    return`<tr onclick="selectRChargerFromList('${c.name.replace(/'/g,"\'")}')" style="cursor:pointer;${isActive?'background:var(--blue-light);':''}" title="Click for detail">
+      <td style="text-align:center;font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;">${i+1}</td>
+      <td style="font-weight:600;font-size:13px;${isActive?'color:var(--blue);':''}">${c.name}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-weight:700;color:var(--orange);">${c.replacements}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;color:var(--purple);">${c.uniqueParts}</td>
+      <td style="text-align:right;">
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
+          <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:${barColor};">${c.pctOfTotal.toFixed(2)}%</span>
+          <div style="height:3px;background:var(--surface2);border-radius:2px;width:60px;overflow:hidden;"><div style="height:100%;width:${Math.min(c.pctOfTotal*5,100)}%;background:${barColor};border-radius:2px;"></div></div>
+        </div>
+      </td>
+      <td style="color:var(--text2);font-size:12px;">${c.city||'—'}</td>
+      <td style="color:var(--text2);font-size:12px;">${c.zone||'—'}</td>
+      <td style="font-size:11px;color:var(--text2);">${c.partsStr||'—'}</td>
+    </tr>`;
+  }).join('');
+}
+function toggleRSort(col){
+  if(rSortCol===col)rSortAsc=!rSortAsc;else{rSortCol=col;rSortAsc=false;}
+  renderRReplacementList();
+}
+function selectRChargerFromList(name){
+  activeRChargerList=name;
+  renderRReplacementList();
+  selectRCharger(name);
+  document.getElementById('rDetailSection')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function filterRChips(){renderRReplacementList();}
 
 // ══════════════════════════════════════════════════════
 // PERSIST
