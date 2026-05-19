@@ -446,6 +446,10 @@
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
       Replacement
     </button>
+    <button class="main-tab-btn" onclick="switchMainTab('employee')" id="mtab-employee" style="background:linear-gradient(135deg,rgba(212,130,10,0.12),rgba(108,63,196,0.12));">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Employee Report
+    </button>
   </div>
 
 
@@ -705,6 +709,7 @@
       <button class="sub-tab" onclick="switchSubTab2('m','bycharger')"><span class="sub-tab-icon">🔌</span> By Charger</button>
       <button class="sub-tab" onclick="switchSubTab2('m','byzone')"><span class="sub-tab-icon">📍</span> By Zone</button>
       <button class="sub-tab" onclick="switchSubTab2('m','bycity')"><span class="sub-tab-icon">🌆</span> By City</button>
+      <button class="sub-tab" onclick="switchSubTab2('m','battery')"><span class="sub-tab-icon">🔋</span> Battery Health</button>
     </div>
     <div class="sub-panel active" id="mspanel-overview">
       <div class="grid2">
@@ -772,6 +777,117 @@
         <tbody id="mntCityBody"><tr><td colspan="7" class="no-data">Load Sheet 2 first</td></tr></tbody></table></div>
       </div>
     </div>
+    <!-- ═══ MAINTENANCE SUB: BATTERY HEALTH ═══ -->
+    <div class="sub-panel" id="mspanel-battery">
+
+      <!-- KPI cards -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:1.5rem;">
+        <div class="metric" style="--metric-color:var(--green)">
+          <div class="metric-label">Above 12V (OK)</div>
+          <div class="metric-val" id="batAbove12">—</div>
+          <div class="metric-sub">batteries</div>
+        </div>
+        <div class="metric" style="--metric-color:var(--red)">
+          <div class="metric-label">Below 12V (Weak)</div>
+          <div class="metric-val" id="batBelow12">—</div>
+          <div class="metric-sub">batteries</div>
+        </div>
+        <div class="metric" style="--metric-color:var(--amber)">
+          <div class="metric-label">Not Recorded</div>
+          <div class="metric-val" id="batNoData">—</div>
+          <div class="metric-sub">no reading</div>
+        </div>
+        <div class="metric" style="--metric-color:var(--blue)">
+          <div class="metric-label">Avg Voltage</div>
+          <div class="metric-val" id="batAvgV">—</div>
+          <div class="metric-sub">volts</div>
+        </div>
+        <div class="metric" style="--metric-color:var(--teal)">
+          <div class="metric-label">Total Checked</div>
+          <div class="metric-val" id="batTotal">—</div>
+          <div class="metric-sub">maintenance visits</div>
+        </div>
+      </div>
+
+      <!-- Voltage distribution bar chart -->
+      <div class="card card-mb">
+        <div class="section-title">🔋 Aux Battery Voltage — Full Distribution</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:14px;">
+          All maintenance visits with aux battery readings. &nbsp;
+          <span style="color:var(--red);font-weight:600;">Red = below 12V (needs attention)</span> ·
+          <span style="color:var(--amber);font-weight:600;">Amber = 12–12.4V (borderline)</span> ·
+          <span style="color:var(--green);font-weight:600;">Green = 12.5V+ (healthy)</span>
+        </div>
+        <div id="batVoltBars"><div class="no-data">Load maintenance data first</div></div>
+      </div>
+
+      <!-- Below / Above split tables -->
+      <div class="grid2" style="margin-bottom:1.5rem;">
+        <div class="card">
+          <div class="section-title" style="color:var(--red);">⚠️ Below 12V — Needs Attention</div>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:10px;">All chargers with aux battery below 12V</div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Charger Name</th><th>City</th><th>Zone</th><th style="text-align:right">Aux V</th><th>Date</th></tr></thead>
+              <tbody id="batBelow12Body"><tr><td colspan="6" class="no-data">Load data first</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-title" style="color:var(--green);">✅ Above 12V — Healthy</div>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:10px;">All chargers with aux battery above 12V</div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Charger Name</th><th>City</th><th>Zone</th><th style="text-align:right">Aux V</th><th>Date</th></tr></thead>
+              <tbody id="batAbove12Body"><tr><td colspan="6" class="no-data">Load data first</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Full battery reading list with search/filter -->
+      <div class="card card-mb">
+        <div class="section-title">📋 Complete Battery Reading List — All Maintenance Visits</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:10px;">Every maintenance visit with an aux battery reading recorded</div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+          <input type="text" id="batSearch"
+            placeholder="🔍 Search charger or city…"
+            oninput="renderBatteryTab()"
+            style="flex:1;min-width:180px;max-width:280px;font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:8px;background:var(--surface2);color:var(--text);outline:none;" />
+          <select id="batFilter" onchange="renderBatteryTab()"
+            style="font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:8px;background:var(--surface2);color:var(--text);outline:none;">
+            <option value="all">All readings</option>
+            <option value="below12">Below 12V only</option>
+            <option value="above12">Above 12V only</option>
+            <option value="border">Borderline (12–12.4V)</option>
+          </select>
+          <select id="batZoneFilter" onchange="renderBatteryTab()"
+            style="font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:8px;background:var(--surface2);color:var(--text);outline:none;">
+            <option value="">All Zones</option>
+          </select>
+          <span id="batCount" style="font-size:12px;color:var(--text3);align-self:center;white-space:nowrap;"></span>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Charger Name</th>
+                <th>City</th>
+                <th>Zone</th>
+                <th>Technician</th>
+                <th style="text-align:right">Aux V</th>
+                <th>Status</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="batAllBody"><tr><td colspan="8" class="no-data">Load data first</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /mspanel-battery -->
+
   </div><!-- /mpanel-maintenance -->
 
   <!-- ═══════════════════════════════════════════════ -->
@@ -855,6 +971,192 @@
       </div>
     </div>
   </div><!-- /mpanel-replacement -->
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- MAIN PANEL: EMPLOYEE REPORT                    -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div class="main-panel" id="mpanel-employee">
+    <div style="height:16px;"></div>
+
+    <!-- Employee KPI row -->
+    <div class="dt-kpi-row" style="margin-bottom:1.5rem;">
+      <div class="dt-kpi-card" style="--kc:#d4820a;">
+        <div class="dt-kpi-icon" style="background:rgba(212,130,10,0.12);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d4820a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        </div>
+        <div><div class="dt-kpi-label">Active Employees</div><div class="dt-kpi-val" id="empTotal">—</div></div>
+      </div>
+      <div class="dt-kpi-card">
+        <div class="dt-kpi-icon" style="background:rgba(26,110,245,0.12);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a6ef5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <div><div class="dt-kpi-label">Total Tickets</div><div class="dt-kpi-val" id="empTickets">—</div></div>
+      </div>
+      <div class="dt-kpi-card">
+        <div class="dt-kpi-icon" style="background:rgba(15,122,122,0.12);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0f7a7a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div><div class="dt-kpi-label">Avg Res Time</div><div class="dt-kpi-val" id="empAvgRes">—</div><div class="dt-kpi-sub">hours</div></div>
+      </div>
+      <div class="dt-kpi-card">
+        <div class="dt-kpi-icon" style="background:rgba(31,122,62,0.12);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1f7a3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <div><div class="dt-kpi-label">Total KM Travelled</div><div class="dt-kpi-val" id="empTotalKm">—</div><div class="dt-kpi-sub">km</div></div>
+      </div>
+      <div class="dt-kpi-card">
+        <div class="dt-kpi-icon" style="background:rgba(192,57,43,0.12);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <div><div class="dt-kpi-label">Bad Tickets</div><div class="dt-kpi-val" id="empBadTickets">—</div><div class="dt-kpi-sub">res &gt; 8 hrs</div></div>
+      </div>
+      <div class="dt-kpi-card">
+        <div class="dt-kpi-icon" style="background:rgba(108,63,196,0.12);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6c3fc4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        </div>
+        <div><div class="dt-kpi-label">Avg KM/Ticket</div><div class="dt-kpi-val" id="empAvgKm">—</div><div class="dt-kpi-sub">km per ticket</div></div>
+      </div>
+    </div>
+
+    <!-- Sub-tabs -->
+    <div class="sub-tabs-wrap" style="margin-top:0;">
+      <button class="sub-tab active" onclick="switchEmpSubTab('overview')"><span class="sub-tab-icon">👥</span> Overview</button>
+      <button class="sub-tab" onclick="switchEmpSubTab('tickets')"><span class="sub-tab-icon">🎫</span> Ticket Breakup</button>
+      <button class="sub-tab" onclick="switchEmpSubTab('bad')"><span class="sub-tab-icon">⚠️</span> Bad Tickets</button>
+      <button class="sub-tab" onclick="switchEmpSubTab('km')"><span class="sub-tab-icon">🗺️</span> KM Travelled</button>
+
+    </div>
+
+    <!-- SUB: EMPLOYEE OVERVIEW -->
+    <div class="sub-panel active" id="espanel-overview">
+      <div class="grid2" style="margin-bottom:1.5rem;">
+        <div class="card">
+          <div class="section-title">👷 Employee Performance Ranking</div>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:12px;">Sorted by tickets completed. Click column header to re-sort.</div>
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:36px;">#</th>
+                  <th onclick="toggleEmpSort('emp')" style="cursor:pointer;">Employee <span id="esort-emp"></span></th>
+                  <th onclick="toggleEmpSort('tickets')" style="cursor:pointer;text-align:right;">Tickets <span id="esort-tickets"></span></th>
+                  <th onclick="toggleEmpSort('avgRes')" style="cursor:pointer;text-align:right;">Avg Res Hrs <span id="esort-avgRes"></span></th>
+                  <th onclick="toggleEmpSort('km')" style="cursor:pointer;text-align:right;">KM <span id="esort-km"></span></th>
+                  <th onclick="toggleEmpSort('bad')" style="cursor:pointer;text-align:right;">Bad Tkts <span id="esort-bad"></span></th>
+                  <th style="text-align:right;">Score</th>
+                </tr>
+              </thead>
+              <tbody id="empOverviewBody"><tr><td colspan="7" class="no-data">Load data first</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-title">📊 Tickets per Employee</div>
+          <div id="empTicketsChart"><div class="no-data">Load data first</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUB: TICKET BREAKUP -->
+    <div class="sub-panel" id="espanel-tickets">
+      <div class="card card-mb">
+        <div class="section-title">🎫 Ticket Breakup by Employee</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:12px;">Breakdown of complaint, maintenance and replacement tickets per employee</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Employee</th>
+                <th style="text-align:right;color:var(--purple);">Complaints</th>
+                <th style="text-align:right;color:var(--teal);">Maintenance</th>
+                <th style="text-align:right;color:var(--orange);">Replacement</th>
+                <th style="text-align:right;font-weight:700;">Total</th>
+                <th style="min-width:120px;">Mix</th>
+              </tr>
+            </thead>
+            <tbody id="empBreakupBody"><tr><td colspan="7" class="no-data">Load data first</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUB: BAD TICKETS -->
+    <div class="sub-panel" id="espanel-bad">
+      <div class="card card-mb">
+        <div class="section-title">⚠️ Bad Weather / High-Delay Tickets (Resolution &gt; 8 hrs)</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:8px;">Tickets that took more than 8 hours to resolve — indicates bad conditions, complex issues, or travel delays</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px;">
+          <div style="background:var(--red-light);border-radius:10px;padding:10px 14px;border-bottom:3px solid var(--red);">
+            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Total Bad Tickets</div>
+            <div style="font-size:24px;font-weight:700;color:var(--red);font-family:'DM Mono',monospace;" id="badTicketsTotal">—</div>
+          </div>
+          <div style="background:var(--amber-light);border-radius:10px;padding:10px 14px;border-bottom:3px solid var(--amber);">
+            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Avg Delay (bad)</div>
+            <div style="font-size:24px;font-weight:700;color:var(--amber);font-family:'DM Mono',monospace;" id="badTicketsAvg">—</div>
+          </div>
+          <div style="background:var(--blue-light);border-radius:10px;padding:10px 14px;border-bottom:3px solid var(--blue);">
+            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Worst Employee</div>
+            <div style="font-size:16px;font-weight:700;color:var(--blue);" id="badTicketsWorst">—</div>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Employee</th>
+                <th>Charger Name</th>
+                <th>City</th>
+                <th>RCA / Type</th>
+                <th style="text-align:right">Res Hrs</th>
+                <th>Date</th>
+                <th>Remarks</th>
+              </tr>
+            </thead>
+            <tbody id="badTicketsBody"><tr><td colspan="8" class="no-data">Load data first</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUB: KM TRAVELLED -->
+    <div class="sub-panel" id="espanel-km">
+      <div class="grid2" style="margin-bottom:1.5rem;">
+        <div class="card">
+          <div class="section-title">🗺️ KM Travelled per Employee</div>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:10px;">Total distance covered for ticket resolution</div>
+          <div id="empKmChart"><div class="no-data">Load data first (requires KM column in Sheet 2)</div></div>
+        </div>
+        <div class="card">
+          <div class="section-title">📍 KM per Ticket (Efficiency)</div>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:10px;">Lower = more efficient routing</div>
+          <div id="empKmEffChart"><div class="no-data">Load data first</div></div>
+        </div>
+      </div>
+      <div class="card card-mb">
+        <div class="section-title">📋 KM Travel Detail by Employee</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Employee</th>
+                <th style="text-align:right">Total KM</th>
+                <th style="text-align:right">Tickets</th>
+                <th style="text-align:right">KM / Ticket</th>
+                <th style="text-align:right">Max Single Trip</th>
+                <th>% of Total Travel</th>
+              </tr>
+            </thead>
+            <tbody id="empKmBody"><tr><td colspan="7" class="no-data">Load data first</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+    </div><!-- /mpanel-employee -->
 
 </main>
 
@@ -1132,6 +1434,7 @@ function parseS2(csv){
   const iDmg    =f('damage list','damage');
   const iRca    =f('rca','root cause');
   const iAuxV   =f('aux bat','battery voltage','aux_bat');
+  const iKm     =f('km','distance','travel km','km travel','kms');
   const rows=[];
   for(let i=1;i<lines.length;i++){
     if(!lines[i].trim())continue;
@@ -1146,6 +1449,7 @@ function parseS2(csv){
     else if(act.includes('monthly maintenance')||act.includes('maintenance'))type='maintenance';
     else if(act.includes('replacement'))type='replacement';
     const resRaw=clean(iRes>=0?c[iRes]:'');
+    const kmRaw=clean(iKm>=0?c[iKm]:'');
     rows.push({
       name,city:clean(c[iCity]),zone:clean(c[iZone]),
       closeRaw,date:parseDate(closeRaw),
@@ -1156,6 +1460,7 @@ function parseS2(csv){
       damage:clean(iDmg>=0?c[iDmg]:''),
       rca:   clean(iRca>=0?c[iRca]:''),
       auxV:  clean(iAuxV>=0?c[iAuxV]:''),
+      km:    (kmRaw===''||kmRaw.toLowerCase()==='nan')?null:safeNum(kmRaw),
     });
   }
   return rows;
@@ -1288,7 +1593,7 @@ function fmtDate(s){
 // ══════════════════════════════════════════════════════
 function switchMainTab(name){
   activeMainTab=name;
-  ['downtime','complaint','maintenance','replacement'].forEach(n=>{
+  ['downtime','complaint','maintenance','replacement','employee'].forEach(n=>{
     const btn=document.getElementById('mtab-'+n);
     if(btn)btn.classList.toggle('active',n===name);
   });
@@ -1299,7 +1604,7 @@ function switchMainTab(name){
 function switchSubTab(name){
   activeSubTab=name;
   document.querySelectorAll('.sub-tab').forEach((t,i)=>{
-    const names=['overview','bycharger','byzone','bycity'];
+    const names=['overview','bycharger','byzone','bycity','battery'];
     t.classList.toggle('active',names[i]===name);
   });
   document.querySelectorAll('.sub-panel').forEach(p=>p.classList.remove('active'));
@@ -1311,6 +1616,7 @@ function renderActiveMain(){
   else if(activeMainTab==='complaint')renderComplaint();
   else if(activeMainTab==='maintenance')renderMaintenance();
   else if(activeMainTab==='replacement')renderReplacement();
+  else if(activeMainTab==='employee')renderEmployeeReport();
 }
 function renderActiveSub(){
   if(activeSubTab==='overview')renderOverview();
@@ -1989,7 +2295,7 @@ function switchSubTab2(prefix, name){
   if(sp) sp.classList.add('active');
   // Re-render if complaint
   if(prefix==='c'){renderComplaint();if(name==='bycharger')renderCComplaintList();}
-  else if(prefix==='m'){renderMaintenance();if(name==='bycharger')renderMMaintenanceList();}
+  else if(prefix==='m'){renderMaintenance();if(name==='bycharger')renderMMaintenanceList();if(name==='battery')renderBatteryTab();}
   else if(prefix==='r'){renderReplacement();if(name==='bycharger')renderRReplacementList();}
 }
 
@@ -2953,6 +3259,347 @@ ${slide(5, '📋 Executive Summary', '#1f7a3e', `
       if(btn) btn.style.opacity = '1';
     }, 2000);
   }, 200);
+}
+
+
+// ══════════════════════════════════════════════════════════════
+// EMPLOYEE REPORT MODULE
+// ══════════════════════════════════════════════════════════════
+let empSortCol = 'tickets', empSortAsc = false;
+let activeEmpSubTab = 'overview';
+
+function switchEmpSubTab(name) {
+  activeEmpSubTab = name;
+  const panel = document.getElementById('mpanel-employee');
+  if (!panel) return;
+  panel.querySelectorAll('.sub-tab').forEach((t, i) => {
+    const names = ['overview','tickets','bad','km','battery'];
+    t.classList.toggle('active', names[i] === name);
+  });
+  panel.querySelectorAll('.sub-panel').forEach(p => p.classList.remove('active'));
+  const sp = document.getElementById('espanel-' + name);
+  if (sp) sp.classList.add('active');
+  renderEmployeeReport();
+}
+
+function toggleEmpSort(col) {
+  if (empSortCol === col) empSortAsc = !empSortAsc;
+  else { empSortCol = col; empSortAsc = false; }
+  renderEmployeeReport();
+}
+
+function renderEmployeeReport() {
+  const czMap = buildCityZoneMap();
+  const allT  = enrichTicketZones(filteredTickets, czMap);
+  const T     = allT.filter(t => t.emp && t.emp.trim());
+
+  // ── Build per-employee stats ──────────────────────────────────────
+  const empMap = {};
+  T.forEach(t => {
+    const e = t.emp.trim();
+    if (!empMap[e]) empMap[e] = {
+      emp: e,
+      tickets: 0, complaints: 0, maintenance: 0, replacement: 0,
+      resSum: 0, resCnt: 0,
+      kmSum: 0,  kmCnt: 0, kmMax: 0,
+      bad: 0,    // >8 hrs
+    };
+    const m = empMap[e];
+    m.tickets++;
+    if (t.type === 'complaint')    m.complaints++;
+    if (t.type === 'maintenance')  m.maintenance++;
+    if (t.type === 'replacement')  m.replacement++;
+    if (t.resHrs !== null) { m.resSum += Number(t.resHrs); m.resCnt++; if (Number(t.resHrs) > 8) m.bad++; }
+    if (t.km !== null) { m.kmSum += Number(t.km); m.kmCnt++; m.kmMax = Math.max(m.kmMax, Number(t.km)); }
+  });
+  const empList = Object.values(empMap).map(m => ({
+    ...m,
+    avgRes: m.resCnt ? m.resSum / m.resCnt : null,
+    km: m.kmSum,
+    avgKm: m.kmCnt ? m.kmSum / m.kmCnt : null,
+    // Score: tickets × (1 - bad/tickets) × (avgRes<4?1.2:1)
+    score: Math.round(m.tickets * (1 - m.bad / Math.max(m.tickets, 1)) * (m.resCnt && m.resSum/m.resCnt < 4 ? 1.2 : 1)),
+  }));
+
+  // Global KPIs
+  const totalT = T.length;
+  let rSum = 0, rCnt = 0, kmSum = 0, badCnt = 0;
+  T.forEach(t => {
+    if (t.resHrs !== null) { rSum += Number(t.resHrs); rCnt++; if (Number(t.resHrs) > 8) badCnt++; }
+    if (t.km !== null) kmSum += Number(t.km);
+  });
+  const avgRes = rCnt ? rSum / rCnt : null;
+  const kmWithData = T.filter(t => t.km !== null);
+
+  if (document.getElementById('empTotal'))     document.getElementById('empTotal').textContent = empList.length;
+  if (document.getElementById('empTickets'))   document.getElementById('empTickets').textContent = totalT.toLocaleString();
+  if (document.getElementById('empAvgRes'))    document.getElementById('empAvgRes').textContent = avgRes !== null ? avgRes.toFixed(1) : '—';
+  if (document.getElementById('empTotalKm'))   document.getElementById('empTotalKm').textContent = kmWithData.length ? kmSum.toFixed(0) : '—';
+  if (document.getElementById('empBadTickets'))document.getElementById('empBadTickets').textContent = badCnt;
+  if (document.getElementById('empAvgKm'))     document.getElementById('empAvgKm').textContent = kmWithData.length ? (kmSum / kmWithData.length).toFixed(1) : '—';
+
+  if (activeEmpSubTab === 'overview')   renderEmpOverview(empList, T);
+  if (activeEmpSubTab === 'tickets')    renderEmpTicketBreakup(empList);
+  if (activeEmpSubTab === 'bad')        renderEmpBadTickets(T);
+  if (activeEmpSubTab === 'km')         renderEmpKm(empList, T, kmSum);
+  if (activeEmpSubTab === 'battery')    renderBatteryTab();
+}
+
+// ── OVERVIEW ─────────────────────────────────────────────────
+function renderEmpOverview(empList, T) {
+  // Sort
+  const sorted = [...empList].sort((a, b) => {
+    let va = a[empSortCol] ?? 0, vb = b[empSortCol] ?? 0;
+    if (empSortCol === 'emp') { va = a.emp; vb = b.emp; }
+    if (typeof va === 'string') return empSortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+    return empSortAsc ? va - vb : vb - va;
+  });
+  ['emp','tickets','avgRes','km','bad'].forEach(col => {
+    const el = document.getElementById('esort-'+col);
+    if (el) el.textContent = col === empSortCol ? (empSortAsc ? ' ▲' : ' ▼') : '';
+  });
+
+  const maxTickets = sorted[0]?.tickets || 1;
+  const body = document.getElementById('empOverviewBody');
+  if (body) body.innerHTML = sorted.length ? sorted.map((e, i) => {
+    const scoreColor = e.score >= e.tickets * 0.9 ? 'var(--green)' : e.score >= e.tickets * 0.6 ? 'var(--amber)' : 'var(--red)';
+    const barW = Math.round(e.tickets / maxTickets * 100);
+    const rank = i < 3 ? ['🥇','🥈','🥉'][i] : `<span style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;">${i+1}</span>`;
+    return `<tr>
+      <td style="text-align:center;">${rank}</td>
+      <td style="font-weight:600;">${e.emp}</td>
+      <td style="text-align:right;">
+        <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end;">
+          <div style="width:60px;height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:${barW}%;background:var(--blue);border-radius:3px;"></div>
+          </div>
+          <span style="font-family:'DM Mono',monospace;font-weight:700;">${e.tickets}</span>
+        </div>
+      </td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;color:${e.avgRes!==null&&e.avgRes>8?'var(--red)':e.avgRes!==null&&e.avgRes>4?'var(--amber)':'var(--green)'};">${e.avgRes !== null ? e.avgRes.toFixed(1)+' h' : '—'}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;color:var(--teal);">${e.km > 0 ? e.km.toFixed(0)+' km' : '—'}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;color:${e.bad > 0 ? 'var(--red)' : 'var(--green)'};">${e.bad}</td>
+      <td style="text-align:right;"><span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:${scoreColor};">${e.score}</span></td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="7" class="no-data">No employee data found</td></tr>';
+
+  // Tickets chart
+  const chartData = [...empList].sort((a,b)=>b.tickets-a.tickets).slice(0,15).map(e=>({l:e.emp,v:e.tickets}));
+  renderBar('empTicketsChart', chartData, '', '#1a6ef5');
+}
+
+// ── TICKET BREAKUP ────────────────────────────────────────────
+function renderEmpTicketBreakup(empList) {
+  const sorted = [...empList].sort((a, b) => b.tickets - a.tickets);
+  const body = document.getElementById('empBreakupBody');
+  if (!body) return;
+  body.innerHTML = sorted.length ? sorted.map((e, i) => {
+    const total = e.tickets;
+    const cPct  = total ? Math.round(e.complaints / total * 100) : 0;
+    const mPct  = total ? Math.round(e.maintenance / total * 100) : 0;
+    const rPct  = total ? Math.round(e.replacement / total * 100) : 0;
+    const rank  = i < 3 ? ['🥇','🥈','🥉'][i] : (i+1);
+    const bar   = `<div style="display:flex;height:8px;border-radius:4px;overflow:hidden;width:120px;">
+      <div style="width:${cPct}%;background:#6c3fc4;" title="Complaints: ${e.complaints}"></div>
+      <div style="width:${mPct}%;background:#0f7a7a;" title="Maintenance: ${e.maintenance}"></div>
+      <div style="width:${rPct}%;background:#c05621;" title="Replacement: ${e.replacement}"></div>
+    </div>`;
+    return `<tr>
+      <td style="text-align:center;font-size:12px;">${rank}</td>
+      <td style="font-weight:600;">${e.emp}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;color:var(--purple);">${e.complaints}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;color:var(--teal);">${e.maintenance}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;color:var(--orange);">${e.replacement}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-weight:700;">${total}</td>
+      <td>${bar}</td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="7" class="no-data">No data</td></tr>';
+}
+
+// ── BAD TICKETS ───────────────────────────────────────────────
+function renderEmpBadTickets(T) {
+  const bad = T.filter(t => t.resHrs !== null && Number(t.resHrs) > 8)
+    .sort((a, b) => Number(b.resHrs) - Number(a.resHrs));
+
+  if (document.getElementById('badTicketsTotal')) document.getElementById('badTicketsTotal').textContent = bad.length;
+  const avgBad = bad.length ? bad.reduce((s,t)=>s+Number(t.resHrs),0)/bad.length : null;
+  if (document.getElementById('badTicketsAvg')) document.getElementById('badTicketsAvg').textContent = avgBad!==null?avgBad.toFixed(1)+' h':'—';
+  // Worst employee by bad ticket count
+  const byEmpBad = {};
+  bad.forEach(t=>{const e=t.emp||'?';byEmpBad[e]=(byEmpBad[e]||0)+1;});
+  const worstEmp = Object.entries(byEmpBad).sort((a,b)=>b[1]-a[1])[0];
+  if (document.getElementById('badTicketsWorst')) document.getElementById('badTicketsWorst').textContent = worstEmp ? `${worstEmp[0]} (${worstEmp[1]})` : '—';
+
+  const body = document.getElementById('badTicketsBody');
+  if (!body) return;
+  body.innerHTML = bad.length ? bad.map((t, i) => {
+    const hrs = Number(t.resHrs);
+    const hrsColor = hrs > 24 ? 'var(--red)' : hrs > 12 ? 'var(--amber)' : 'var(--orange)';
+    const rcaS = rcaStyle(t.rca);
+    return `<tr>
+      <td style="color:var(--text3);font-size:11px;">${i+1}</td>
+      <td style="font-weight:600;">${t.emp||'—'}</td>
+      <td style="font-size:12px;">${t.name||'—'}</td>
+      <td style="font-size:12px;color:var(--text2);">${t.city||'—'}</td>
+      <td><span class="badge" style="background:${rcaS.bg};color:${rcaS.text};font-size:10px;">${t.rca||t.type||'—'}</span></td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-weight:700;color:${hrsColor};">${hrs.toFixed(1)} h</td>
+      <td style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;">${t.date?t.date.toLocaleDateString('en-IN'):'—'}</td>
+      <td style="font-size:11px;color:var(--text2);">${t.remarks||'—'}</td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="8" class="no-data">No bad tickets in this period 🎉</td></tr>';
+}
+
+// ── KM TRAVELLED ──────────────────────────────────────────────
+function renderEmpKm(empList, T, totalKm) {
+  const withKm = empList.filter(e => e.km > 0).sort((a, b) => b.km - a.km);
+  const noKm = empList.filter(e => e.km === 0);
+
+  const kmChartData = withKm.slice(0,15).map(e=>({l:e.emp, v:parseFloat(e.km.toFixed(1))}));
+  renderBar('empKmChart', kmChartData, 'km', '#1f7a3e');
+
+  const effData = withKm.filter(e=>e.avgKm!==null).sort((a,b)=>a.avgKm-b.avgKm).slice(0,12).map(e=>({l:e.emp,v:parseFloat(e.avgKm.toFixed(1))}));
+  renderBar('empKmEffChart', effData, 'km/tkt', '#0f7a7a');
+
+  const body = document.getElementById('empKmBody');
+  if (!body) return;
+
+  if (!withKm.length) {
+    body.innerHTML = `<tr><td colspan="7" class="no-data">No KM data found. Add a "KM" or "Distance" column to Sheet 2.</td></tr>`;
+    return;
+  }
+  body.innerHTML = withKm.map((e, i) => {
+    const pct = totalKm > 0 ? (e.km / totalKm * 100).toFixed(1) : 0;
+    const barW = totalKm > 0 ? Math.round(e.km / totalKm * 100) : 0;
+    const rank = i < 3 ? ['🥇','🥈','🥉'][i] : (i+1);
+    return `<tr>
+      <td style="text-align:center;">${rank}</td>
+      <td style="font-weight:600;">${e.emp}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-weight:700;color:var(--green);">${e.km.toFixed(0)} km</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;">${e.tickets}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;color:var(--teal);">${e.avgKm !== null ? e.avgKm.toFixed(1) : '—'}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;color:var(--blue);">${e.kmMax > 0 ? e.kmMax.toFixed(0) : '—'}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div style="flex:1;height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;min-width:60px;">
+            <div style="height:100%;width:${barW}%;background:#1f7a3e;border-radius:3px;"></div>
+          </div>
+          <span style="font-size:11px;font-family:'DM Mono',monospace;color:var(--text3);">${pct}%</span>
+        </div>
+      </td>
+    </tr>`;
+  }).join('') + (noKm.length ? `<tr><td colspan="7" style="padding:10px 12px;font-size:12px;color:var(--text3);">${noKm.length} employee(s) have no KM data recorded: ${noKm.map(e=>e.emp).join(', ')}</td></tr>` : '');
+}
+
+// ── BATTERY HEALTH ────────────────────────────────────────────
+function renderBatteryTab() {
+  const czMap = buildCityZoneMap();
+  const rawMnt = filteredTickets.filter(t => t.type === 'maintenance');
+  const T = enrichTicketZones(rawMnt, czMap);
+
+  const withV = T.filter(t => { const v = parseFloat(t.auxV); return !isNaN(v) && v > 0; })
+    .map(t => ({...t, v: parseFloat(t.auxV)}));
+  const below12  = withV.filter(t => t.v < 12).sort((a,b) => a.v - b.v);
+  const border   = withV.filter(t => t.v >= 12 && t.v < 12.5);
+  const above125 = withV.filter(t => t.v >= 12.5);
+  const above12  = withV.filter(t => t.v >= 12);
+  const noData   = T.filter(t => { const v = parseFloat(t.auxV); return isNaN(v) || v <= 0; });
+  const avgV = withV.length ? withV.reduce((s,t)=>s+t.v,0)/withV.length : null;
+
+  // KPIs
+  ['batAbove12','batBelow12','batNoData','batAvgV','batTotal'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const vals = [above12.length, below12.length, noData.length, avgV!==null?avgV.toFixed(2)+'V':'—', T.length];
+    el.textContent = vals[i];
+  });
+
+  // Visual distribution bars
+  const barsEl = document.getElementById('batVoltBars');
+  if (barsEl) {
+    // Bucket 0.5V steps
+    const buckets = {};
+    withV.forEach(t => {
+      const bucket = Math.floor(t.v * 2) / 2; // round to nearest 0.5
+      const key = bucket.toFixed(1) + ' V';
+      if (!buckets[key]) buckets[key] = {key, v: bucket, cnt: 0, items: []};
+      buckets[key].cnt++;
+      buckets[key].items.push(t);
+    });
+    const bArr = Object.values(buckets).sort((a,b)=>a.v-b.v);
+    const maxCnt = Math.max(...bArr.map(b=>b.cnt), 1);
+    barsEl.innerHTML = bArr.length ? `<div style="display:flex;flex-direction:column;gap:6px;">` +
+      bArr.map(b => {
+        const color = b.v < 12 ? 'var(--red)' : b.v < 12.5 ? 'var(--amber)' : 'var(--green)';
+        const w = Math.round(b.cnt/maxCnt*100);
+        const statusText = b.v < 12 ? '❌ Below 12V' : b.v < 12.5 ? '⚠️ Borderline' : '✅ Healthy';
+        return `<div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:64px;font-size:12px;font-weight:600;font-family:'DM Mono',monospace;color:${color};text-align:right;">${b.key}</div>
+          <div style="flex:1;height:22px;background:var(--surface2);border-radius:5px;overflow:hidden;">
+            <div style="height:100%;width:${w}%;background:${color};border-radius:5px;display:flex;align-items:center;padding-left:8px;">
+              <span style="font-size:11px;font-weight:600;color:#fff;white-space:nowrap;">${b.cnt > 2 ? b.cnt+' chargers' : b.cnt > 0 ? b.cnt : ''}</span>
+            </div>
+          </div>
+          <div style="font-size:11px;font-family:'DM Mono',monospace;min-width:40px;text-align:right;color:${color};font-weight:700;">${b.cnt}</div>
+          <div style="font-size:10px;color:var(--text3);min-width:100px;">${statusText}</div>
+        </div>`;
+      }).join('') + '</div>' : '<div class="no-data">No battery readings found</div>';
+  }
+
+  // Table helpers
+  function batTableRows(list, idPrefix) {
+    const body = document.getElementById(idPrefix);
+    if (!body) return;
+    body.innerHTML = list.length ? list.map((t,i) => {
+      const vColor = t.v < 12 ? 'var(--red)' : t.v < 12.5 ? 'var(--amber)' : 'var(--green)';
+      return `<tr>
+        <td style="color:var(--text3);font-size:11px;">${i+1}</td>
+        <td style="font-weight:500;font-size:12px;">${t.name}</td>
+        <td style="color:var(--text2);font-size:12px;">${t.city||'—'}</td>
+        <td style="color:var(--text2);font-size:12px;">${t.zone||'—'}</td>
+        <td style="text-align:right;font-family:'DM Mono',monospace;font-weight:700;color:${vColor};">${t.v.toFixed(1)} V</td>
+        <td style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;">${t.date?t.date.toLocaleDateString('en-IN'):'—'}</td>
+      </tr>`;
+    }).join('') : `<tr><td colspan="6" class="no-data">None</td></tr>`;
+  }
+  batTableRows(below12, 'batBelow12Body');
+  batTableRows(above12, 'batAbove12Body');
+
+  // Populate zone filter
+  const batZoneSel = document.getElementById('batZoneFilter');
+  if (batZoneSel && batZoneSel.options.length <= 1) {
+    const zones = [...new Set(withV.map(t=>t.zone||'').filter(Boolean))].sort();
+    zones.forEach(z=>{ const o=document.createElement('option'); o.value=z; o.textContent=z; batZoneSel.appendChild(o); });
+  }
+  // Full list with filter
+  const q      = (document.getElementById('batSearch')||{}).value?.toLowerCase()||'';
+  const filter = (document.getElementById('batFilter')||{}).value||'all';
+  const zoneF  = (document.getElementById('batZoneFilter')||{}).value||'';
+  let filtered = withV;
+  if (q)              filtered = filtered.filter(t => t.name.toLowerCase().includes(q) || (t.city||'').toLowerCase().includes(q));
+  if (filter==='below12')  filtered = filtered.filter(t=>t.v < 12);
+  if (filter==='above12')  filtered = filtered.filter(t=>t.v >= 12);
+  if (filter==='border')   filtered = filtered.filter(t=>t.v >= 12 && t.v < 12.5);
+  if (zoneF)               filtered = filtered.filter(t=>t.zone===zoneF);
+  filtered.sort((a,b)=>a.v-b.v); // sort by voltage asc (worst first)
+  const batCountEl = document.getElementById('batCount');
+  if (batCountEl) batCountEl.textContent = filtered.length + ' records';
+
+  const allBody = document.getElementById('batAllBody');
+  if (allBody) allBody.innerHTML = filtered.length ? filtered.map((t,i) => {
+    const vColor = t.v < 12 ? 'var(--red)' : t.v < 12.5 ? 'var(--amber)' : 'var(--green)';
+    const status = t.v < 12 ? '❌ Weak' : t.v < 12.5 ? '⚠️ Borderline' : '✅ OK';
+    const statusBg = t.v < 12 ? 'var(--red-light)' : t.v < 12.5 ? 'var(--amber-light)' : 'var(--green-light)';
+    return `<tr>
+      <td style="color:var(--text3);font-size:11px;">${i+1}</td>
+      <td style="font-weight:500;font-size:12px;">${t.name}</td>
+      <td style="color:var(--text2);font-size:12px;">${t.city||'—'}</td>
+      <td style="color:var(--text2);font-size:12px;">${t.zone||'—'}</td>
+      <td style="font-size:12px;color:var(--text2);">${t.emp||'—'}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:${vColor};">${t.v.toFixed(2)} V</td>
+      <td><span style="background:${statusBg};color:${vColor};font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px;">${status}</span></td>
+      <td style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;">${t.date?t.date.toLocaleDateString('en-IN'):'—'}</td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="8" class="no-data">No readings match filter</td></tr>';
 }
 
 // ══════════════════════════════════════════════════════
