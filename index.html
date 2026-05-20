@@ -709,7 +709,6 @@
       <button class="sub-tab" onclick="switchSubTab2('m','bycharger')"><span class="sub-tab-icon">🔌</span> By Charger</button>
       <button class="sub-tab" onclick="switchSubTab2('m','byzone')"><span class="sub-tab-icon">📍</span> By Zone</button>
       <button class="sub-tab" onclick="switchSubTab2('m','bycity')"><span class="sub-tab-icon">🌆</span> By City</button>
-      <button class="sub-tab" onclick="switchSubTab2('m','battery')"><span class="sub-tab-icon">🔋</span> Battery Health</button>
     </div>
     <div class="sub-panel active" id="mspanel-overview">
       <div class="grid2">
@@ -777,117 +776,6 @@
         <tbody id="mntCityBody"><tr><td colspan="7" class="no-data">Load Sheet 2 first</td></tr></tbody></table></div>
       </div>
     </div>
-    <!-- ═══ MAINTENANCE SUB: BATTERY HEALTH ═══ -->
-    <div class="sub-panel" id="mspanel-battery">
-
-      <!-- KPI cards -->
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:1.5rem;">
-        <div class="metric" style="--metric-color:var(--green)">
-          <div class="metric-label">Above 12V (OK)</div>
-          <div class="metric-val" id="batAbove12">—</div>
-          <div class="metric-sub">batteries</div>
-        </div>
-        <div class="metric" style="--metric-color:var(--red)">
-          <div class="metric-label">Below 12V (Weak)</div>
-          <div class="metric-val" id="batBelow12">—</div>
-          <div class="metric-sub">batteries</div>
-        </div>
-        <div class="metric" style="--metric-color:var(--amber)">
-          <div class="metric-label">Not Recorded</div>
-          <div class="metric-val" id="batNoData">—</div>
-          <div class="metric-sub">no reading</div>
-        </div>
-        <div class="metric" style="--metric-color:var(--blue)">
-          <div class="metric-label">Avg Voltage</div>
-          <div class="metric-val" id="batAvgV">—</div>
-          <div class="metric-sub">volts</div>
-        </div>
-        <div class="metric" style="--metric-color:var(--teal)">
-          <div class="metric-label">Total Checked</div>
-          <div class="metric-val" id="batTotal">—</div>
-          <div class="metric-sub">maintenance visits</div>
-        </div>
-      </div>
-
-      <!-- Voltage distribution bar chart -->
-      <div class="card card-mb">
-        <div class="section-title">🔋 Aux Battery Voltage — Full Distribution</div>
-        <div style="font-size:12px;color:var(--text3);margin-bottom:14px;">
-          All maintenance visits with aux battery readings. &nbsp;
-          <span style="color:var(--red);font-weight:600;">Red = below 12V (needs attention)</span> ·
-          <span style="color:var(--amber);font-weight:600;">Amber = 12–12.4V (borderline)</span> ·
-          <span style="color:var(--green);font-weight:600;">Green = 12.5V+ (healthy)</span>
-        </div>
-        <div id="batVoltBars"><div class="no-data">Load maintenance data first</div></div>
-      </div>
-
-      <!-- Below / Above split tables -->
-      <div class="grid2" style="margin-bottom:1.5rem;">
-        <div class="card">
-          <div class="section-title" style="color:var(--red);">⚠️ Below 12V — Needs Attention</div>
-          <div style="font-size:12px;color:var(--text3);margin-bottom:10px;">All chargers with aux battery below 12V</div>
-          <div class="tbl-wrap">
-            <table>
-              <thead><tr><th>#</th><th>Charger Name</th><th>City</th><th>Zone</th><th style="text-align:right">Aux V</th><th>Date</th></tr></thead>
-              <tbody id="batBelow12Body"><tr><td colspan="6" class="no-data">Load data first</td></tr></tbody>
-            </table>
-          </div>
-        </div>
-        <div class="card">
-          <div class="section-title" style="color:var(--green);">✅ Above 12V — Healthy</div>
-          <div style="font-size:12px;color:var(--text3);margin-bottom:10px;">All chargers with aux battery above 12V</div>
-          <div class="tbl-wrap">
-            <table>
-              <thead><tr><th>#</th><th>Charger Name</th><th>City</th><th>Zone</th><th style="text-align:right">Aux V</th><th>Date</th></tr></thead>
-              <tbody id="batAbove12Body"><tr><td colspan="6" class="no-data">Load data first</td></tr></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- Full battery reading list with search/filter -->
-      <div class="card card-mb">
-        <div class="section-title">📋 Complete Battery Reading List — All Maintenance Visits</div>
-        <div style="font-size:12px;color:var(--text3);margin-bottom:10px;">Every maintenance visit with an aux battery reading recorded</div>
-        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
-          <input type="text" id="batSearch"
-            placeholder="🔍 Search charger or city…"
-            oninput="renderBatteryTab()"
-            style="flex:1;min-width:180px;max-width:280px;font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:8px;background:var(--surface2);color:var(--text);outline:none;" />
-          <select id="batFilter" onchange="renderBatteryTab()"
-            style="font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:8px;background:var(--surface2);color:var(--text);outline:none;">
-            <option value="all">All readings</option>
-            <option value="below12">Below 12V only</option>
-            <option value="above12">Above 12V only</option>
-            <option value="border">Borderline (12–12.4V)</option>
-          </select>
-          <select id="batZoneFilter" onchange="renderBatteryTab()"
-            style="font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:8px;background:var(--surface2);color:var(--text);outline:none;">
-            <option value="">All Zones</option>
-          </select>
-          <span id="batCount" style="font-size:12px;color:var(--text3);align-self:center;white-space:nowrap;"></span>
-        </div>
-        <div class="tbl-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Charger Name</th>
-                <th>City</th>
-                <th>Zone</th>
-                <th>Technician</th>
-                <th style="text-align:right">Aux V</th>
-                <th>Status</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody id="batAllBody"><tr><td colspan="8" class="no-data">Load data first</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-
-    </div><!-- /mspanel-battery -->
-
   </div><!-- /mpanel-maintenance -->
 
   <!-- ═══════════════════════════════════════════════ -->
@@ -1024,11 +912,15 @@
       <button class="sub-tab" onclick="switchEmpSubTab('tickets')"><span class="sub-tab-icon">🎫</span> Ticket Breakup</button>
       <button class="sub-tab" onclick="switchEmpSubTab('bad')"><span class="sub-tab-icon">⚠️</span> Bad Tickets</button>
       <button class="sub-tab" onclick="switchEmpSubTab('km')"><span class="sub-tab-icon">🗺️</span> KM Travelled</button>
-
+      <button class="sub-tab" onclick="switchEmpSubTab('battery')"><span class="sub-tab-icon">🔋</span> Battery Health</button>
     </div>
 
     <!-- SUB: EMPLOYEE OVERVIEW -->
     <div class="sub-panel active" id="espanel-overview">
+
+      <!-- Scoring formula legend (populated by JS) -->
+      <div id="empScoreLegend" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 16px;margin-bottom:1rem;box-shadow:var(--shadow);"></div>
+
       <div class="grid2" style="margin-bottom:1.5rem;">
         <div class="card">
           <div class="section-title">👷 Employee Performance Ranking</div>
@@ -1043,7 +935,7 @@
                   <th onclick="toggleEmpSort('avgRes')" style="cursor:pointer;text-align:right;">Avg Res Hrs <span id="esort-avgRes"></span></th>
                   <th onclick="toggleEmpSort('km')" style="cursor:pointer;text-align:right;">KM <span id="esort-km"></span></th>
                   <th onclick="toggleEmpSort('bad')" style="cursor:pointer;text-align:right;">Bad Tkts <span id="esort-bad"></span></th>
-                  <th style="text-align:right;">Score</th>
+                  <th style="text-align:right;" title="Shift-based points: 1h=25pts → >8h=1pt. Night-gap bonus +15pts.">Score (pts) 🌙</th>
                 </tr>
               </thead>
               <tbody id="empOverviewBody"><tr><td colspan="7" class="no-data">Load data first</td></tr></tbody>
@@ -1155,8 +1047,103 @@
       </div>
     </div>
 
+    <!-- SUB: BATTERY HEALTH -->
+    <div class="sub-panel" id="espanel-battery">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:1.5rem;">
+        <div class="metric" style="--metric-color:var(--green)">
+          <div class="metric-label">✅ Exactly 12V (Healthy)</div>
+          <div class="metric-val" id="batAbove12">—</div>
+          <div class="metric-sub">11.9 – 12.1V range</div>
+        </div>
+        <div class="metric" style="--metric-color:var(--red)">
+          <div class="metric-label">❌ Below 12V (Weak)</div>
+          <div class="metric-val" id="batBelow12">—</div>
+          <div class="metric-sub">discharged / needs charge</div>
+        </div>
+        <div class="metric" style="--metric-color:var(--amber)">
+          <div class="metric-label">⚠️ Above 12V (Overcharged)</div>
+          <div class="metric-val" id="batNoData">—</div>
+          <div class="metric-sub">unhealthy — too high</div>
+        </div>
+        <div class="metric" style="--metric-color:var(--blue)">
+          <div class="metric-label">Avg Voltage</div>
+          <div class="metric-val" id="batAvgV">—</div>
+          <div class="metric-sub">volts</div>
+        </div>
+        <div class="metric" style="--metric-color:var(--teal)">
+          <div class="metric-label">Total Checked</div>
+          <div class="metric-val" id="batTotal">—</div>
+          <div class="metric-sub">maintenance visits</div>
+        </div>
+      </div>
 
-    </div><!-- /mpanel-employee -->
+      <!-- Visual voltage distribution bar -->
+      <div class="card card-mb">
+        <div class="section-title">🔋 Aux Battery Voltage — Full Distribution</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:14px;">
+          All maintenance visits with aux battery readings. <span style="color:var(--red);font-weight:600;">🔴 Red = below 12V (discharged)</span> · <span style="color:var(--green);font-weight:600;">🟢 Green = exactly 12V (healthy ✓)</span> · <span style="color:var(--amber);font-weight:600;">🟡 Amber = above 12V (overcharged)</span>
+        </div>
+        <div id="batVoltBars"><div class="no-data">Load maintenance data first</div></div>
+      </div>
+
+      <!-- Two tables side by side -->
+      <div class="grid2">
+        <div class="card">
+          <div class="section-title" style="color:var(--red);">⚠️ Below 12V — Needs Attention</div>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:10px;">All chargers with aux battery below 12V</div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Charger Name</th><th>City</th><th>Zone</th><th style="text-align:right">Aux V</th><th>Date</th></tr></thead>
+              <tbody id="batBelow12Body"><tr><td colspan="6" class="no-data">Load data first</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-title" style="color:var(--green);">✅ Above 12V — Healthy</div>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:10px;">All chargers with aux battery above 12V</div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Charger Name</th><th>City</th><th>Zone</th><th style="text-align:right">Aux V</th><th>Date</th></tr></thead>
+              <tbody id="batAbove12Body"><tr><td colspan="6" class="no-data">Load data first</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- All batteries not working (all readings listed) -->
+      <div class="card card-mb" style="margin-top:1.5rem;">
+        <div class="section-title">📋 Complete Battery Reading List — All Maintenance Visits</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:10px;">Every maintenance visit with an aux battery reading recorded</div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+          <input type="text" id="batSearch" placeholder="Search charger or city…" oninput="renderBatteryTab()" style="flex:1;min-width:180px;max-width:280px;font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:8px;background:var(--surface2);color:var(--text);outline:none;" />
+          <select id="batFilter" onchange="renderBatteryTab()" style="font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:8px;background:var(--surface2);color:var(--text);outline:none;">
+            <option value="all">All readings</option>
+            <option value="healthy">Exactly 12V (Healthy) only</option>
+            <option value="below12">Below 12V (Discharged) only</option>
+            <option value="above12">Above 12V (Overcharged) only</option>
+          </select>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Charger Name</th>
+                <th>City</th>
+                <th>Zone</th>
+                <th>Technician</th>
+                <th style="text-align:right">Aux V</th>
+                <th>Status</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="batAllBody"><tr><td colspan="8" class="no-data">Load data first</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /mpanel-employee -->
 
 </main>
 
@@ -1434,7 +1421,7 @@ function parseS2(csv){
   const iDmg    =f('damage list','damage');
   const iRca    =f('rca','root cause');
   const iAuxV   =f('aux bat','battery voltage','aux_bat');
-  const iKm     =f('km','distance','travel km','km travel','kms');
+  const iKm     =f('km','kms','distance','travel km','km travel','km travelled','km travel');
   const rows=[];
   for(let i=1;i<lines.length;i++){
     if(!lines[i].trim())continue;
@@ -1604,7 +1591,7 @@ function switchMainTab(name){
 function switchSubTab(name){
   activeSubTab=name;
   document.querySelectorAll('.sub-tab').forEach((t,i)=>{
-    const names=['overview','bycharger','byzone','bycity','battery'];
+    const names=['overview','bycharger','byzone','bycity'];
     t.classList.toggle('active',names[i]===name);
   });
   document.querySelectorAll('.sub-panel').forEach(p=>p.classList.remove('active'));
@@ -2295,7 +2282,7 @@ function switchSubTab2(prefix, name){
   if(sp) sp.classList.add('active');
   // Re-render if complaint
   if(prefix==='c'){renderComplaint();if(name==='bycharger')renderCComplaintList();}
-  else if(prefix==='m'){renderMaintenance();if(name==='bycharger')renderMMaintenanceList();if(name==='battery')renderBatteryTab();}
+  else if(prefix==='m'){renderMaintenance();if(name==='bycharger')renderMMaintenanceList();}
   else if(prefix==='r'){renderReplacement();if(name==='bycharger')renderRReplacementList();}
 }
 
@@ -3262,6 +3249,69 @@ ${slide(5, '📋 Executive Summary', '#1f7a3e', `
 }
 
 
+
+// ══════════════════════════════════════════════════════════════════════
+// EMPLOYEE SCORING SYSTEM
+// Shift: 8:00 AM – 8:00 PM
+// Points by resolution hours: lower hrs = more points
+// Night-gap bonus: closed after shift, restarted next day in shift
+// ══════════════════════════════════════════════════════════════════════
+const SHIFT_START = 8;  // 8 AM
+const SHIFT_END   = 20; // 8 PM
+
+function isInShift(date) {
+  if (!date) return false;
+  const h = date.getHours() + date.getMinutes()/60;
+  return h >= SHIFT_START && h <= SHIFT_END;
+}
+
+function resHrsToPoints(hrs) {
+  // Lower hours = more points (efficient resolution)
+  if (hrs === null || hrs === undefined) return 5; // no data = neutral
+  if (hrs <= 1)  return 25;
+  if (hrs <= 2)  return 20;
+  if (hrs <= 3)  return 17;
+  if (hrs <= 4)  return 14;
+  if (hrs <= 5)  return 11;
+  if (hrs <= 6)  return 8;
+  if (hrs <= 7)  return 5;
+  if (hrs <= 8)  return 3;
+  return 1; // > 8 hrs = bad ticket
+}
+
+function calcTicketPoints(ticket) {
+  // Base points from resolution time
+  let pts = resHrsToPoints(ticket.resHrs !== null ? Number(ticket.resHrs) : null);
+
+  // Night-gap bonus detection:
+  // closeRaw is the "Ticket close time" — if close is after 8PM AND
+  // the re-open next day is in shift (i.e., resHrs span includes overnight)
+  // We detect this by: close after 8PM & resHrs > 0 but actual work was in-shift
+  // Approximation: if ticket.resHrs > 8 but the close time is 8AM–8PM next day
+  // → treat as shift-carried-over (not employee's fault for overnight gap)
+  const closeDate = ticket.date; // date is parsed from ticket close time
+  if (closeDate && isInShift(closeDate) && ticket.resHrs !== null && Number(ticket.resHrs) > 8) {
+    // Close time is in-shift but resolution was long → likely overnight gap
+    // Check if the gap includes non-shift hours (night time)
+    const hrs = Number(ticket.resHrs);
+    // Estimate actual work hours: subtract the non-shift gap (8PM to 8AM = 12 hrs)
+    // If total hrs > 12, it definitely spanned overnight
+    if (hrs > 12) {
+      // Give them benefit of doubt — recalculate with shift-hours only
+      const shiftHrs = hrs - 12; // subtract one overnight gap
+      pts = resHrsToPoints(shiftHrs);
+      pts += 15; // night-gap bonus
+    }
+  }
+
+  return pts;
+}
+
+function calcEmpScore(empStats) {
+  // empStats has: tickets, resSum, resCnt, bad, shiftTickets, nightGapCount, pointsTotal
+  return empStats.pointsTotal || 0;
+}
+
 // ══════════════════════════════════════════════════════════════
 // EMPLOYEE REPORT MODULE
 // ══════════════════════════════════════════════════════════════
@@ -3302,23 +3352,34 @@ function renderEmployeeReport() {
       tickets: 0, complaints: 0, maintenance: 0, replacement: 0,
       resSum: 0, resCnt: 0,
       kmSum: 0,  kmCnt: 0, kmMax: 0,
-      bad: 0,    // >8 hrs
+      bad: 0,         // resolution > 8 hrs
+      nightGaps: 0,   // tickets with overnight gap bonus
+      pointsTotal: 0, // shift-based score
     };
     const m = empMap[e];
     m.tickets++;
-    if (t.type === 'complaint')    m.complaints++;
-    if (t.type === 'maintenance')  m.maintenance++;
-    if (t.type === 'replacement')  m.replacement++;
-    if (t.resHrs !== null) { m.resSum += Number(t.resHrs); m.resCnt++; if (Number(t.resHrs) > 8) m.bad++; }
+    if (t.type === 'complaint')   m.complaints++;
+    if (t.type === 'maintenance') m.maintenance++;
+    if (t.type === 'replacement') m.replacement++;
+    if (t.resHrs !== null) {
+      const hrs = Number(t.resHrs);
+      m.resSum += hrs; m.resCnt++;
+      if (hrs > 8) m.bad++;
+    }
     if (t.km !== null) { m.kmSum += Number(t.km); m.kmCnt++; m.kmMax = Math.max(m.kmMax, Number(t.km)); }
+    // Shift-based points
+    const pts = calcTicketPoints(t);
+    m.pointsTotal += pts;
+    // Count night-gap bonuses
+    const closeDate = t.date;
+    if (closeDate && isInShift(closeDate) && t.resHrs !== null && Number(t.resHrs) > 12) m.nightGaps++;
   });
   const empList = Object.values(empMap).map(m => ({
     ...m,
     avgRes: m.resCnt ? m.resSum / m.resCnt : null,
     km: m.kmSum,
     avgKm: m.kmCnt ? m.kmSum / m.kmCnt : null,
-    // Score: tickets × (1 - bad/tickets) × (avgRes<4?1.2:1)
-    score: Math.round(m.tickets * (1 - m.bad / Math.max(m.tickets, 1)) * (m.resCnt && m.resSum/m.resCnt < 4 ? 1.2 : 1)),
+    score: Math.round(m.pointsTotal), // shift-based score
   }));
 
   // Global KPIs
@@ -3379,13 +3440,33 @@ function renderEmpOverview(empList, T) {
       <td style="text-align:right;font-family:'DM Mono',monospace;color:${e.avgRes!==null&&e.avgRes>8?'var(--red)':e.avgRes!==null&&e.avgRes>4?'var(--amber)':'var(--green)'};">${e.avgRes !== null ? e.avgRes.toFixed(1)+' h' : '—'}</td>
       <td style="text-align:right;font-family:'DM Mono',monospace;color:var(--teal);">${e.km > 0 ? e.km.toFixed(0)+' km' : '—'}</td>
       <td style="text-align:right;font-family:'DM Mono',monospace;color:${e.bad > 0 ? 'var(--red)' : 'var(--green)'};">${e.bad}</td>
-      <td style="text-align:right;"><span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:${scoreColor};">${e.score}</span></td>
+      <td style="text-align:right;">
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
+          <span style="font-family:'DM Mono',monospace;font-size:14px;font-weight:800;color:${scoreColor};" title="Score = sum of shift-based points per ticket
+1h=25pts, 2h=20pts, 3h=17pts, 4h=14pts, 5h=11pts, 6h=8pts, 7h=5pts, 8h=3pts, >8h=1pt
+Night-gap bonus: +15pts per overnight ticket">${e.score} pts</span>
+          ${e.nightGaps>0?`<span style="font-size:10px;color:var(--blue);font-weight:600;">🌙 ${e.nightGaps} night bonus</span>`:''}
+        </div>
+      </td>
     </tr>`;
   }).join('') : '<tr><td colspan="7" class="no-data">No employee data found</td></tr>';
 
   // Tickets chart
   const chartData = [...empList].sort((a,b)=>b.tickets-a.tickets).slice(0,15).map(e=>({l:e.emp,v:e.tickets}));
   renderBar('empTicketsChart', chartData, '', '#1a6ef5');
+
+  // Scoring legend
+  const legendEl = document.getElementById('empScoreLegend');
+  if (legendEl) legendEl.innerHTML = `
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+      <span style="font-size:12px;font-weight:600;color:var(--text2);">📊 Score Formula:</span>
+      ${[[1,'25'],[2,'20'],[3,'17'],[4,'14'],[5,'11'],[6,'8'],[7,'5'],[8,'3']].map(([h,p])=>
+        `<span style="font-size:11px;font-family:'DM Mono',monospace;background:var(--surface2);border:1px solid var(--border);padding:3px 8px;border-radius:6px;color:var(--text2);">${h}h = <strong style="color:var(--green)">${p}pts</strong></span>`
+      ).join('')}
+      <span style="font-size:11px;font-family:'DM Mono',monospace;background:var(--surface2);border:1px solid var(--border);padding:3px 8px;border-radius:6px;color:var(--text2);">&gt;8h = <strong style="color:var(--red)">1pt</strong></span>
+      <span style="font-size:11px;background:var(--blue-light);border:1px solid var(--blue);padding:3px 8px;border-radius:6px;color:var(--blue);font-weight:600;">🌙 Night gap bonus: +15pts</span>
+      <span style="font-size:11px;color:var(--text3);">(Shift: 8AM–8PM only)</span>
+    </div>`;
 }
 
 // ── TICKET BREAKUP ────────────────────────────────────────────
@@ -3498,20 +3579,37 @@ function renderBatteryTab() {
 
   const withV = T.filter(t => { const v = parseFloat(t.auxV); return !isNaN(v) && v > 0; })
     .map(t => ({...t, v: parseFloat(t.auxV)}));
-  const below12  = withV.filter(t => t.v < 12).sort((a,b) => a.v - b.v);
-  const border   = withV.filter(t => t.v >= 12 && t.v < 12.5);
-  const above125 = withV.filter(t => t.v >= 12.5);
-  const above12  = withV.filter(t => t.v >= 12);
-  const noData   = T.filter(t => { const v = parseFloat(t.auxV); return isNaN(v) || v <= 0; });
-  const avgV = withV.length ? withV.reduce((s,t)=>s+t.v,0)/withV.length : null;
 
-  // KPIs
-  ['batAbove12','batBelow12','batNoData','batAvgV','batTotal'].forEach((id, i) => {
+  // ── NEW RULE: Only EXACTLY 12V (±0.1V tolerance) is HEALTHY ──
+  // Below 12V = weak (discharged)
+  // Above 12V = overcharged / not working correctly
+  // 11.9–12.1V = healthy (exact 12V ± rounding)
+  function batStatus(v) {
+    if (v < 11.9)  return 'below';    // weak / discharged
+    if (v <= 12.1) return 'healthy';  // exactly 12V ✓
+    return 'above';                    // overcharged / unhealthy
+  }
+
+  const healthy   = withV.filter(t => batStatus(t.v) === 'healthy').sort((a,b) => a.v - b.v);
+  const below12   = withV.filter(t => batStatus(t.v) === 'below').sort((a,b) => a.v - b.v);
+  const above12   = withV.filter(t => batStatus(t.v) === 'above').sort((a,b) => b.v - a.v);
+  const unhealthy = [...below12, ...above12]; // both are unhealthy
+  const noData    = T.filter(t => { const v = parseFloat(t.auxV); return isNaN(v) || v <= 0; });
+  const avgV      = withV.length ? withV.reduce((s,t)=>s+t.v,0)/withV.length : null;
+
+  // KPI labels updated: healthy / below12 / above12 / avg / total
+  const batIds = ['batHealthy','batBelow12','batAbove12Unhealthy','batAvgV','batTotal'];
+  const batVals = [healthy.length, below12.length, above12.length, avgV!==null?avgV.toFixed(2)+'V':'—', T.length];
+  batIds.forEach((id, i) => {
     const el = document.getElementById(id);
-    if (!el) return;
-    const vals = [above12.length, below12.length, noData.length, avgV!==null?avgV.toFixed(2)+'V':'—', T.length];
-    el.textContent = vals[i];
+    if (el) el.textContent = batVals[i];
   });
+  // Populate KPI cards: batAbove12=healthy, batBelow12=below, batNoData=above/overcharged
+  const el1 = document.getElementById('batAbove12'); if(el1) el1.textContent = healthy.length;
+  const el2 = document.getElementById('batBelow12'); if(el2) el2.textContent = below12.length;
+  const el3 = document.getElementById('batNoData');  if(el3) el3.textContent = above12.length; // above12 = overcharged
+  const el4 = document.getElementById('batAvgV');    if(el4) el4.textContent = avgV!==null?avgV.toFixed(2)+'V':'—';
+  const el5 = document.getElementById('batTotal');   if(el5) el5.textContent = T.length;
 
   // Visual distribution bars
   const barsEl = document.getElementById('batVoltBars');
@@ -3529,9 +3627,11 @@ function renderBatteryTab() {
     const maxCnt = Math.max(...bArr.map(b=>b.cnt), 1);
     barsEl.innerHTML = bArr.length ? `<div style="display:flex;flex-direction:column;gap:6px;">` +
       bArr.map(b => {
-        const color = b.v < 12 ? 'var(--red)' : b.v < 12.5 ? 'var(--amber)' : 'var(--green)';
+        // Only 11.9–12.1V is healthy; below = red, above = amber (overcharged)
+        const st = batStatus(b.v);
+        const color = st==='healthy' ? 'var(--green)' : st==='below' ? 'var(--red)' : 'var(--amber)';
         const w = Math.round(b.cnt/maxCnt*100);
-        const statusText = b.v < 12 ? '❌ Below 12V' : b.v < 12.5 ? '⚠️ Borderline' : '✅ Healthy';
+        const statusText = st==='healthy' ? '✅ Healthy (12V)' : st==='below' ? '❌ Below 12V' : '⚠️ Above 12V (overcharged)';
         return `<div style="display:flex;align-items:center;gap:10px;">
           <div style="width:64px;font-size:12px;font-weight:600;font-family:'DM Mono',monospace;color:${color};text-align:right;">${b.key}</div>
           <div style="flex:1;height:22px;background:var(--surface2);border-radius:5px;overflow:hidden;">
@@ -3550,7 +3650,8 @@ function renderBatteryTab() {
     const body = document.getElementById(idPrefix);
     if (!body) return;
     body.innerHTML = list.length ? list.map((t,i) => {
-      const vColor = t.v < 12 ? 'var(--red)' : t.v < 12.5 ? 'var(--amber)' : 'var(--green)';
+      const bst2 = batStatus(t.v);
+      const vColor = bst2==='healthy'?'var(--green)':bst2==='below'?'var(--red)':'var(--amber)';
       return `<tr>
         <td style="color:var(--text3);font-size:11px;">${i+1}</td>
         <td style="font-weight:500;font-size:12px;">${t.name}</td>
@@ -3561,34 +3662,32 @@ function renderBatteryTab() {
       </tr>`;
     }).join('') : `<tr><td colspan="6" class="no-data">None</td></tr>`;
   }
+  // Below 12V table
   batTableRows(below12, 'batBelow12Body');
+  // Above 12V table (now shows OVERCHARGED = unhealthy above 12V)
   batTableRows(above12, 'batAbove12Body');
+  // Healthy = exactly 12V — update heading text dynamically
+  const h1 = document.querySelector('#mspanel-battery .section-title[style*="--red"]');
+  const h2 = document.querySelector('#mspanel-battery .section-title[style*="--green"]');
+  if (h1) h1.textContent = '⚠️ Below 12V — Discharged (' + below12.length + ')';
+  if (h2) h2.innerHTML = '⚠️ Above 12V — Overcharged (' + above12.length + ')&nbsp;&nbsp;<span style="font-size:11px;font-weight:400;color:var(--text3);">✅ Healthy (12V) = ' + healthy.length + '</span>';
 
-  // Populate zone filter
-  const batZoneSel = document.getElementById('batZoneFilter');
-  if (batZoneSel && batZoneSel.options.length <= 1) {
-    const zones = [...new Set(withV.map(t=>t.zone||'').filter(Boolean))].sort();
-    zones.forEach(z=>{ const o=document.createElement('option'); o.value=z; o.textContent=z; batZoneSel.appendChild(o); });
-  }
   // Full list with filter
   const q      = (document.getElementById('batSearch')||{}).value?.toLowerCase()||'';
   const filter = (document.getElementById('batFilter')||{}).value||'all';
-  const zoneF  = (document.getElementById('batZoneFilter')||{}).value||'';
   let filtered = withV;
   if (q)              filtered = filtered.filter(t => t.name.toLowerCase().includes(q) || (t.city||'').toLowerCase().includes(q));
-  if (filter==='below12')  filtered = filtered.filter(t=>t.v < 12);
-  if (filter==='above12')  filtered = filtered.filter(t=>t.v >= 12);
-  if (filter==='border')   filtered = filtered.filter(t=>t.v >= 12 && t.v < 12.5);
-  if (zoneF)               filtered = filtered.filter(t=>t.zone===zoneF);
+  if (filter==='healthy')  filtered = filtered.filter(t=>batStatus(t.v)==='healthy');
+  if (filter==='below12')  filtered = filtered.filter(t=>batStatus(t.v)==='below');
+  if (filter==='above12')  filtered = filtered.filter(t=>batStatus(t.v)==='above');
   filtered.sort((a,b)=>a.v-b.v); // sort by voltage asc (worst first)
-  const batCountEl = document.getElementById('batCount');
-  if (batCountEl) batCountEl.textContent = filtered.length + ' records';
 
   const allBody = document.getElementById('batAllBody');
   if (allBody) allBody.innerHTML = filtered.length ? filtered.map((t,i) => {
-    const vColor = t.v < 12 ? 'var(--red)' : t.v < 12.5 ? 'var(--amber)' : 'var(--green)';
-    const status = t.v < 12 ? '❌ Weak' : t.v < 12.5 ? '⚠️ Borderline' : '✅ OK';
-    const statusBg = t.v < 12 ? 'var(--red-light)' : t.v < 12.5 ? 'var(--amber-light)' : 'var(--green-light)';
+    const bst = batStatus(t.v);
+    const vColor   = bst==='healthy'?'var(--green)':bst==='below'?'var(--red)':'var(--amber)';
+    const status   = bst==='healthy'?'✅ 12V OK':bst==='below'?'❌ Below 12V':'⚠️ Overcharged';
+    const statusBg = bst==='healthy'?'var(--green-light)':bst==='below'?'var(--red-light)':'var(--amber-light)';
     return `<tr>
       <td style="color:var(--text3);font-size:11px;">${i+1}</td>
       <td style="font-weight:500;font-size:12px;">${t.name}</td>
