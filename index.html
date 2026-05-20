@@ -330,11 +330,12 @@
   </div>
 
   <!-- ═══ COLUMN MAPPER ═══ -->
+  <!-- ═══ SHEET 1 COLUMN MAPPER ═══ -->
   <div id="colMapperWrap" class="hidden" style="margin-bottom:1.5rem;">
     <div style="background:var(--surface);border:2px solid var(--blue);border-radius:var(--radius-lg);padding:1.5rem;box-shadow:var(--shadow);">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:12px;flex-wrap:wrap;">
         <div>
-          <div style="font-size:15px;font-weight:700;color:var(--text);">🗂️ Column Mapper — Verify your sheet columns</div>
+          <div style="font-size:15px;font-weight:700;color:var(--text);">🗂️ Sheet 1 — Column Mapper (Charger Downtime)</div>
           <div style="font-size:12px;color:var(--text3);margin-top:3px;">Auto-detected columns are shown. Fix any that are wrong, then click Apply.</div>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
@@ -343,6 +344,23 @@
         </div>
       </div>
       <div id="colMapperBody"></div>
+    </div>
+  </div>
+
+  <!-- ═══ SHEET 2 COLUMN MAPPER ═══ -->
+  <div id="colMapper2Wrap" class="hidden" style="margin-bottom:1.5rem;">
+    <div style="background:var(--surface);border:2px solid var(--purple, #6c3fc4);border-radius:var(--radius-lg);padding:1.5rem;box-shadow:var(--shadow);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:12px;flex-wrap:wrap;">
+        <div>
+          <div style="font-size:15px;font-weight:700;color:var(--text);">🗂️ Sheet 2 — Column Mapper (Complaints / Maintenance / Replacement)</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:3px;">Auto-detected columns are shown. Fix any that are wrong, then click Apply.</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button onclick="applyColumnMap2()" style="font-size:13px;font-weight:600;padding:8px 18px;border-radius:9px;border:1px solid #4c2daa;background:#6c3fc4;color:#fff;cursor:pointer;">✅ Apply &amp; Re-parse</button>
+          <button onclick="document.getElementById('colMapper2Wrap').classList.add('hidden')" style="font-size:13px;padding:8px 14px;border-radius:9px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);cursor:pointer;">✕ Dismiss</button>
+        </div>
+      </div>
+      <div id="colMapper2Body"></div>
     </div>
   </div>
 
@@ -1332,6 +1350,105 @@ function applyColumnMap() {
 }
 
 // ══════════════════════════════════════════════════════
+// SHEET 2 COLUMN MAPPER — same pattern as Sheet 1
+// ══════════════════════════════════════════════════════
+let colMap2 = {};      // { name, city, zone, close, res, emp, remarks, act, dmg, rca, auxV, km }
+let rawCSV2 = '';      // stored raw Sheet 2 CSV for re-parse
+
+const COL_FIELDS_2 = [
+  { key:'name',    label:'Charger Name / Site', hint:'Human-readable charger name e.g. Modi Mall, P5 Motors' },
+  { key:'city',    label:'City',                hint:'City where charger is located' },
+  { key:'zone',    label:'Zone',                hint:'Zone: North, South, East, West, Central' },
+  { key:'act',     label:'Activity / Type',     hint:'Daily Complaint / Monthly Maintenance / Replacement' },
+  { key:'rca',     label:'RCA (Root Cause)',     hint:'Reason for complaint / failure' },
+  { key:'emp',     label:'Employee Name',        hint:'Technician who attended the ticket' },
+  { key:'close',   label:'Ticket Close Time',    hint:'Date/time ticket was closed' },
+  { key:'res',     label:'Resolution Hours',     hint:'Time taken to resolve in hours (numeric)' },
+  { key:'km',      label:'KM Travelled',         hint:'Distance travelled by employee for this ticket' },
+  { key:'dmg',     label:'Damage List',          hint:'Parts damaged / replaced' },
+  { key:'auxV',    label:'Aux Battery Voltage',  hint:'Aux battery reading in volts (e.g. 12.0, 11.5)' },
+  { key:'remarks', label:'Remarks / Notes',      hint:'Any additional notes about the ticket' },
+];
+
+function autoDetectCols2(headers) {
+  const H = headers.map(h => h.toLowerCase());
+  const f = (...keys) => H.findIndex(h => keys.some(k => h.includes(k.toLowerCase())));
+  return {
+    name:    f('charger name','site name','charger_name'),
+    city:    f('city'),
+    zone:    f('zone'),
+    act:     f('activite','activity','type','activit'),
+    rca:     f('rca','root cause'),
+    emp:     f('emp name','employee','technician','emp'),
+    close:   f('ticket close','close time','ticket_close','close date','date'),
+    res:     f('resolution hrs','res hrs','resolution','res_hrs'),
+    km:      f('km','kms','distance','travel km','km travel','km travelled'),
+    dmg:     f('damage list','damage','part','damaged'),
+    auxV:    f('aux bat','battery voltage','aux_bat','aux battery'),
+    remarks: f('remrks','remarks','notes','remark'),
+  };
+}
+
+function showColumnMapper2(headers, sampleRows) {
+  const detected = autoDetectCols2(headers);
+  const saved2 = JSON.parse(localStorage.getItem('cdash_colmap2') || '{}');
+  colMap2 = { ...detected, ...saved2 };
+
+  const NONE = '<option value="-1">— Not in sheet —</option>';
+  const opts = headers.map((h, i) => `<option value="${i}">${i}: ${h}</option>`).join('');
+
+  const rows = COL_FIELDS_2.map(f => {
+    const sel = `<select id="cm2_${f.key}" style="font-size:12px;padding:4px 8px;border:1px solid var(--border2);border-radius:6px;background:var(--surface2);color:var(--text);font-family:'DM Mono',monospace;min-width:200px;">
+      ${NONE}${opts}
+    </select>`;
+    return `<tr>
+      <td style="padding:7px 10px;font-size:13px;font-weight:500;white-space:nowrap;">${f.label}</td>
+      <td style="padding:7px 10px;">${sel}</td>
+      <td style="padding:7px 10px;font-size:11px;color:var(--text3);">${f.hint}</td>
+    </tr>`;
+  }).join('');
+
+  const previewHtml = `<div style="overflow-x:auto;margin-top:8px;">
+    <table style="font-size:11px;border-collapse:collapse;font-family:'DM Mono',monospace;">
+      <tr>${headers.map((h, i) => `<th style="padding:4px 8px;border:1px solid var(--border);background:var(--surface2);color:var(--text3);white-space:nowrap;">${i}: ${h}</th>`).join('')}</tr>
+      ${sampleRows.slice(0, 3).map(r => `<tr>${r.map(c => `<td style="padding:4px 8px;border:1px solid var(--border);white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis;">${c}</td>`).join('')}</tr>`).join('')}
+    </table>
+  </div>`;
+
+  document.getElementById('colMapper2Body').innerHTML = `
+    <table style="width:100%;border-collapse:collapse;">${rows}</table>
+    <div style="margin-top:14px;">
+      <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">📊 Your Sheet 2 — First 3 Rows (column index shown)</div>
+      ${previewHtml}
+    </div>`;
+
+  // Set dropdowns to detected/saved values
+  COL_FIELDS_2.forEach(f => {
+    const sel = document.getElementById('cm2_' + f.key);
+    if (!sel) return;
+    sel.value = String(colMap2[f.key] !== undefined ? colMap2[f.key] : -1);
+  });
+
+  document.getElementById('colMapper2Wrap').classList.remove('hidden');
+}
+
+function applyColumnMap2() {
+  COL_FIELDS_2.forEach(f => {
+    const sel = document.getElementById('cm2_' + f.key);
+    if (sel) colMap2[f.key] = parseInt(sel.value);
+  });
+  localStorage.setItem('cdash_colmap2', JSON.stringify(colMap2));
+  document.getElementById('colMapper2Wrap').classList.add('hidden');
+  if (rawCSV2) {
+    const parsed = parseS2withMap(rawCSV2);
+    allTickets = parsed;
+    filteredTickets = [...allTickets];
+    setPill(2, 'ok', allTickets.length + ' tickets loaded ✓');
+    renderAll();
+  }
+}
+
+// ══════════════════════════════════════════════════════
 // SHEET 1 PARSER — uses colMap set by user or auto-detect
 // ══════════════════════════════════════════════════════
 function parseS1(csv){
@@ -1401,53 +1518,79 @@ function parseS1withMap(csv) {
   }
   return rows;
 }
+// ══════════════════════════════════════════════════════
+// SHEET 2 PARSER — uses colMap2 (user-verified column mapping)
+// ══════════════════════════════════════════════════════
+function parseS2(csv) {
+  rawCSV2 = csv;
+  const lines2 = csv.trim().split(/\r?\n/);
+  if (lines2.length < 2) return [];
+  const headers2 = splitCSVLine(lines2[0]).map(h => clean(h));
+  const sampleRows2 = [];
+  for (let i = 1; i < Math.min(4, lines2.length); i++)
+    sampleRows2.push(splitCSVLine(lines2[i]).map(clean));
 
-// ══════════════════════════════════════════════════════
-// SHEET 2 PARSER
-// ══════════════════════════════════════════════════════
-function parseS2(csv){
-  const lines=csv.trim().split(/\r?\n/);
-  if(lines.length<2)return[];
-  const H=lines[0].split(',').map(h=>clean(h).toLowerCase());
-  const f=(...keys)=>H.findIndex(h=>keys.some(k=>h.includes(k.toLowerCase())));
-  const iName   =f('charger name','site name');
-  const iCity   =f('city');
-  const iZone   =f('zone');
-  const iClose  =f('ticket close','close time','date');
-  const iRes    =f('resolution hrs','res hrs');
-  const iEmp    =f('emp name','employee','technician');
-  const iRemarks=f('remrks','remarks','notes');
-  const iAct    =f('activite','activity','type');
-  const iDmg    =f('damage list','damage');
-  const iRca    =f('rca','root cause');
-  const iAuxV   =f('aux bat','battery voltage','aux_bat');
-  const iKm     =f('km','kms','distance','travel km','km travel','km travelled','km travel');
-  const rows=[];
-  for(let i=1;i<lines.length;i++){
-    if(!lines[i].trim())continue;
-    const c=splitCSVLine(lines[i]);
-    const name=clean(c[iName]);
-    if(!name)continue;
-    const closeRaw=clean(iClose>=0?c[iClose]:'');
-    const actRaw=clean(iAct>=0?c[iAct]:'');
-    const act=actRaw.toLowerCase();
-    let type='other';
-    if(act.includes('daily complaint')||act.includes('complaint'))type='complaint';
-    else if(act.includes('monthly maintenance')||act.includes('maintenance'))type='maintenance';
-    else if(act.includes('replacement'))type='replacement';
-    const resRaw=clean(iRes>=0?c[iRes]:'');
-    const kmRaw=clean(iKm>=0?c[iKm]:'');
+  // Auto-detect + merge with any saved user mapping
+  const saved2 = JSON.parse(localStorage.getItem('cdash_colmap2') || '{}');
+  const detected2 = autoDetectCols2(headers2);
+  colMap2 = { ...detected2, ...saved2 };
+
+  // Show mapper so user can verify
+  showColumnMapper2(headers2, sampleRows2);
+
+  return parseS2withMap(csv);
+}
+
+function parseS2withMap(csv) {
+  const lines2 = csv.trim().split(/\r?\n/);
+  if (lines2.length < 2) return [];
+
+  const iName    = colMap2.name    ?? -1;
+  const iCity    = colMap2.city    ?? -1;
+  const iZone    = colMap2.zone    ?? -1;
+  const iClose   = colMap2.close   ?? -1;
+  const iRes     = colMap2.res     ?? -1;
+  const iEmp     = colMap2.emp     ?? -1;
+  const iRemarks = colMap2.remarks ?? -1;
+  const iAct     = colMap2.act     ?? -1;
+  const iDmg     = colMap2.dmg     ?? -1;
+  const iRca     = colMap2.rca     ?? -1;
+  const iAuxV    = colMap2.auxV    ?? -1;
+  const iKm      = colMap2.km      ?? -1;
+
+  const rows = [];
+  for (let i = 1; i < lines2.length; i++) {
+    if (!lines2[i].trim()) continue;
+    const c = splitCSVLine(lines2[i]);
+    const name = iName >= 0 ? clean(c[iName]) : '';
+    if (!name) continue;
+
+    const closeRaw = iClose >= 0 ? clean(c[iClose]) : '';
+    const actRaw   = iAct   >= 0 ? clean(c[iAct])   : '';
+    const act      = actRaw.toLowerCase();
+    let type = 'other';
+    if (act.includes('daily complaint') || act.includes('complaint')) type = 'complaint';
+    else if (act.includes('monthly maintenance') || act.includes('maintenance')) type = 'maintenance';
+    else if (act.includes('replacement')) type = 'replacement';
+
+    const resRaw = iRes >= 0 ? clean(c[iRes]) : '';
+    const kmRaw  = iKm  >= 0 ? clean(c[iKm])  : '';
+
     rows.push({
-      name,city:clean(c[iCity]),zone:clean(c[iZone]),
-      closeRaw,date:parseDate(closeRaw),
-      resHrs:(resRaw===''||resRaw.toLowerCase()==='nan')?null:safeNum(resRaw),
-      emp:   clean(iEmp>=0?c[iEmp]:''),
-      remarks:clean(iRemarks>=0?c[iRemarks]:''),
-      activity:actRaw,type,
-      damage:clean(iDmg>=0?c[iDmg]:''),
-      rca:   clean(iRca>=0?c[iRca]:''),
-      auxV:  clean(iAuxV>=0?c[iAuxV]:''),
-      km:    (kmRaw===''||kmRaw.toLowerCase()==='nan')?null:safeNum(kmRaw),
+      name,
+      city:    iCity    >= 0 ? clean(c[iCity])    : '',
+      zone:    iZone    >= 0 ? clean(c[iZone])    : '',
+      closeRaw,
+      date:    parseDate(closeRaw),
+      resHrs:  (resRaw === '' || resRaw.toLowerCase() === 'nan') ? null : safeNum(resRaw),
+      emp:     iEmp     >= 0 ? clean(c[iEmp])     : '',
+      remarks: iRemarks >= 0 ? clean(c[iRemarks]) : '',
+      activity: actRaw,
+      type,
+      damage:  iDmg  >= 0 ? clean(c[iDmg])  : '',
+      rca:     iRca  >= 0 ? clean(c[iRca])  : '',
+      auxV:    iAuxV >= 0 ? clean(c[iAuxV]) : '',
+      km:      (kmRaw === '' || kmRaw.toLowerCase() === 'nan') ? null : safeNum(kmRaw),
     });
   }
   return rows;
