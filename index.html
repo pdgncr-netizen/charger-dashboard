@@ -241,11 +241,6 @@
     .dt-kpi-sub { font-size: 10px; color: var(--text3); margin-top: 2px; }
 
     /* ── Charger list table ── */
-    /* ── Date preset buttons ── */
-    .date-preset-btn { font-size:11px;font-weight:500;padding:4px 10px;border-radius:99px;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);cursor:pointer;transition:all 0.12s;white-space:nowrap; }
-    .date-preset-btn:hover { border-color:var(--blue);color:var(--blue);background:var(--blue-light); }
-    .date-preset-btn.active { background:var(--blue);color:#fff;border-color:var(--blue-dark); }
-
     #chargerListTable tbody tr:hover td { background: var(--blue-light) !important; }
     #chargerListTable tbody tr.selected td { background: var(--blue-light); }
     #chargerListTable th { cursor: default; }
@@ -289,51 +284,10 @@
       <span id="headerDateLabel" style="font-size:12px;font-weight:500;color:var(--text2);">Select date range</span>
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="color:var(--text3);"><polyline points="6 9 12 15 18 9"/></svg>
     </div>
-    <!-- Export button with dropdown -->
-    <div style="position:relative;">
-      <div id="exportBtn" onclick="toggleExportMenu()" style="display:flex;align-items:center;gap:6px;background:var(--blue);border:1px solid var(--blue-dark);border-radius:9px;padding:7px 16px;cursor:pointer;font-size:12px;font-weight:600;color:#fff;transition:background 0.15s;" onmouseover="this.style.background='var(--blue-dark)'" onmouseout="this.style.background='var(--blue)'">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Export
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-      </div>
-      <!-- Export dropdown menu -->
-      <div id="exportDropdown" class="hidden" style="position:absolute;top:calc(100% + 6px);right:0;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-lg);box-shadow:0 8px 32px rgba(0,0,0,0.2);padding:14px;min-width:280px;z-index:500;">
-        <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:12px;letter-spacing:0.03em;">📤 Export Options</div>
-
-        <!-- Activity filter -->
-        <div style="margin-bottom:10px;">
-          <label style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px;">Activity / Type</label>
-          <select id="exportActivitySel" style="width:100%;font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;">
-            <option value="all">All Activities</option>
-            <option value="downtime">Charger Downtime only</option>
-            <option value="complaint">Daily Complaints only</option>
-            <option value="maintenance">Monthly Maintenance only</option>
-            <option value="replacement">Replacement only</option>
-          </select>
-        </div>
-
-        <!-- Zone filter -->
-        <div style="margin-bottom:10px;">
-          <label style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px;">Zone</label>
-          <select id="exportZoneSel" style="width:100%;font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;">
-            <option value="">All Zones</option>
-          </select>
-        </div>
-
-        <!-- Format -->
-        <div style="margin-bottom:14px;">
-          <label style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px;">Format</label>
-          <div style="display:flex;gap:6px;">
-            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="radio" name="exportFmt" value="html" checked style="accent-color:var(--blue);"> HTML Report</label>
-            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="radio" name="exportFmt" value="csv"> CSV Data</label>
-          </div>
-        </div>
-
-        <div style="display:flex;gap:8px;">
-          <button onclick="doExport()" style="flex:1;font-size:12px;font-weight:600;padding:8px 14px;border-radius:var(--radius);border:1px solid var(--blue-dark);background:var(--blue);color:#fff;cursor:pointer;">⬇ Download</button>
-          <button onclick="toggleExportMenu()" style="font-size:12px;padding:8px 10px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--surface2);color:var(--text);cursor:pointer;">Cancel</button>
-        </div>
-      </div>
+    <!-- Export button -->
+    <div id="exportBtn" onclick="exportPresentation()" style="display:flex;align-items:center;gap:6px;background:var(--blue);border:1px solid var(--blue-dark);border-radius:9px;padding:7px 16px;cursor:pointer;font-size:12px;font-weight:600;color:#fff;transition:background 0.15s;" onmouseover="this.style.background='var(--blue-dark)'" onmouseout="this.style.background='var(--blue)'">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export
     </div>
     <!-- Night Mode -->
     <div class="night-toggle" onclick="toggleNightMode()">
@@ -346,64 +300,17 @@
 
 <main class="main">
 
-  <!-- ═══ FILTER DRAWER ═══ -->
-  <div id="filterDrawer" class="hidden" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.1rem 1.5rem;margin-bottom:1rem;box-shadow:var(--shadow);">
-
-    <!-- Row 1: Date range + quick presets -->
-    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
-      <label style="font-size:12px;font-weight:600;color:var(--text2);white-space:nowrap;">📅 Date Range</label>
-      <input type="date" id="dateFrom" onchange="applyFilter()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;cursor:pointer;" />
-      <span style="font-size:13px;color:var(--text3);">→</span>
-      <input type="date" id="dateTo" onchange="applyFilter()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;cursor:pointer;" />
-      <button onclick="clearFilter()" style="font-size:12px;color:var(--text3);background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:6px;">✕ Clear</button>
-      <span class="filter-active-badge hidden" id="filterBadge">Filtered</span>
-
-      <!-- Quick date preset pills -->
-      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-left:4px;">
-        <button onclick="setDatePreset('today')" id="preset-today" class="date-preset-btn">Today</button>
-        <button onclick="setDatePreset('yesterday')" id="preset-yesterday" class="date-preset-btn">Yesterday</button>
-        <button onclick="setDatePreset('last7')" id="preset-last7" class="date-preset-btn">Last 7 Days</button>
-        <button onclick="setDatePreset('last30')" id="preset-last30" class="date-preset-btn">Last 30 Days</button>
-        <button onclick="setDatePreset('thismonth')" id="preset-thismonth" class="date-preset-btn">This Month</button>
-        <button onclick="setDatePreset('lastmonth')" id="preset-lastmonth" class="date-preset-btn">Last Month</button>
-        <button onclick="setDatePreset('all')" id="preset-all" class="date-preset-btn">All Time</button>
-      </div>
-
-      <span style="font-size:12px;color:var(--text3);margin-left:auto;" id="filterCount"></span>
-    </div>
-
-    <!-- Row 2: Additional filters (Zone, Activity, City) -->
-    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--border);">
-      <label style="font-size:12px;font-weight:600;color:var(--text2);">🔽 Filter by</label>
-
-      <!-- Zone filter -->
-      <select id="globalZoneFilter" onchange="applyFilter()" style="font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;cursor:pointer;min-width:130px;">
-        <option value="">All Zones</option>
-      </select>
-
-      <!-- City filter -->
-      <select id="globalCityFilter" onchange="applyFilter()" style="font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;cursor:pointer;min-width:130px;">
-        <option value="">All Cities</option>
-      </select>
-
-      <!-- Activity / Type filter (Sheet 2 data) -->
-      <select id="globalActivityFilter" onchange="applyFilter()" style="font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;cursor:pointer;min-width:170px;">
-        <option value="">All Activities</option>
-        <option value="complaint">Daily Complaints</option>
-        <option value="maintenance">Monthly Maintenance</option>
-        <option value="replacement">Replacement</option>
-      </select>
-
-      <!-- RCA filter (Sheet 1 downtime RCA) -->
-      <select id="globalRcaFilter" onchange="applyFilter()" style="font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;cursor:pointer;min-width:160px;">
-        <option value="">All RCAs</option>
-      </select>
-
-      <button onclick="clearAllFilters()" style="font-size:12px;font-weight:600;color:var(--red);background:var(--red-light);border:1px solid rgba(192,57,43,0.2);padding:5px 12px;border-radius:var(--radius);cursor:pointer;">✕ Reset All</button>
-    </div>
-
-    <!-- Row 3: Sheet config -->
-    <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding-top:10px;border-top:1px solid var(--border);margin-top:8px;">
+  <!-- ═══ DATE FILTER DRAWER ═══ -->
+  <div id="filterDrawer" class="hidden" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.5rem;margin-bottom:1rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap;box-shadow:var(--shadow);">
+    <label style="font-size:13px;font-weight:500;color:var(--text2);">📅 Date range</label>
+    <input type="date" id="dateFrom" onchange="applyFilter()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;cursor:pointer;" />
+    <span style="font-size:13px;color:var(--text3);">→</span>
+    <input type="date" id="dateTo" onchange="applyFilter()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;cursor:pointer;" />
+    <button onclick="clearFilter()" style="font-size:12px;color:var(--text3);background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:6px;">✕ Clear</button>
+    <span class="filter-active-badge hidden" id="filterBadge">Filtered</span>
+    <span style="font-size:12px;color:var(--text3);margin-left:auto;" id="filterCount"></span>
+    <!-- Config inline -->
+    <div style="width:100%;border-top:1px solid var(--border);padding-top:10px;margin-top:4px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
       <input type="text" id="sheetUrl" placeholder="Sheet 1 CSV URL (Downtime)" style="flex:1;min-width:200px;font-size:12px;font-family:'DM Mono',monospace;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;" />
       <input type="text" id="sheet2Url" placeholder="Sheet 2 CSV URL (Complaints/Maintenance)" style="flex:1;min-width:200px;font-size:12px;font-family:'DM Mono',monospace;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;" />
       <input type="text" id="proxyUrl" placeholder="Cloudflare Proxy URL" style="flex:1;min-width:160px;font-size:12px;font-family:'DM Mono',monospace;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;" />
@@ -1762,8 +1669,6 @@ async function loadAll(){
       setPill(2,'ok',allTickets.length+' tickets ✓');
     }catch(e){setPill(2,'err','Sheet 2: '+e.message);}
   }
-  populateGlobalFilters();
-  populateExportZoneFilter();
   document.getElementById('howto').classList.add('hidden');
   document.getElementById('lastUpdated').textContent='Updated '+new Date().toLocaleTimeString();
   document.getElementById('filterCount').textContent=allRows.length+' events · '+allTickets.length+' tickets';
@@ -1773,128 +1678,27 @@ async function loadAll(){
 // ══════════════════════════════════════════════════════
 // FILTER
 // ══════════════════════════════════════════════════════
-// ── Populate global filter dropdowns from loaded data ──
-function populateGlobalFilters(){
-  const czMap = buildCityZoneMap();
-  const zones = [...new Set([
-    ...allRows.map(r=>r.zone||''),
-    ...allTickets.map(t=>t.zone||czMap[(t.city||'').trim()]||'')
-  ].filter(Boolean))].sort();
-  const cities = [...new Set([
-    ...allRows.map(r=>r.city||''),
-    ...allTickets.map(t=>t.city||'')
-  ].filter(Boolean))].sort();
-  const rcas = [...new Set(allRows.map(r=>r.rca||'').filter(Boolean))].sort();
-  const populate = (id, arr) => {
-    const sel = document.getElementById(id); if(!sel) return;
-    const cur = sel.value;
-    while(sel.options.length > 1) sel.remove(1);
-    arr.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;sel.appendChild(o);});
-    sel.value = cur;
-  };
-  populate('globalZoneFilter', zones);
-  populate('globalCityFilter', cities);
-  populate('globalRcaFilter', rcas);
-}
-
-// ── Quick date presets ──
-let activePreset = '';
-function setDatePreset(preset){
-  const now = new Date();
-  let from = new Date(), to = new Date();
-  if(preset==='today'){ /* defaults ok */ }
-  else if(preset==='yesterday'){ from.setDate(from.getDate()-1); to.setDate(to.getDate()-1); }
-  else if(preset==='last7'){ from.setDate(from.getDate()-6); }
-  else if(preset==='last30'){ from.setDate(from.getDate()-29); }
-  else if(preset==='thismonth'){ from = new Date(now.getFullYear(),now.getMonth(),1); }
-  else if(preset==='lastmonth'){ from=new Date(now.getFullYear(),now.getMonth()-1,1); to=new Date(now.getFullYear(),now.getMonth(),0); }
-  else if(preset==='all'){
-    document.getElementById('dateFrom').value=''; document.getElementById('dateTo').value='';
-    activePreset='all'; updatePresetBtns(); applyFilter(); return;
-  }
-  const fmt=d=>d.toISOString().slice(0,10);
-  document.getElementById('dateFrom').value=fmt(from);
-  document.getElementById('dateTo').value=fmt(to);
-  activePreset=preset; updatePresetBtns(); applyFilter();
-}
-function updatePresetBtns(){
-  ['today','yesterday','last7','last30','thismonth','lastmonth','all'].forEach(p=>{
-    const btn=document.getElementById('preset-'+p);
-    if(btn) btn.classList.toggle('active', p===activePreset);
-  });
-}
-
 function applyFilter(){
-  const from = document.getElementById('dateFrom').value;
-  const to   = document.getElementById('dateTo').value;
-  const zoneF = (document.getElementById('globalZoneFilter')||{value:''}).value||'';
-  const cityF = (document.getElementById('globalCityFilter')||{value:''}).value||'';
-  const actF  = (document.getElementById('globalActivityFilter')||{value:''}).value||'';
-  const rcaF  = (document.getElementById('globalRcaFilter')||{value:''}).value||'';
-  const fromD = from?new Date(from):null;
-  const toD   = to?new Date(to+'T23:59:59'):null;
-  const czMap = buildCityZoneMap();
-
-  const passDate = r => {
-    if(!fromD&&!toD) return true;
-    if(!r.date) return true;
-    if(fromD&&r.date<fromD) return false;
-    if(toD&&r.date>toD) return false;
-    return true;
-  };
-
-  filteredRows = allRows.filter(r=>{
-    if(!passDate(r)) return false;
-    if(zoneF && (r.zone||'')!==zoneF) return false;
-    if(cityF && (r.city||'')!==cityF) return false;
-    if(rcaF  && (r.rca||'')!==rcaF)  return false;
-    return true;
+  const from=document.getElementById('dateFrom').value;
+  const to=document.getElementById('dateTo').value;
+  const fromD=from?new Date(from):null;
+  const toD=to?new Date(to+'T23:59:59'):null;
+  filteredRows=allRows.filter(r=>{
+    if(!fromD&&!toD)return true;if(!r.date)return true;
+    if(fromD&&r.date<fromD)return false;if(toD&&r.date>toD)return false;return true;
   });
-  filteredTickets = allTickets.filter(t=>{
-    if(!passDate(t)) return false;
-    const tZone = t.zone||czMap[(t.city||'').trim()]||'';
-    if(zoneF && tZone!==zoneF) return false;
-    if(cityF && (t.city||'')!==cityF) return false;
-    if(actF  && t.type!==actF) return false;
-    return true;
+  filteredTickets=allTickets.filter(t=>{
+    if(!fromD&&!toD)return true;if(!t.date)return true;
+    if(fromD&&t.date<fromD)return false;if(toD&&t.date>toD)return false;return true;
   });
-
-  const anyActive = from||to||zoneF||cityF||actF||rcaF;
-  const badge = document.getElementById('filterBadge');
-  if(badge){
-    badge.classList.toggle('hidden',!anyActive);
-    if(anyActive){
-      const parts=[];
-      if(from||to) parts.push('Date');
-      if(zoneF) parts.push(zoneF);
-      if(cityF) parts.push(cityF);
-      if(actF)  parts.push(actF==='complaint'?'Complaints':actF==='maintenance'?'Maintenance':'Replacement');
-      if(rcaF)  parts.push('RCA');
-      badge.textContent = parts.join(' · ');
-    }
-  }
-  if(typeof updateHeaderDateLabel==='function') updateHeaderDateLabel();
-  const countEl = document.getElementById('filterCount');
-  if(countEl) countEl.textContent = filteredRows.length+' events · '+filteredTickets.length+' tickets'+(anyActive?' (filtered)':'');
+  document.getElementById('filterBadge').classList.toggle('hidden',!from&&!to);
+  document.getElementById('filterCount').textContent=filteredRows.length+' events · '+filteredTickets.length+' tickets';
   renderAll();
 }
-
 function clearFilter(){
-  document.getElementById('dateFrom').value=''; document.getElementById('dateTo').value='';
-  activePreset=''; updatePresetBtns();
+  document.getElementById('dateFrom').value='';document.getElementById('dateTo').value='';
   document.getElementById('filterBadge').classList.add('hidden');
-  filteredRows=[...allRows]; filteredTickets=[...allTickets];
-  if(typeof updateHeaderDateLabel==='function') updateHeaderDateLabel();
-  document.getElementById('filterCount').textContent=allRows.length+' events · '+allTickets.length+' tickets';
-  renderAll();
-}
-function clearAllFilters(){
-  ['dateFrom','dateTo'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  ['globalZoneFilter','globalCityFilter','globalActivityFilter','globalRcaFilter'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  activePreset=''; updatePresetBtns();
-  document.getElementById('filterBadge').classList.add('hidden');
-  filteredRows=[...allRows]; filteredTickets=[...allTickets];
-  if(typeof updateHeaderDateLabel==='function') updateHeaderDateLabel();
+  filteredRows=[...allRows];filteredTickets=[...allTickets];
   document.getElementById('filterCount').textContent=allRows.length+' events · '+allTickets.length+' tickets';
   renderAll();
 }
@@ -3294,108 +3098,9 @@ function closeKpiPopup() {
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeKpiPopup(); });
 
 // ══════════════════════════════════════════════════════════════
-// EXPORT FUNCTIONS
-// ══════════════════════════════════════════════════════════════
-function toggleExportMenu(){
-  const dd = document.getElementById('exportDropdown');
-  if(!dd) return;
-  const isHidden = dd.classList.contains('hidden');
-  dd.classList.toggle('hidden', !isHidden);
-  if(isHidden) populateExportZoneFilter();
-}
-// Close dropdown if user clicks outside
-document.addEventListener('click', e=>{
-  const dd = document.getElementById('exportDropdown');
-  const btn = document.getElementById('exportBtn');
-  if(dd && !dd.classList.contains('hidden') && !dd.contains(e.target) && btn && !btn.contains(e.target)){
-    dd.classList.add('hidden');
-  }
-});
-function populateExportZoneFilter(){
-  const sel = document.getElementById('exportZoneSel'); if(!sel) return;
-  const czMap = buildCityZoneMap();
-  const zones = [...new Set([
-    ...filteredRows.map(r=>r.zone||''),
-    ...filteredTickets.map(t=>t.zone||czMap[(t.city||'').trim()]||'')
-  ].filter(Boolean))].sort();
-  while(sel.options.length > 1) sel.remove(1);
-  zones.forEach(z=>{const o=document.createElement('option');o.value=z;o.textContent=z;sel.appendChild(o);});
-}
-function doExport(){
-  const fmt   = document.querySelector('input[name="exportFmt"]:checked')?.value || 'html';
-  const actSel= (document.getElementById('exportActivitySel')||{}).value||'all';
-  const zoneSel=(document.getElementById('exportZoneSel')||{}).value||'';
-  document.getElementById('exportDropdown').classList.add('hidden');
-
-  const czMap = buildCityZoneMap();
-  // Filter data for export
-  let exportRows = filteredRows.filter(r=>{
-    if(actSel!=='all' && actSel!=='downtime') return false;
-    if(zoneSel && (r.zone||'')!==zoneSel) return false;
-    return true;
-  });
-  let exportTickets = filteredTickets.filter(t=>{
-    if(actSel==='downtime') return false;
-    if(actSel!=='all' && t.type!==actSel) return false;
-    const tZone=t.zone||czMap[(t.city||'').trim()]||'';
-    if(zoneSel && tZone!==zoneSel) return false;
-    return true;
-  });
-
-  if(fmt==='csv'){
-    exportCSV(exportRows, exportTickets, actSel, zoneSel);
-  } else {
-    exportPresentation(exportRows, exportTickets, actSel, zoneSel);
-  }
-}
-
-function exportCSV(exportRows, exportTickets, actSel, zoneSel){
-  const toast=document.getElementById('exportToast');
-  const toastTitle=document.getElementById('exportToastTitle');
-  const toastSub=document.getElementById('exportToastSub');
-  if(toast){toast.style.display='block'; toastTitle.textContent='Exporting CSV…'; toastSub.textContent='Building data file';}
-
-  let csv='';
-  const actLabel = actSel==='all'?'All':actSel==='downtime'?'Downtime':actSel==='complaint'?'Complaints':actSel==='maintenance'?'Maintenance':'Replacement';
-  const zoneLabel = zoneSel||'All Zones';
-
-  if(actSel==='all'||actSel==='downtime'){
-    csv += '# CHARGER DOWNTIME — '+actLabel+' | '+zoneLabel+'
-';
-    csv += 'Charger ID,Charger Name,Zone,City,RCA,Downtime Start,Downtime End,Hours
-';
-    exportRows.forEach(r=>{
-      csv += [r.charger,r.site,r.zone,r.city,r.rca,r.start,r.end,r.hours].map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(',')+'
-';
-    });
-    csv += '
-';
-  }
-  if(actSel!=='downtime'){
-    csv += '# TICKETS — '+actLabel+' | '+zoneLabel+'
-';
-    csv += 'Charger Name,City,Zone,Activity,RCA,Employee,Close Date,Res Hrs,KM,Damage,Aux V,Remarks
-';
-    exportTickets.forEach(t=>{
-      csv += [t.name,t.city,t.zone,t.activity,t.rca,t.emp,t.closeRaw,t.resHrs,t.km,t.damage,t.auxV,t.remarks].map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(',')+'
-';
-    });
-  }
-
-  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href=url; a.download=`OperationClarity_${actSel}_${zoneSel||'allzones'}_${new Date().toISOString().slice(0,10)}.csv`;
-  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-  setTimeout(()=>{if(toast)toast.style.display='none';}, 2000);
-}
-
-// ══════════════════════════════════════════════════════════════
 // EXPORT PRESENTATION (HTML Report — auto-download)
 // ══════════════════════════════════════════════════════════════
-function exportPresentation(exportRows, exportTickets, actSel, zoneSel) {
-  // Allow calling with no args (legacy) — use filtered data
-  if(!exportRows) { exportRows = filteredRows; exportTickets = filteredTickets; actSel='all'; zoneSel=''; }
+function exportPresentation() {
   const btn = document.getElementById('exportBtn');
   const toast = document.getElementById('exportToast');
   const toastTitle = document.getElementById('exportToastTitle');
@@ -3414,8 +3119,8 @@ function exportPresentation(exportRows, exportTickets, actSel, zoneSel) {
     const now = new Date().toLocaleString('en-IN');
 
     // ─── Gather all data ───────────────────────────────────────────
-    const R = exportRows   || filteredRows;
-    const T = exportTickets || filteredTickets;
+    const R = filteredRows;
+    const T = filteredTickets;
     const czMap = buildCityZoneMap();
     const enriched = enrichTicketZones(T, czMap);
     const complaints = enriched.filter(t=>t.type==='complaint');
@@ -3673,11 +3378,7 @@ ${slide(5, '📋 Executive Summary', '#1f7a3e', `
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    const _fromStr = document.getElementById('dateFrom').value || 'all';
-    const _toStr   = document.getElementById('dateTo').value   || 'time';
-    const _fileTag = actSel && actSel!=='all' ? '_'+actSel : '';
-    const _zoneTag = zoneSel ? '_'+zoneSel.replace(/\s+/g,'') : '';
-    a.download = `OperationClarity${_fileTag}${_zoneTag}_${_fromStr.replace(/-/g,'')}_${_toStr.replace(/-/g,'')}.html`;
+    a.download = `OperationClarity_${(from||'').replace(/-/g,'')}_${(to||'').replace(/-/g,'')}.html`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
