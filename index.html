@@ -3530,46 +3530,41 @@ function exportCSV(exportRows, exportTickets, actSel, zoneSel){
   const toast=document.getElementById('exportToast');
   const toastTitle=document.getElementById('exportToastTitle');
   const toastSub=document.getElementById('exportToastSub');
-  if(toast){toast.style.display='block'; toastTitle.textContent='Exporting CSV…'; toastSub.textContent='Building data file';}
+  if(toast){toast.style.display='block'; if(toastTitle)toastTitle.textContent='Exporting CSV\u2026'; if(toastSub)toastSub.textContent='Building data file';}
 
-  let csv='';
+  const q = v => '"'+(String(v||'').replace(/"/g,'""'))+'"';
   const actLabel = actSel==='all'?'All':actSel==='downtime'?'Downtime':actSel==='complaint'?'Complaints':actSel==='maintenance'?'Maintenance':'Replacement';
   const zoneLabel = zoneSel||'All Zones';
 
+  let rows = [];
+
   if(actSel==='all'||actSel==='downtime'){
-    csv += '# CHARGER DOWNTIME — '+actLabel+' | '+zoneLabel+'
-';
-    csv += 'Charger ID,Charger Name,Zone,City,RCA,Downtime Start,Downtime End,Hours
-';
+    rows.push(['# CHARGER DOWNTIME - '+actLabel+' | '+zoneLabel]);
+    rows.push(['Charger ID','Charger Name','Zone','City','RCA','Downtime Start','Downtime End','Hours']);
     exportRows.forEach(r=>{
-      csv += [r.charger,r.site,r.zone,r.city,r.rca,r.start,r.end,r.hours].map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(',')+'
-';
+      rows.push([r.charger,r.site,r.zone,r.city,r.rca,r.start,r.end,r.hours]);
     });
-    csv += '
-';
+    rows.push([]);
   }
   if(actSel!=='downtime'){
-    csv += '# TICKETS — '+actLabel+' | '+zoneLabel+'
-';
-    csv += 'Charger Name,City,Zone,Activity,RCA,Employee,Close Date,Res Hrs,KM,Damage,Aux V,Remarks
-';
+    rows.push(['# TICKETS - '+actLabel+' | '+zoneLabel]);
+    rows.push(['Charger Name','City','Zone','Activity','RCA','Employee','Close Date','Res Hrs','KM','Damage','Aux V','Remarks']);
     exportTickets.forEach(t=>{
-      csv += [t.name,t.city,t.zone,t.activity,t.rca,t.emp,t.closeRaw,t.resHrs,t.km,t.damage,t.auxV,t.remarks].map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(',')+'
-';
+      rows.push([t.name,t.city,t.zone,t.activity,t.rca,t.emp,t.closeRaw,t.resHrs,t.km,t.damage,t.auxV,t.remarks]);
     });
   }
 
+  const csv = rows.map(r => r.map(q).join(',')).join('\r\n');
   const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
-  a.href=url; a.download=`OperationClarity_${actSel}_${zoneSel||'allzones'}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.href=url;
+  a.download='OperationClarity_'+actSel+'_'+(zoneSel||'allzones')+'_'+new Date().toISOString().slice(0,10)+'.csv';
   document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-  setTimeout(()=>{if(toast)toast.style.display='none';}, 2000);
+  setTimeout(()=>{if(toast)toast.style.display='none';},2000);
 }
 
-// ══════════════════════════════════════════════════════════════
-// EXPORT PRESENTATION (HTML Report — auto-download)
-// ══════════════════════════════════════════════════════════════
+
 function exportPresentation(exportRows, exportTickets, actSel, zoneSel) {
   // Allow calling with no args (legacy) — use filtered data
   if(!exportRows) { exportRows = filteredRows; exportTickets = filteredTickets; actSel='all'; zoneSel=''; }
