@@ -241,6 +241,11 @@
     .dt-kpi-sub { font-size: 10px; color: var(--text3); margin-top: 2px; }
 
     /* ── Charger list table ── */
+    /* ── Date preset buttons ── */
+    .date-preset-btn { font-size:11px;font-weight:500;padding:4px 10px;border-radius:99px;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);cursor:pointer;transition:all 0.12s;white-space:nowrap; }
+    .date-preset-btn:hover { border-color:var(--blue);color:var(--blue);background:var(--blue-light); }
+    .date-preset-btn.active { background:var(--blue);color:#fff;border-color:var(--blue-dark); }
+
     #chargerListTable tbody tr:hover td { background: var(--blue-light) !important; }
     #chargerListTable tbody tr.selected td { background: var(--blue-light); }
     #chargerListTable th { cursor: default; }
@@ -284,10 +289,51 @@
       <span id="headerDateLabel" style="font-size:12px;font-weight:500;color:var(--text2);">Select date range</span>
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="color:var(--text3);"><polyline points="6 9 12 15 18 9"/></svg>
     </div>
-    <!-- Export button -->
-    <div id="exportBtn" onclick="exportPresentation()" style="display:flex;align-items:center;gap:6px;background:var(--blue);border:1px solid var(--blue-dark);border-radius:9px;padding:7px 16px;cursor:pointer;font-size:12px;font-weight:600;color:#fff;transition:background 0.15s;" onmouseover="this.style.background='var(--blue-dark)'" onmouseout="this.style.background='var(--blue)'">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      Export
+    <!-- Export button with dropdown -->
+    <div style="position:relative;">
+      <div id="exportBtn" onclick="toggleExportMenu()" style="display:flex;align-items:center;gap:6px;background:var(--blue);border:1px solid var(--blue-dark);border-radius:9px;padding:7px 16px;cursor:pointer;font-size:12px;font-weight:600;color:#fff;transition:background 0.15s;" onmouseover="this.style.background='var(--blue-dark)'" onmouseout="this.style.background='var(--blue)'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <!-- Export dropdown menu -->
+      <div id="exportDropdown" class="hidden" style="position:absolute;top:calc(100% + 6px);right:0;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-lg);box-shadow:0 8px 32px rgba(0,0,0,0.2);padding:14px;min-width:280px;z-index:500;">
+        <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:12px;letter-spacing:0.03em;">📤 Export Options</div>
+
+        <!-- Activity filter -->
+        <div style="margin-bottom:10px;">
+          <label style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px;">Activity / Type</label>
+          <select id="exportActivitySel" style="width:100%;font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;">
+            <option value="all">All Activities</option>
+            <option value="downtime">Charger Downtime only</option>
+            <option value="complaint">Daily Complaints only</option>
+            <option value="maintenance">Monthly Maintenance only</option>
+            <option value="replacement">Replacement only</option>
+          </select>
+        </div>
+
+        <!-- Zone filter -->
+        <div style="margin-bottom:10px;">
+          <label style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px;">Zone</label>
+          <select id="exportZoneSel" style="width:100%;font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;">
+            <option value="">All Zones</option>
+          </select>
+        </div>
+
+        <!-- Format -->
+        <div style="margin-bottom:14px;">
+          <label style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px;">Format</label>
+          <div style="display:flex;gap:6px;">
+            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="radio" name="exportFmt" value="html" checked style="accent-color:var(--blue);"> HTML Report</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="radio" name="exportFmt" value="csv"> CSV Data</label>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;">
+          <button onclick="doExport()" style="flex:1;font-size:12px;font-weight:600;padding:8px 14px;border-radius:var(--radius);border:1px solid var(--blue-dark);background:var(--blue);color:#fff;cursor:pointer;">⬇ Download</button>
+          <button onclick="toggleExportMenu()" style="font-size:12px;padding:8px 10px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--surface2);color:var(--text);cursor:pointer;">Cancel</button>
+        </div>
+      </div>
     </div>
     <!-- Night Mode -->
     <div class="night-toggle" onclick="toggleNightMode()">
@@ -299,18 +345,69 @@
 </header>
 
 <main class="main">
+  <!-- Hidden URL mirrors — always in DOM even when filter drawer is closed -->
+  <input type="hidden" id="sheetUrl_h" />
+  <input type="hidden" id="sheet2Url_h" />
+  <input type="hidden" id="proxyUrl_h" />
 
-  <!-- ═══ DATE FILTER DRAWER ═══ -->
-  <div id="filterDrawer" class="hidden" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.5rem;margin-bottom:1rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap;box-shadow:var(--shadow);">
-    <label style="font-size:13px;font-weight:500;color:var(--text2);">📅 Date range</label>
-    <input type="date" id="dateFrom" onchange="applyFilter()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;cursor:pointer;" />
-    <span style="font-size:13px;color:var(--text3);">→</span>
-    <input type="date" id="dateTo" onchange="applyFilter()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;cursor:pointer;" />
-    <button onclick="clearFilter()" style="font-size:12px;color:var(--text3);background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:6px;">✕ Clear</button>
-    <span class="filter-active-badge hidden" id="filterBadge">Filtered</span>
-    <span style="font-size:12px;color:var(--text3);margin-left:auto;" id="filterCount"></span>
-    <!-- Config inline -->
-    <div style="width:100%;border-top:1px solid var(--border);padding-top:10px;margin-top:4px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
+  <!-- ═══ FILTER DRAWER ═══ -->
+  <div id="filterDrawer" class="hidden" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.1rem 1.5rem;margin-bottom:1rem;box-shadow:var(--shadow);">
+
+    <!-- Row 1: Date range + quick presets -->
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+      <label style="font-size:12px;font-weight:600;color:var(--text2);white-space:nowrap;">📅 Date Range</label>
+      <input type="date" id="dateFrom" onchange="applyFilter()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;cursor:pointer;" />
+      <span style="font-size:13px;color:var(--text3);">→</span>
+      <input type="date" id="dateTo" onchange="applyFilter()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;cursor:pointer;" />
+      <button onclick="clearFilter()" style="font-size:12px;color:var(--text3);background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:6px;">✕ Clear</button>
+      <span class="filter-active-badge hidden" id="filterBadge">Filtered</span>
+
+      <!-- Quick date preset pills -->
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-left:4px;">
+        <button onclick="setDatePreset('today')" id="preset-today" class="date-preset-btn">Today</button>
+        <button onclick="setDatePreset('yesterday')" id="preset-yesterday" class="date-preset-btn">Yesterday</button>
+        <button onclick="setDatePreset('last7')" id="preset-last7" class="date-preset-btn">Last 7 Days</button>
+        <button onclick="setDatePreset('last30')" id="preset-last30" class="date-preset-btn">Last 30 Days</button>
+        <button onclick="setDatePreset('thismonth')" id="preset-thismonth" class="date-preset-btn">This Month</button>
+        <button onclick="setDatePreset('lastmonth')" id="preset-lastmonth" class="date-preset-btn">Last Month</button>
+        <button onclick="setDatePreset('all')" id="preset-all" class="date-preset-btn">All Time</button>
+      </div>
+
+      <span style="font-size:12px;color:var(--text3);margin-left:auto;" id="filterCount"></span>
+    </div>
+
+    <!-- Row 2: Additional filters (Zone, Activity, City) -->
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--border);">
+      <label style="font-size:12px;font-weight:600;color:var(--text2);">🔽 Filter by</label>
+
+      <!-- Zone filter -->
+      <select id="globalZoneFilter" onchange="applyFilter()" style="font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;cursor:pointer;min-width:130px;">
+        <option value="">All Zones</option>
+      </select>
+
+      <!-- City filter -->
+      <select id="globalCityFilter" onchange="applyFilter()" style="font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;cursor:pointer;min-width:130px;">
+        <option value="">All Cities</option>
+      </select>
+
+      <!-- Activity / Type filter (Sheet 2 data) -->
+      <select id="globalActivityFilter" onchange="applyFilter()" style="font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;cursor:pointer;min-width:170px;">
+        <option value="">All Activities</option>
+        <option value="complaint">Daily Complaints</option>
+        <option value="maintenance">Monthly Maintenance</option>
+        <option value="replacement">Replacement</option>
+      </select>
+
+      <!-- RCA filter (Sheet 1 downtime RCA) -->
+      <select id="globalRcaFilter" onchange="applyFilter()" style="font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;cursor:pointer;min-width:160px;">
+        <option value="">All RCAs</option>
+      </select>
+
+      <button onclick="clearAllFilters()" style="font-size:12px;font-weight:600;color:var(--red);background:var(--red-light);border:1px solid rgba(192,57,43,0.2);padding:5px 12px;border-radius:var(--radius);cursor:pointer;">✕ Reset All</button>
+    </div>
+
+    <!-- Row 3: Sheet config -->
+    <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding-top:10px;border-top:1px solid var(--border);margin-top:8px;">
       <input type="text" id="sheetUrl" placeholder="Sheet 1 CSV URL (Downtime)" style="flex:1;min-width:200px;font-size:12px;font-family:'DM Mono',monospace;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;" />
       <input type="text" id="sheet2Url" placeholder="Sheet 2 CSV URL (Complaints/Maintenance)" style="flex:1;min-width:200px;font-size:12px;font-family:'DM Mono',monospace;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;" />
       <input type="text" id="proxyUrl" placeholder="Cloudflare Proxy URL" style="flex:1;min-width:160px;font-size:12px;font-family:'DM Mono',monospace;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;" />
@@ -463,6 +560,10 @@
     <button class="main-tab-btn" onclick="switchMainTab('replacement')" id="mtab-replacement">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
       Replacement
+    </button>
+    <button class="main-tab-btn" onclick="switchMainTab('citydir')" id="mtab-citydir">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      City Directory
     </button>
     <button class="main-tab-btn" onclick="switchMainTab('employee')" id="mtab-employee" style="background:linear-gradient(135deg,rgba(212,130,10,0.12),rgba(108,63,196,0.12));">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -881,6 +982,50 @@
   <!-- ═══════════════════════════════════════════════ -->
   <!-- MAIN PANEL: EMPLOYEE REPORT                    -->
   <!-- ═══════════════════════════════════════════════ -->
+  <!-- ═══ CITY DIRECTORY TAB ═══ -->
+  <div class="main-panel" id="mpanel-citydir">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:1.5rem;">
+      <div>
+        <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:3px;">🏙️ City Directory — 70 Cities</div>
+        <div style="font-size:12px;color:var(--text3);">All operational cities · zone · state · charger count · assigned employees</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <input id="cityDirSearch" type="text" placeholder="🔍 Search city, state or employee…" oninput="renderCityDirectory()"
+          style="font-size:13px;padding:7px 12px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;min-width:220px;" />
+        <select id="cityDirZone" onchange="renderCityDirectory()"
+          style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;">
+          <option value="">All Zones</option>
+          <option value="North">🔵 North</option>
+          <option value="West">🟣 West</option>
+          <option value="East">🟠 East</option>
+          <option value="South">🟢 South</option>
+          <option value="Central">⚪ Central</option>
+        </select>
+        <span id="cityDirCount" style="font-size:12px;color:var(--text3);white-space:nowrap;"></span>
+      </div>
+    </div>
+    <!-- Zone summary KPI cards -->
+    <div id="zoneSummaryCards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:1.5rem;"></div>
+    <!-- City table -->
+    <div class="card">
+      <div class="tbl-wrap">
+        <table id="cityDirTable">
+          <thead><tr>
+            <th style="width:36px;text-align:center;">#</th>
+            <th onclick="toggleCitySort('city')" style="cursor:pointer;user-select:none;">City <span id="cdsort-city">▼</span></th>
+            <th onclick="toggleCitySort('state')" style="cursor:pointer;user-select:none;">State <span id="cdsort-state"></span></th>
+            <th onclick="toggleCitySort('zone')" style="cursor:pointer;user-select:none;">Zone <span id="cdsort-zone"></span></th>
+            <th onclick="toggleCitySort('chargers')" style="text-align:right;cursor:pointer;user-select:none;">Chargers <span id="cdsort-chargers"></span></th>
+            <th>Employees</th>
+            <th style="text-align:right;cursor:pointer;user-select:none;" onclick="toggleCitySort('events')">Downtime Events <span id="cdsort-events"></span></th>
+            <th style="text-align:right;cursor:pointer;user-select:none;" onclick="toggleCitySort('tickets')">Complaints <span id="cdsort-tickets"></span></th>
+          </tr></thead>
+          <tbody id="cityDirBody"><tr><td colspan="8" class="no-data">Load data to see activity stats</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <div class="main-panel" id="mpanel-employee">
     <div style="height:16px;"></div>
 
@@ -1640,10 +1785,31 @@ function setPill(n,type,msg){
 // ══════════════════════════════════════════════════════
 // LOAD ALL
 // ══════════════════════════════════════════════════════
+// Read URL from hidden mirror first, then visible input as fallback
+function getURL(id){
+  const h=document.getElementById(id+'_h');
+  const v=document.getElementById(id);
+  const hv=(h&&h.value)||'';
+  const vv=(v&&v.value)||'';
+  return (hv||vv).trim();
+}
+function setURLMirrors(){
+  ['sheetUrl','sheet2Url','proxyUrl'].forEach(id=>{
+    const vis=document.getElementById(id);
+    const hid=document.getElementById(id+'_h');
+    if(vis&&hid){
+      // sync visible → hidden
+      if(vis.value) hid.value=vis.value;
+      // sync hidden → visible (if visible is empty but hidden has value)
+      else if(hid.value) vis.value=hid.value;
+    }
+  });
+}
 async function loadAll(){
-  const s1=document.getElementById('sheetUrl').value.trim();
-  const s2=document.getElementById('sheet2Url').value.trim();
-  const proxy=document.getElementById('proxyUrl').value.trim();
+  setURLMirrors();
+  const s1=getURL('sheetUrl');
+  const s2=getURL('sheet2Url');
+  const proxy=getURL('proxyUrl');
   const btn=document.getElementById('refreshBtn');
   if(!s1){setPill(1,'err','Paste Sheet 1 URL first');return;}
   btn.classList.add('spinning');
@@ -1669,6 +1835,8 @@ async function loadAll(){
       setPill(2,'ok',allTickets.length+' tickets ✓');
     }catch(e){setPill(2,'err','Sheet 2: '+e.message);}
   }
+  populateGlobalFilters();
+  populateExportZoneFilter();
   document.getElementById('howto').classList.add('hidden');
   document.getElementById('lastUpdated').textContent='Updated '+new Date().toLocaleTimeString();
   document.getElementById('filterCount').textContent=allRows.length+' events · '+allTickets.length+' tickets';
@@ -1678,27 +1846,128 @@ async function loadAll(){
 // ══════════════════════════════════════════════════════
 // FILTER
 // ══════════════════════════════════════════════════════
+// ── Populate global filter dropdowns from loaded data ──
+function populateGlobalFilters(){
+  const czMap = buildCityZoneMap();
+  const zones = [...new Set([
+    ...allRows.map(r=>r.zone||''),
+    ...allTickets.map(t=>t.zone||czMap[(t.city||'').trim()]||'')
+  ].filter(Boolean))].sort();
+  const cities = [...new Set([
+    ...allRows.map(r=>r.city||''),
+    ...allTickets.map(t=>t.city||'')
+  ].filter(Boolean))].sort();
+  const rcas = [...new Set(allRows.map(r=>r.rca||'').filter(Boolean))].sort();
+  const populate = (id, arr) => {
+    const sel = document.getElementById(id); if(!sel) return;
+    const cur = sel.value;
+    while(sel.options.length > 1) sel.remove(1);
+    arr.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;sel.appendChild(o);});
+    sel.value = cur;
+  };
+  populate('globalZoneFilter', zones);
+  populate('globalCityFilter', cities);
+  populate('globalRcaFilter', rcas);
+}
+
+// ── Quick date presets ──
+let activePreset = '';
+function setDatePreset(preset){
+  const now = new Date();
+  let from = new Date(), to = new Date();
+  if(preset==='today'){ /* defaults ok */ }
+  else if(preset==='yesterday'){ from.setDate(from.getDate()-1); to.setDate(to.getDate()-1); }
+  else if(preset==='last7'){ from.setDate(from.getDate()-6); }
+  else if(preset==='last30'){ from.setDate(from.getDate()-29); }
+  else if(preset==='thismonth'){ from = new Date(now.getFullYear(),now.getMonth(),1); }
+  else if(preset==='lastmonth'){ from=new Date(now.getFullYear(),now.getMonth()-1,1); to=new Date(now.getFullYear(),now.getMonth(),0); }
+  else if(preset==='all'){
+    document.getElementById('dateFrom').value=''; document.getElementById('dateTo').value='';
+    activePreset='all'; updatePresetBtns(); applyFilter(); return;
+  }
+  const fmt=d=>d.toISOString().slice(0,10);
+  document.getElementById('dateFrom').value=fmt(from);
+  document.getElementById('dateTo').value=fmt(to);
+  activePreset=preset; updatePresetBtns(); applyFilter();
+}
+function updatePresetBtns(){
+  ['today','yesterday','last7','last30','thismonth','lastmonth','all'].forEach(p=>{
+    const btn=document.getElementById('preset-'+p);
+    if(btn) btn.classList.toggle('active', p===activePreset);
+  });
+}
+
 function applyFilter(){
-  const from=document.getElementById('dateFrom').value;
-  const to=document.getElementById('dateTo').value;
-  const fromD=from?new Date(from):null;
-  const toD=to?new Date(to+'T23:59:59'):null;
-  filteredRows=allRows.filter(r=>{
-    if(!fromD&&!toD)return true;if(!r.date)return true;
-    if(fromD&&r.date<fromD)return false;if(toD&&r.date>toD)return false;return true;
+  const from = document.getElementById('dateFrom').value;
+  const to   = document.getElementById('dateTo').value;
+  const zoneF = (document.getElementById('globalZoneFilter')||{value:''}).value||'';
+  const cityF = (document.getElementById('globalCityFilter')||{value:''}).value||'';
+  const actF  = (document.getElementById('globalActivityFilter')||{value:''}).value||'';
+  const rcaF  = (document.getElementById('globalRcaFilter')||{value:''}).value||'';
+  const fromD = from?new Date(from):null;
+  const toD   = to?new Date(to+'T23:59:59'):null;
+  const czMap = buildCityZoneMap();
+
+  const passDate = r => {
+    if(!fromD&&!toD) return true;
+    if(!r.date) return true;
+    if(fromD&&r.date<fromD) return false;
+    if(toD&&r.date>toD) return false;
+    return true;
+  };
+
+  filteredRows = allRows.filter(r=>{
+    if(!passDate(r)) return false;
+    if(zoneF && (r.zone||'')!==zoneF) return false;
+    if(cityF && (r.city||'')!==cityF) return false;
+    if(rcaF  && (r.rca||'')!==rcaF)  return false;
+    return true;
   });
-  filteredTickets=allTickets.filter(t=>{
-    if(!fromD&&!toD)return true;if(!t.date)return true;
-    if(fromD&&t.date<fromD)return false;if(toD&&t.date>toD)return false;return true;
+  filteredTickets = allTickets.filter(t=>{
+    if(!passDate(t)) return false;
+    const tZone = t.zone||czMap[(t.city||'').trim()]||'';
+    if(zoneF && tZone!==zoneF) return false;
+    if(cityF && (t.city||'')!==cityF) return false;
+    if(actF  && t.type!==actF) return false;
+    return true;
   });
-  document.getElementById('filterBadge').classList.toggle('hidden',!from&&!to);
-  document.getElementById('filterCount').textContent=filteredRows.length+' events · '+filteredTickets.length+' tickets';
+
+  const anyActive = from||to||zoneF||cityF||actF||rcaF;
+  const badge = document.getElementById('filterBadge');
+  if(badge){
+    badge.classList.toggle('hidden',!anyActive);
+    if(anyActive){
+      const parts=[];
+      if(from||to) parts.push('Date');
+      if(zoneF) parts.push(zoneF);
+      if(cityF) parts.push(cityF);
+      if(actF)  parts.push(actF==='complaint'?'Complaints':actF==='maintenance'?'Maintenance':'Replacement');
+      if(rcaF)  parts.push('RCA');
+      badge.textContent = parts.join(' · ');
+    }
+  }
+  if(typeof updateHeaderDateLabel==='function') updateHeaderDateLabel();
+  const countEl = document.getElementById('filterCount');
+  if(countEl) countEl.textContent = filteredRows.length+' events · '+filteredTickets.length+' tickets'+(anyActive?' (filtered)':'');
   renderAll();
 }
+
 function clearFilter(){
-  document.getElementById('dateFrom').value='';document.getElementById('dateTo').value='';
+  document.getElementById('dateFrom').value=''; document.getElementById('dateTo').value='';
+  activePreset=''; updatePresetBtns();
   document.getElementById('filterBadge').classList.add('hidden');
-  filteredRows=[...allRows];filteredTickets=[...allTickets];
+  filteredRows=[...allRows]; filteredTickets=[...allTickets];
+  if(typeof updateHeaderDateLabel==='function') updateHeaderDateLabel();
+  document.getElementById('filterCount').textContent=allRows.length+' events · '+allTickets.length+' tickets';
+  renderAll();
+}
+function clearAllFilters(){
+  ['dateFrom','dateTo'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['globalZoneFilter','globalCityFilter','globalActivityFilter','globalRcaFilter'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  activePreset=''; updatePresetBtns();
+  document.getElementById('filterBadge').classList.add('hidden');
+  filteredRows=[...allRows]; filteredTickets=[...allTickets];
+  if(typeof updateHeaderDateLabel==='function') updateHeaderDateLabel();
   document.getElementById('filterCount').textContent=allRows.length+' events · '+allTickets.length+' tickets';
   renderAll();
 }
@@ -1723,7 +1992,7 @@ function fmtDate(s){
 // ══════════════════════════════════════════════════════
 function switchMainTab(name){
   activeMainTab=name;
-  ['downtime','complaint','maintenance','replacement','employee'].forEach(n=>{
+  ['downtime','complaint','maintenance','replacement','citydir','employee'].forEach(n=>{
     const btn=document.getElementById('mtab-'+n);
     if(btn)btn.classList.toggle('active',n===name);
   });
@@ -1747,6 +2016,7 @@ function renderActiveMain(){
   else if(activeMainTab==='maintenance')renderMaintenance();
   else if(activeMainTab==='replacement')renderReplacement();
   else if(activeMainTab==='employee')renderEmployeeReport();
+  else if(activeMainTab==='citydir')renderCityDirectory();
 }
 function renderActiveSub(){
   if(activeSubTab==='overview')renderOverview();
@@ -1754,7 +2024,7 @@ function renderActiveSub(){
   else if(activeSubTab==='byzone')renderZone();
   else if(activeSubTab==='bycity')renderCity();
 }
-function renderAll(){renderGlobalMetrics();renderActiveMain();}
+function renderAll(){renderGlobalMetrics();renderActiveMain();if(typeof maybeRefreshCityDir==="function")maybeRefreshCityDir();}
 
 // ══════════════════════════════════════════════════════
 // GLOBAL METRICS
@@ -2102,25 +2372,128 @@ function renderCity(){
   renderGroupBreakdown('cityBreakdownList',rows,'city','#0f7a7a');
 }
 
+
+// ══════════════════════════════════════════════════════════════════════
+// MASTER CITY DATABASE — 70 Cities
+// Fields: city, state, zone, chargers, employees[]
+// ══════════════════════════════════════════════════════════════════════
+const CITY_DB = [
+  {city:'Agra',          state:'Uttar Pradesh',     zone:'North', chargers:2,  emp:['Vivek']},
+  {city:'Ahmednagar',    state:'Maharashtra',        zone:'West',  chargers:3,  emp:['Surander','Mukesh']},
+  {city:'Aligarh',       state:'Uttar Pradesh',      zone:'North', chargers:3,  emp:['Vivek']},
+  {city:'Alwar',         state:'Rajasthan',          zone:'North', chargers:1,  emp:['Ankit','Pooran']},
+  {city:'Ambala',        state:'Haryana',            zone:'North', chargers:1,  emp:['Vivek']},
+  {city:'Angul',         state:'Odisha',             zone:'East',  chargers:1,  emp:['Bismay']},
+  {city:'Aurangabad',    state:'Maharashtra',        zone:'West',  chargers:13, emp:['Sanjay More']},
+  {city:'Baleswar Town', state:'Odisha',             zone:'East',  chargers:1,  emp:['Bismay']},
+  {city:'Banswara',      state:'Rajasthan',          zone:'North', chargers:2,  emp:['Abhishek']},
+  {city:'Bhilwara',      state:'Rajasthan',          zone:'North', chargers:12, emp:[]},
+  {city:'Bhopal',        state:'Madhya Pradesh',     zone:'West',  chargers:1,  emp:['Santosh']},
+  {city:'Bhubaneswar',   state:'Odisha',             zone:'East',  chargers:42, emp:['Bismay','Dilaswar']},
+  {city:'Bikaner',       state:'Rajasthan',          zone:'North', chargers:2,  emp:['Karan']},
+  {city:'Bilaspur',      state:'Chhattisgarh',       zone:'East',  chargers:1,  emp:['Gandhi']},
+  {city:'Brahmapur',     state:'Odisha',             zone:'East',  chargers:1,  emp:['Bismay']},
+  {city:'Byasanagar',    state:'Odisha',             zone:'East',  chargers:1,  emp:['Bismay']},
+  {city:'Chhatarpur',    state:'Madhya Pradesh',     zone:'West',  chargers:1,  emp:['Ram']},
+  {city:'Chhindwara',    state:'Madhya Pradesh',     zone:'West',  chargers:1,  emp:['Ram']},
+  {city:'Chittorgarh',   state:'Rajasthan',          zone:'North', chargers:2,  emp:['Abhishek']},
+  {city:'Cuttack',       state:'Odisha',             zone:'East',  chargers:28, emp:['Bismay','Parshant']},
+  {city:'Dehradun',      state:'Uttarakhand',        zone:'North', chargers:4,  emp:['Manoj']},
+  {city:'Delhi',         state:'Delhi',              zone:'North', chargers:26, emp:['Vivek']},
+  {city:'Dewas',         state:'Madhya Pradesh',     zone:'West',  chargers:1,  emp:['Santosh']},
+  {city:'Dhar',          state:'Madhya Pradesh',     zone:'West',  chargers:1,  emp:['Santosh']},
+  {city:'Dhule',         state:'Maharashtra',        zone:'West',  chargers:1,  emp:['Santosh']},
+  {city:'Etawah',        state:'Uttar Pradesh',      zone:'North', chargers:1,  emp:['Vivek']},
+  {city:'Ghaziabad',     state:'Uttar Pradesh',      zone:'North', chargers:3,  emp:['Vivek']},
+  {city:'Gurugram',      state:'Haryana',            zone:'North', chargers:3,  emp:['Vivek']},
+  {city:'Gwalior',       state:'Madhya Pradesh',     zone:'West',  chargers:2,  emp:['Manish']},
+  {city:'Harda',         state:'Madhya Pradesh',     zone:'West',  chargers:1,  emp:['Santosh']},
+  {city:'Indore',        state:'Madhya Pradesh',     zone:'West',  chargers:8,  emp:['Santosh']},
+  {city:'Jabalpur',      state:'Madhya Pradesh',     zone:'West',  chargers:3,  emp:['Ram']},
+  {city:'Jaipur',        state:'Rajasthan',          zone:'North', chargers:54, emp:['Ankit','Pooran']},
+  {city:'Jalgaon',       state:'Maharashtra',        zone:'West',  chargers:1,  emp:['Samadhan']},
+  {city:'Jalna',         state:'Maharashtra',        zone:'West',  chargers:1,  emp:['Sanjay More']},
+  {city:'Jamshedpur',    state:'Jharkhand',          zone:'East',  chargers:2,  emp:['Bismay']},
+  {city:'Jodhpur',       state:'Rajasthan',          zone:'North', chargers:5,  emp:['Karan']},
+  {city:'Khopoli',       state:'Maharashtra',        zone:'West',  chargers:1,  emp:['Surander','Mukesh']},
+  {city:'Khordha',       state:'Odisha',             zone:'East',  chargers:1,  emp:['Bismay']},
+  {city:'Kolhapur',      state:'Maharashtra',        zone:'West',  chargers:9,  emp:['Sangram']},
+  {city:'Koraput',       state:'Odisha',             zone:'East',  chargers:1,  emp:['Bismay']},
+  {city:'Kota',          state:'Rajasthan',          zone:'North', chargers:1,  emp:['Abhishek']},
+  {city:'Kurukshetra',   state:'Haryana',            zone:'North', chargers:1,  emp:['Vivek']},
+  {city:'Lucknow',       state:'Uttar Pradesh',      zone:'North', chargers:7,  emp:['Vinay']},
+  {city:'Ludhiana',      state:'Punjab',             zone:'North', chargers:4,  emp:['Vivek']},
+  {city:'Malegaon',      state:'Maharashtra',        zone:'West',  chargers:1,  emp:['Samadhan']},
+  {city:'Mandsaur',      state:'Madhya Pradesh',     zone:'North', chargers:1,  emp:['Abhishek']},
+  {city:'Mathura',       state:'Uttar Pradesh',      zone:'North', chargers:1,  emp:['Vivek']},
+  {city:'Miraj',         state:'Maharashtra',        zone:'West',  chargers:1,  emp:['Sangram']},
+  {city:'Nanded-Waghala',state:'Maharashtra',        zone:'West',  chargers:1,  emp:[]},
+  {city:'Nashik',        state:'Maharashtra',        zone:'West',  chargers:9,  emp:['Samadhan']},
+  {city:'Noida',         state:'Uttar Pradesh',      zone:'North', chargers:6,  emp:['Vivek']},
+  {city:'Prayagraj',     state:'Uttar Pradesh',      zone:'North', chargers:1,  emp:['Vinay']},
+  {city:'Pune',          state:'Maharashtra',        zone:'West',  chargers:35, emp:['Surander','Mukesh']},
+  {city:'Puri',          state:'Odisha',             zone:'East',  chargers:5,  emp:['Krishna Lanka']},
+  {city:'Raipur',        state:'Chhattisgarh',       zone:'East',  chargers:7,  emp:['Gandhi']},
+  {city:'Rajpur',        state:'Odisha',             zone:'East',  chargers:1,  emp:['Bismay']},
+  {city:'Rajsamand',     state:'Rajasthan',          zone:'North', chargers:1,  emp:['Vinay']},
+  {city:'Ranchi',        state:'Jharkhand',          zone:'East',  chargers:1,  emp:['Bismay']},
+  {city:'Ratlam',        state:'Madhya Pradesh',     zone:'West',  chargers:1,  emp:['Santosh']},
+  {city:'Ratnagiri',     state:'Maharashtra',        zone:'West',  chargers:1,  emp:['Sangram']},
+  {city:'Rayagada',      state:'Odisha',             zone:'East',  chargers:1,  emp:['Bismay']},
+  {city:'Sagar',         state:'Madhya Pradesh',     zone:'West',  chargers:1,  emp:['Ram']},
+  {city:'Satara',        state:'Maharashtra',        zone:'West',  chargers:1,  emp:['Surander','Mukesh']},
+  {city:'Solan',         state:'Himachal Pradesh',   zone:'North', chargers:1,  emp:['Vivek']},
+  {city:'Solapur',       state:'Maharashtra',        zone:'West',  chargers:6,  emp:['Rakesh']},
+  {city:'Sonepur',       state:'Odisha',             zone:'East',  chargers:1,  emp:['Bismay']},
+  {city:'Udaipur',       state:'Rajasthan',          zone:'North', chargers:3,  emp:['Abhishek']},
+  {city:'Ujjain',        state:'Madhya Pradesh',     zone:'West',  chargers:2,  emp:['Santosh']},
+  {city:'Varanasi',      state:'Uttar Pradesh',      zone:'North', chargers:3,  emp:['Vivek']},
+];
+
+// Build lookup maps from CITY_DB
+const CITY_DB_MAP = {};  // city name → record
+const CITY_ZONE_OVERRIDE = {}; // city → zone (for enrichTicketZones)
+CITY_DB.forEach(c => {
+  CITY_DB_MAP[c.city] = c;
+  CITY_ZONE_OVERRIDE[c.city] = c.zone;
+});
+
+// Get city info by name (fuzzy — strips leading numbers like "7 Jaipur" → "Jaipur")
+function getCityInfo(rawCity) {
+  if (!rawCity) return null;
+  const clean2 = rawCity.replace(/^\d+\s+/, '').trim();
+  return CITY_DB_MAP[clean2] || CITY_DB_MAP[rawCity] || null;
+}
+
+// Get zone from CITY_DB (more reliable than Sheet1 auto-detect)
+function getZoneFromDB(rawCity) {
+  const info = getCityInfo(rawCity);
+  return info ? info.zone : null;
+}
+
 // ══════════════════════════════════════════════════════
 // ZONE MAPPING FROM SHEET1
 // Builds city→zone lookup from downtime sheet data
 // ══════════════════════════════════════════════════════
 function buildCityZoneMap() {
   const map = {};
+  // Step 1: Sheet1 auto-detected zones
   allRows.forEach(r => {
-    const city = (r.city || '').trim();
-    const zone = (r.zone || '').trim();
+    const city = (r.city||'').trim();
+    const zone = (r.zone||'').trim();
     if (city && zone && !map[city]) map[city] = zone;
   });
-  // ── Hardcoded overrides for cities not in Sheet1 or mapped incorrectly ──
-  const OVERRIDES = {
-    '110 Jabalpur': 'West',
-    'Jabalpur': 'West',
-    '110': 'West',
-  };
-  Object.entries(OVERRIDES).forEach(([city, zone]) => {
-    if (!map[city]) map[city] = zone;   // only fill gaps, don't overwrite Sheet1
+  // Step 2: CITY_DB master data overrides (authoritative)
+  CITY_DB.forEach(c => { map[c.city] = c.zone; });
+  // Step 3: Handle prefixed city names like "7 Jaipur", "53 Pune"
+  const allCityRefs = [
+    ...allRows.map(r=>(r.city||'').trim()),
+    ...allTickets.map(t=>(t.city||'').trim())
+  ];
+  allCityRefs.forEach(raw => {
+    if (!raw || map[raw]) return;
+    const stripped = raw.replace(/^\d+\s+/,'').trim();
+    if (CITY_DB_MAP[stripped]) map[raw] = CITY_DB_MAP[stripped].zone;
   });
   return map;
 }
@@ -3098,9 +3471,108 @@ function closeKpiPopup() {
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeKpiPopup(); });
 
 // ══════════════════════════════════════════════════════════════
+// EXPORT FUNCTIONS
+// ══════════════════════════════════════════════════════════════
+function toggleExportMenu(){
+  const dd = document.getElementById('exportDropdown');
+  if(!dd) return;
+  const isHidden = dd.classList.contains('hidden');
+  dd.classList.toggle('hidden', !isHidden);
+  if(isHidden) populateExportZoneFilter();
+}
+// Close dropdown if user clicks outside
+document.addEventListener('click', e=>{
+  const dd = document.getElementById('exportDropdown');
+  const btn = document.getElementById('exportBtn');
+  if(dd && !dd.classList.contains('hidden') && !dd.contains(e.target) && btn && !btn.contains(e.target)){
+    dd.classList.add('hidden');
+  }
+});
+function populateExportZoneFilter(){
+  const sel = document.getElementById('exportZoneSel'); if(!sel) return;
+  const czMap = buildCityZoneMap();
+  const zones = [...new Set([
+    ...filteredRows.map(r=>r.zone||''),
+    ...filteredTickets.map(t=>t.zone||czMap[(t.city||'').trim()]||'')
+  ].filter(Boolean))].sort();
+  while(sel.options.length > 1) sel.remove(1);
+  zones.forEach(z=>{const o=document.createElement('option');o.value=z;o.textContent=z;sel.appendChild(o);});
+}
+function doExport(){
+  const fmt   = document.querySelector('input[name="exportFmt"]:checked')?.value || 'html';
+  const actSel= (document.getElementById('exportActivitySel')||{}).value||'all';
+  const zoneSel=(document.getElementById('exportZoneSel')||{}).value||'';
+  document.getElementById('exportDropdown').classList.add('hidden');
+
+  const czMap = buildCityZoneMap();
+  // Filter data for export
+  let exportRows = filteredRows.filter(r=>{
+    if(actSel!=='all' && actSel!=='downtime') return false;
+    if(zoneSel && (r.zone||'')!==zoneSel) return false;
+    return true;
+  });
+  let exportTickets = filteredTickets.filter(t=>{
+    if(actSel==='downtime') return false;
+    if(actSel!=='all' && t.type!==actSel) return false;
+    const tZone=t.zone||czMap[(t.city||'').trim()]||'';
+    if(zoneSel && tZone!==zoneSel) return false;
+    return true;
+  });
+
+  if(fmt==='csv'){
+    exportCSV(exportRows, exportTickets, actSel, zoneSel);
+  } else {
+    exportPresentation(exportRows, exportTickets, actSel, zoneSel);
+  }
+}
+
+function exportCSV(exportRows, exportTickets, actSel, zoneSel){
+  const toast=document.getElementById('exportToast');
+  const toastTitle=document.getElementById('exportToastTitle');
+  const toastSub=document.getElementById('exportToastSub');
+  if(toast){toast.style.display='block'; toastTitle.textContent='Exporting CSV…'; toastSub.textContent='Building data file';}
+
+  let csv='';
+  const actLabel = actSel==='all'?'All':actSel==='downtime'?'Downtime':actSel==='complaint'?'Complaints':actSel==='maintenance'?'Maintenance':'Replacement';
+  const zoneLabel = zoneSel||'All Zones';
+
+  if(actSel==='all'||actSel==='downtime'){
+    csv += '# CHARGER DOWNTIME — '+actLabel+' | '+zoneLabel+'
+';
+    csv += 'Charger ID,Charger Name,Zone,City,RCA,Downtime Start,Downtime End,Hours
+';
+    exportRows.forEach(r=>{
+      csv += [r.charger,r.site,r.zone,r.city,r.rca,r.start,r.end,r.hours].map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(',')+'
+';
+    });
+    csv += '
+';
+  }
+  if(actSel!=='downtime'){
+    csv += '# TICKETS — '+actLabel+' | '+zoneLabel+'
+';
+    csv += 'Charger Name,City,Zone,Activity,RCA,Employee,Close Date,Res Hrs,KM,Damage,Aux V,Remarks
+';
+    exportTickets.forEach(t=>{
+      csv += [t.name,t.city,t.zone,t.activity,t.rca,t.emp,t.closeRaw,t.resHrs,t.km,t.damage,t.auxV,t.remarks].map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(',')+'
+';
+    });
+  }
+
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href=url; a.download=`OperationClarity_${actSel}_${zoneSel||'allzones'}_${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  setTimeout(()=>{if(toast)toast.style.display='none';}, 2000);
+}
+
+// ══════════════════════════════════════════════════════════════
 // EXPORT PRESENTATION (HTML Report — auto-download)
 // ══════════════════════════════════════════════════════════════
-function exportPresentation() {
+function exportPresentation(exportRows, exportTickets, actSel, zoneSel) {
+  // Allow calling with no args (legacy) — use filtered data
+  if(!exportRows) { exportRows = filteredRows; exportTickets = filteredTickets; actSel='all'; zoneSel=''; }
   const btn = document.getElementById('exportBtn');
   const toast = document.getElementById('exportToast');
   const toastTitle = document.getElementById('exportToastTitle');
@@ -3119,8 +3591,8 @@ function exportPresentation() {
     const now = new Date().toLocaleString('en-IN');
 
     // ─── Gather all data ───────────────────────────────────────────
-    const R = filteredRows;
-    const T = filteredTickets;
+    const R = exportRows   || filteredRows;
+    const T = exportTickets || filteredTickets;
     const czMap = buildCityZoneMap();
     const enriched = enrichTicketZones(T, czMap);
     const complaints = enriched.filter(t=>t.type==='complaint');
@@ -3378,7 +3850,11 @@ ${slide(5, '📋 Executive Summary', '#1f7a3e', `
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `OperationClarity_${(from||'').replace(/-/g,'')}_${(to||'').replace(/-/g,'')}.html`;
+    const _fromStr = document.getElementById('dateFrom').value || 'all';
+    const _toStr   = document.getElementById('dateTo').value   || 'time';
+    const _fileTag = actSel && actSel!=='all' ? '_'+actSel : '';
+    const _zoneTag = zoneSel ? '_'+zoneSel.replace(/\s+/g,'') : '';
+    a.download = `OperationClarity${_fileTag}${_zoneTag}_${_fromStr.replace(/-/g,'')}_${_toStr.replace(/-/g,'')}.html`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -3845,12 +4321,128 @@ function renderBatteryTab() {
 }
 
 // ══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════
+// CITY DIRECTORY
+// ══════════════════════════════════════════════════════════════════════
+let cityDirSortCol='city', cityDirSortAsc=true;
+
+const ZONE_COLORS={
+  North:  {bg:'#e8f0fe',text:'#0d47b5',dot:'#1a6ef5'},
+  West:   {bg:'#f0ebfd',text:'#3b1a82',dot:'#6c3fc4'},
+  East:   {bg:'#fef3d7',text:'#7a4c00',dot:'#d4820a'},
+  South:  {bg:'#e6f5ec',text:'#0f4d26',dot:'#1f7a3e'},
+  Central:{bg:'#f1efe8',text:'#3a3a36',dot:'#888780'},
+};
+
+function renderCityDirectory(){
+  const q    =(document.getElementById('cityDirSearch')||{value:''}).value.toLowerCase();
+  const zoneF=(document.getElementById('cityDirZone')||{value:''}).value;
+
+  // Build live stats from currently filtered data
+  const eventsPerCity={}, ticketsPerCity={};
+  filteredRows.forEach(r=>{
+    const key=(r.city||'').trim().replace(/^\d+\s+/,'').trim()||'?';
+    eventsPerCity[key]=(eventsPerCity[key]||0)+1;
+  });
+  filteredTickets.filter(t=>t.type==='complaint').forEach(t=>{
+    const key=(t.city||'').trim().replace(/^\d+\s+/,'').trim()||'?';
+    ticketsPerCity[key]=(ticketsPerCity[key]||0)+1;
+  });
+
+  let list=CITY_DB.filter(c=>{
+    if(zoneF&&c.zone!==zoneF) return false;
+    if(q){
+      const hay=(c.city+' '+c.state+' '+c.zone+' '+c.emp.join(' ')).toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  }).map(c=>({...c, events:eventsPerCity[c.city]||0, tickets:ticketsPerCity[c.city]||0}));
+
+  list.sort((a,b)=>{
+    let va=a[cityDirSortCol], vb=b[cityDirSortCol];
+    if(typeof va==='string') return cityDirSortAsc?va.localeCompare(vb):vb.localeCompare(va);
+    return cityDirSortAsc?va-vb:vb-va;
+  });
+
+  const countEl=document.getElementById('cityDirCount');
+  if(countEl) countEl.textContent=list.length+' / 70 cities';
+
+  // Sort arrows
+  ['city','state','zone','chargers','events','tickets'].forEach(col=>{
+    const el=document.getElementById('cdsort-'+col);
+    if(el) el.textContent=col===cityDirSortCol?(cityDirSortAsc?'▲':'▼'):'';
+  });
+
+  // Zone summary KPI cards
+  const zoneSummary={};
+  CITY_DB.forEach(c=>{
+    if(!zoneSummary[c.zone]) zoneSummary[c.zone]={cities:0,chargers:0,events:0,tickets:0};
+    zoneSummary[c.zone].cities++;
+    zoneSummary[c.zone].chargers+=c.chargers;
+    zoneSummary[c.zone].events +=eventsPerCity[c.city]||0;
+    zoneSummary[c.zone].tickets+=ticketsPerCity[c.city]||0;
+  });
+  const cardsEl=document.getElementById('zoneSummaryCards');
+  if(cardsEl){
+    cardsEl.innerHTML=Object.entries(zoneSummary).map(([zone,s])=>{
+      const zc=ZONE_COLORS[zone]||ZONE_COLORS.Central;
+      return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.1rem;box-shadow:var(--shadow);border-left:4px solid ${zc.dot};">
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px;">
+          <span style="width:10px;height:10px;border-radius:50%;background:${zc.dot};flex-shrink:0;"></span>
+          <span style="font-size:14px;font-weight:700;color:var(--text);">${zone}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;">Cities</div><div style="font-size:20px;font-weight:700;color:var(--text);">${s.cities}</div></div>
+          <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;">Chargers</div><div style="font-size:20px;font-weight:700;color:var(--text);">${s.chargers}</div></div>
+          <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;">DT Events</div><div style="font-size:15px;font-weight:600;color:var(--red);">${s.events||'—'}</div></div>
+          <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;">Complaints</div><div style="font-size:15px;font-weight:600;color:var(--amber);">${s.tickets||'—'}</div></div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // City table rows
+  const body=document.getElementById('cityDirBody');
+  if(!body) return;
+  if(!list.length){body.innerHTML='<tr><td colspan="8" class="no-data">No cities match</td></tr>';return;}
+
+  body.innerHTML=list.map((c,i)=>{
+    const zc=ZONE_COLORS[c.zone]||ZONE_COLORS.Central;
+    const empStr=c.emp.length?c.emp.join(', '):'<span style="color:var(--text3)">—</span>';
+    const evtStyle=c.events>20?'color:var(--red);font-weight:700;':c.events>5?'color:var(--amber);font-weight:600;':'color:var(--text2);';
+    const tktStyle=c.tickets>10?'color:var(--red);font-weight:700;':c.tickets>3?'color:var(--amber);font-weight:600;':'color:var(--text2);';
+    return `<tr>
+      <td style="text-align:center;font-size:11px;color:var(--text3);">${i+1}</td>
+      <td style="font-weight:600;font-size:13px;">${c.city}</td>
+      <td style="font-size:12px;color:var(--text2);">${c.state}</td>
+      <td><span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;background:${zc.bg};color:${zc.text};">${c.zone}</span></td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-weight:600;">${c.chargers}</td>
+      <td style="font-size:12px;color:var(--text2);">${empStr}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;${evtStyle}">${c.events||'—'}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;${tktStyle}">${c.tickets||'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function toggleCitySort(col){
+  if(cityDirSortCol===col) cityDirSortAsc=!cityDirSortAsc;
+  else{cityDirSortCol=col; cityDirSortAsc=(col==='city'||col==='state'||col==='zone');}
+  renderCityDirectory();
+}
+
+// Also re-render city directory when global data refreshes
+function maybeRefreshCityDir(){
+  if(activeMainTab==='citydir') renderCityDirectory();
+}
+
 // PERSIST
 // ══════════════════════════════════════════════════════
 function saveURLs(){
-  localStorage.setItem('cdash_s1',document.getElementById('sheetUrl').value);
-  localStorage.setItem('cdash_s2',document.getElementById('sheet2Url').value);
-  localStorage.setItem('cdash_px',document.getElementById('proxyUrl').value);
+  setURLMirrors();
+  const s1=getURL('sheetUrl'), s2=getURL('sheet2Url'), px=getURL('proxyUrl');
+  localStorage.setItem('cdash_s1', s1);
+  localStorage.setItem('cdash_s2', s2);
+  localStorage.setItem('cdash_px', px);
 }
 window.addEventListener('load',()=>{
   // Restore theme
@@ -3862,12 +4454,24 @@ window.addEventListener('load',()=>{
   }
   // Restore URLs
   const s1=localStorage.getItem('cdash_s1'),s2=localStorage.getItem('cdash_s2'),px=localStorage.getItem('cdash_px');
-  if(s1)document.getElementById('sheetUrl').value=s1;
-  if(s2)document.getElementById('sheet2Url').value=s2;
-  if(px)document.getElementById('proxyUrl').value=px;
-  if(s1)loadAll();
+  if(s1){document.getElementById('sheetUrl').value=s1; const h1=document.getElementById('sheetUrl_h'); if(h1)h1.value=s1;}
+  if(s2){document.getElementById('sheet2Url').value=s2; const h2=document.getElementById('sheet2Url_h'); if(h2)h2.value=s2;}
+  if(px){document.getElementById('proxyUrl').value=px; const hp=document.getElementById('proxyUrl_h'); if(hp)hp.value=px;}
+  if(s1) loadAll();
 });
-['sheetUrl','sheet2Url','proxyUrl'].forEach(id=>document.getElementById(id).addEventListener('change',saveURLs));
+['sheetUrl','sheet2Url','proxyUrl'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(!el) return;
+  el.addEventListener('change',()=>{
+    const h=document.getElementById(id+'_h');
+    if(h) h.value=el.value;
+    saveURLs();
+  });
+  el.addEventListener('input',()=>{
+    const h=document.getElementById(id+'_h');
+    if(h) h.value=el.value;
+  });
+});
 </script>
 
 <!-- ═══ KPI POPUP MODAL ═══ -->
