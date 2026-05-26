@@ -1019,11 +1019,45 @@
             <th>Employees</th>
             <th style="text-align:right;cursor:pointer;user-select:none;" onclick="toggleCitySort('events')">Downtime Events <span id="cdsort-events"></span></th>
             <th style="text-align:right;cursor:pointer;user-select:none;" onclick="toggleCitySort('tickets')">Complaints <span id="cdsort-tickets"></span></th>
+            <th onclick="toggleCitySort('maint')" style="text-align:right;cursor:pointer;user-select:none;">Maintenance <span id="cdsort-maint"></span></th>
           </tr></thead>
           <tbody id="cityDirBody"><tr><td colspan="8" class="no-data">Load data to see activity stats</td></tr></tbody>
         </table>
       </div>
     </div>
+
+    <!-- Charger Maintenance Count List -->
+    <div class="card" style="margin-top:1.5rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+        <div>
+          <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:2px;">🔩 Charger Maintenance Count List</div>
+          <div style="font-size:12px;color:var(--text3);">Total maintenance visits per charger · sorted by count · updates with date &amp; zone filters</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input id="maintChargerSearch" type="text" placeholder="🔍 Search charger or city…"
+            oninput="renderCityDirectory()"
+            style="font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;min-width:180px;" />
+          <span id="maintChargerCount" style="font-size:12px;color:var(--text3);white-space:nowrap;"></span>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:36px;text-align:center;">#</th>
+              <th>Charger Name</th>
+              <th>City</th>
+              <th>Zone</th>
+              <th style="text-align:right;">Maintenance Count</th>
+            </tr>
+          </thead>
+          <tbody id="maintChargerBody">
+            <tr><td colspan="5" class="no-data">Load data to see maintenance counts</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
   </div>
 
   <div class="main-panel" id="mpanel-employee">
@@ -4330,28 +4364,45 @@ const ZONE_COLORS={
 };
 
 function renderCityDirectory(){
-  const q    =(document.getElementById('cityDirSearch')||{value:''}).value.toLowerCase();
-  const zoneF=(document.getElementById('cityDirZone')||{value:''}).value;
+  const q     = (document.getElementById('cityDirSearch')||{value:''}).value.toLowerCase();
+  const zoneF = (document.getElementById('cityDirZone')||{value:''}).value;
+  const mq    = (document.getElementById('maintChargerSearch')||{value:''}).value.toLowerCase();
+  const czMap = buildCityZoneMap();
 
-  // Build live stats from currently filtered data
-  const eventsPerCity={}, ticketsPerCity={};
+  // ── Build live stats ──
+  const eventsPerCity={}, ticketsPerCity={}, maintPerCity={}, maintPerCharger={};
+
   filteredRows.forEach(r=>{
     const key=(r.city||'').trim().replace(/^\d+\s+/,'').trim()||'?';
     eventsPerCity[key]=(eventsPerCity[key]||0)+1;
   });
-  filteredTickets.filter(t=>t.type==='complaint').forEach(t=>{
+
+  filteredTickets.forEach(t=>{
     const key=(t.city||'').trim().replace(/^\d+\s+/,'').trim()||'?';
-    ticketsPerCity[key]=(ticketsPerCity[key]||0)+1;
+    if(t.type==='complaint')   ticketsPerCity[key]=(ticketsPerCity[key]||0)+1;
+    if(t.type==='maintenance'){
+      maintPerCity[key]=(maintPerCity[key]||0)+1;
+      const ck = (t.name||'').trim();
+      if(!ck) return;
+      if(!maintPerCharger[ck]) maintPerCharger[ck]={name:ck, city:t.city||'', zone:t.zone||czMap[(t.city||'').trim()]||'', count:0};
+      maintPerCharger[ck].count++;
+    }
   });
 
-  let list=CITY_DB.filter(c=>{
-    if(zoneF&&c.zone!==zoneF) return false;
+  // ── Filter & sort city list ──
+  let list = CITY_DB.filter(c=>{
+    if(zoneF && c.zone!==zoneF) return false;
     if(q){
       const hay=(c.city+' '+c.state+' '+c.zone+' '+c.emp.join(' ')).toLowerCase();
       if(!hay.includes(q)) return false;
     }
     return true;
-  }).map(c=>({...c, events:eventsPerCity[c.city]||0, tickets:ticketsPerCity[c.city]||0}));
+  }).map(c=>({
+    ...c,
+    events : eventsPerCity[c.city] ||0,
+    tickets: ticketsPerCity[c.city]||0,
+    maint  : maintPerCity[c.city]  ||0,
+  }));
 
   list.sort((a,b)=>{
     let va=a[cityDirSortCol], vb=b[cityDirSortCol];
@@ -4359,64 +4410,112 @@ function renderCityDirectory(){
     return cityDirSortAsc?va-vb:vb-va;
   });
 
+  // ── Count badge ──
   const countEl=document.getElementById('cityDirCount');
   if(countEl) countEl.textContent=list.length+' / 70 cities';
 
-  // Sort arrows
-  ['city','state','zone','chargers','events','tickets'].forEach(col=>{
+  // ── Sort arrows (city + maint added) ──
+  ['city','state','zone','chargers','events','tickets','maint'].forEach(col=>{
     const el=document.getElementById('cdsort-'+col);
     if(el) el.textContent=col===cityDirSortCol?(cityDirSortAsc?'▲':'▼'):'';
   });
 
-  // Zone summary KPI cards
+  // ── Zone summary KPI cards — now with Maintenance ──
   const zoneSummary={};
   CITY_DB.forEach(c=>{
-    if(!zoneSummary[c.zone]) zoneSummary[c.zone]={cities:0,chargers:0,events:0,tickets:0};
+    if(!zoneSummary[c.zone]) zoneSummary[c.zone]={cities:0,chargers:0,events:0,tickets:0,maint:0};
     zoneSummary[c.zone].cities++;
     zoneSummary[c.zone].chargers+=c.chargers;
-    zoneSummary[c.zone].events +=eventsPerCity[c.city]||0;
-    zoneSummary[c.zone].tickets+=ticketsPerCity[c.city]||0;
+    zoneSummary[c.zone].events  +=eventsPerCity[c.city] ||0;
+    zoneSummary[c.zone].tickets +=ticketsPerCity[c.city]||0;
+    zoneSummary[c.zone].maint   +=maintPerCity[c.city]  ||0;
   });
+
   const cardsEl=document.getElementById('zoneSummaryCards');
   if(cardsEl){
-    cardsEl.innerHTML=Object.entries(zoneSummary).map(([zone,s])=>{
+    const zoneOrder = ['North','West','East','South','Central'];
+    const entries = zoneOrder.filter(z=>zoneSummary[z]).map(z=>[z,zoneSummary[z]]);
+    cardsEl.innerHTML = entries.map(([zone,s])=>{
       const zc=ZONE_COLORS[zone]||ZONE_COLORS.Central;
-      return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.1rem;box-shadow:var(--shadow);border-left:4px solid ${zc.dot};">
-        <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px;">
-          <span style="width:10px;height:10px;border-radius:50%;background:${zc.dot};flex-shrink:0;"></span>
-          <span style="font-size:14px;font-weight:700;color:var(--text);">${zone}</span>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-          <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;">Cities</div><div style="font-size:20px;font-weight:700;color:var(--text);">${s.cities}</div></div>
-          <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;">Chargers</div><div style="font-size:20px;font-weight:700;color:var(--text);">${s.chargers}</div></div>
-          <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;">DT Events</div><div style="font-size:15px;font-weight:600;color:var(--red);">${s.events||'—'}</div></div>
-          <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;">Complaints</div><div style="font-size:15px;font-weight:600;color:var(--amber);">${s.tickets||'—'}</div></div>
-        </div>
-      </div>`;
+      return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.1rem;box-shadow:var(--shadow);border-left:4px solid '+zc.dot+';">'
+        +'<div style="display:flex;align-items:center;gap:7px;margin-bottom:10px;">'
+        +'<span style="width:10px;height:10px;border-radius:50%;background:'+zc.dot+';flex-shrink:0;"></span>'
+        +'<span style="font-size:14px;font-weight:700;color:var(--text);">'+zone+'</span></div>'
+        +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">'
+        +'<div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;">Cities</div><div style="font-size:20px;font-weight:700;color:var(--text);">'+s.cities+'</div></div>'
+        +'<div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;">Chargers</div><div style="font-size:20px;font-weight:700;color:var(--text);">'+s.chargers+'</div></div>'
+        +'<div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;">DT Events</div><div style="font-size:15px;font-weight:600;color:var(--red);">'+(s.events||'—')+'</div></div>'
+        +'<div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;">Complaints</div><div style="font-size:15px;font-weight:600;color:var(--amber);">'+(s.tickets||'—')+'</div></div>'
+        +'<div style="grid-column:span 2;border-top:1px solid var(--border);padding-top:6px;margin-top:2px;">'
+        +'<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;">Maintenance</div>'
+        +'<div style="font-size:16px;font-weight:700;color:var(--teal);">'+(s.maint||'—')+'</div></div>'
+        +'</div></div>';
     }).join('');
   }
 
-  // City table rows
+  // ── City table rows — now with Maintenance column ──
   const body=document.getElementById('cityDirBody');
-  if(!body) return;
-  if(!list.length){body.innerHTML='<tr><td colspan="8" class="no-data">No cities match</td></tr>';return;}
+  if(body){
+    if(!list.length){
+      body.innerHTML='<tr><td colspan="9" class="no-data">No cities match</td></tr>';
+    } else {
+      body.innerHTML=list.map((c,i)=>{
+        const zc=ZONE_COLORS[c.zone]||ZONE_COLORS.Central;
+        const empStr=c.emp.length?c.emp.join(', '):'<span style="color:var(--text3)">—</span>';
+        const evtStyle =c.events >20?'color:var(--red);font-weight:700;':c.events >5?'color:var(--amber);font-weight:600;':'color:var(--text2);';
+        const tktStyle =c.tickets>10?'color:var(--red);font-weight:700;':c.tickets>3?'color:var(--amber);font-weight:600;':'color:var(--text2);';
+        const mntStyle =c.maint  >10?'color:var(--teal);font-weight:700;':c.maint  >3?'color:var(--teal);font-weight:600;':'color:var(--text2);';
+        return '<tr>'
+          +'<td style="text-align:center;font-size:11px;color:var(--text3);">'+(i+1)+'</td>'
+          +'<td style="font-weight:600;font-size:13px;">'+c.city+'</td>'
+          +'<td style="font-size:12px;color:var(--text2);">'+c.state+'</td>'
+          +'<td><span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;background:'+zc.bg+';color:'+zc.text+';">'+c.zone+'</span></td>'
+          +'<td style="text-align:right;font-family:\'DM Mono\',monospace;font-weight:600;">'+c.chargers+'</td>'
+          +'<td style="font-size:12px;color:var(--text2);">'+empStr+'</td>'
+          +'<td style="text-align:right;font-family:\'DM Mono\',monospace;'+evtStyle+'">'+(c.events||'—')+'</td>'
+          +'<td style="text-align:right;font-family:\'DM Mono\',monospace;'+tktStyle+'">'+(c.tickets||'—')+'</td>'
+          +'<td style="text-align:right;font-family:\'DM Mono\',monospace;'+mntStyle+'">'+(c.maint||'—')+'</td>'
+          +'</tr>';
+      }).join('');
+    }
+  }
 
-  body.innerHTML=list.map((c,i)=>{
-    const zc=ZONE_COLORS[c.zone]||ZONE_COLORS.Central;
-    const empStr=c.emp.length?c.emp.join(', '):'<span style="color:var(--text3)">—</span>';
-    const evtStyle=c.events>20?'color:var(--red);font-weight:700;':c.events>5?'color:var(--amber);font-weight:600;':'color:var(--text2);';
-    const tktStyle=c.tickets>10?'color:var(--red);font-weight:700;':c.tickets>3?'color:var(--amber);font-weight:600;':'color:var(--text2);';
-    return `<tr>
-      <td style="text-align:center;font-size:11px;color:var(--text3);">${i+1}</td>
-      <td style="font-weight:600;font-size:13px;">${c.city}</td>
-      <td style="font-size:12px;color:var(--text2);">${c.state}</td>
-      <td><span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;background:${zc.bg};color:${zc.text};">${c.zone}</span></td>
-      <td style="text-align:right;font-family:'DM Mono',monospace;font-weight:600;">${c.chargers}</td>
-      <td style="font-size:12px;color:var(--text2);">${empStr}</td>
-      <td style="text-align:right;font-family:'DM Mono',monospace;${evtStyle}">${c.events||'—'}</td>
-      <td style="text-align:right;font-family:'DM Mono',monospace;${tktStyle}">${c.tickets||'—'}</td>
-    </tr>`;
-  }).join('');
+  // ── Charger Maintenance List (per charger) ──
+  let mList = Object.values(maintPerCharger);
+  if(zoneF)  mList = mList.filter(m=>(m.zone||czMap[(m.city||'').trim()]||'')=== zoneF);
+  if(mq)     mList = mList.filter(m=>(m.name+' '+m.city+' '+m.zone).toLowerCase().includes(mq));
+  mList.sort((a,b)=>b.count-a.count);
+
+  const mBody  = document.getElementById('maintChargerBody');
+  const mCount = document.getElementById('maintChargerCount');
+  if(mCount) mCount.textContent = mList.length+' chargers';
+
+  if(mBody){
+    if(!mList.length){
+      mBody.innerHTML='<tr><td colspan="5" class="no-data">No maintenance data in selected range</td></tr>';
+    } else {
+      const maxCnt = mList[0].count;
+      mBody.innerHTML = mList.map((m,i)=>{
+        const zone = m.zone || czMap[(m.city||'').trim()] || '—';
+        const zc   = ZONE_COLORS[zone] || ZONE_COLORS.Central;
+        const bar  = maxCnt>0 ? Math.round(m.count/maxCnt*100) : 0;
+        return '<tr>'
+          +'<td style="text-align:center;font-size:11px;color:var(--text3);">'+(i+1)+'</td>'
+          +'<td style="font-weight:600;font-size:13px;">'+m.name+'</td>'
+          +'<td style="font-size:12px;color:var(--text2);">'+(m.city||'—')+'</td>'
+          +'<td><span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;background:'+zc.bg+';color:'+zc.text+';">'+zone+'</span></td>'
+          +'<td style="text-align:right;">'
+            +'<div style="display:flex;align-items:center;gap:8px;justify-content:flex-end;">'
+              +'<div style="width:80px;height:7px;background:var(--surface2);border-radius:4px;overflow:hidden;">'
+                +'<div style="height:100%;width:'+bar+'%;background:var(--teal);border-radius:4px;"></div>'
+              +'</div>'
+              +'<span style="font-family:\'DM Mono\',monospace;font-weight:700;color:var(--teal);min-width:28px;text-align:right;">'+m.count+'</span>'
+            +'</div>'
+          +'</td>'
+          +'</tr>';
+      }).join('');
+    }
+  }
 }
 
 function toggleCitySort(col){
