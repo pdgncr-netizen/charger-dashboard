@@ -1403,17 +1403,12 @@ function parseDate(s){if(!s)return null;const d=new Date(s);return isNaN(d.getTi
 // SAFE NUMBER — core fix preventing string concatenation
 // ══════════════════════════════════════════════════════
 function safeNum(raw){
-  if(raw===null||raw===undefined) return 0;
-  if(typeof raw==='number') return isNaN(raw)?0:raw;
-  let s=String(raw).replace(/"/g,'').trim();
-  // Reject datetime strings
-  if(/[\/:]/.test(s)) return 0;
-  // Strip leading unit labels like "Kms ", "km ", "hrs " etc.
-  s = s.replace(/^(kms?|hrs?|hours?)\s*/i,'').trim();
-  // Strip trailing unit labels
-  s = s.replace(/\s*(kms?|hrs?|hours?)$/i,'').replace(/,/g,'').trim();
-  if(!s||!/^\d/.test(s)) return 0;
-  const v=parseFloat(s);
+  if(raw===null||raw===undefined)return 0;
+  if(typeof raw==='number')return isNaN(raw)?0:raw;
+  const s=String(raw).trim().replace(/,/g,'');
+  const m=s.match(/^-?(\d+\.?\d*)/);
+  if(!m)return 0;
+  const v=parseFloat(m[0]);
   return isNaN(v)?0:v;
 }
 
@@ -1546,7 +1541,6 @@ const COL_FIELDS_2 = [
   { key:'act',     label:'Activity / Type',     hint:'Daily Complaint / Monthly Maintenance / Replacement' },
   { key:'rca',     label:'RCA (Root Cause)',     hint:'Reason for complaint / failure' },
   { key:'emp',     label:'Employee Name',        hint:'Technician who attended the ticket' },
-  { key:'open',    label:'Ticket Open / Receive Time', hint:'When the ticket was received / charger last heartbeat (optional)' },
   { key:'close',   label:'Ticket Close Time',    hint:'Date/time ticket was closed' },
   { key:'res',     label:'Resolution Hours',     hint:'Time taken to resolve in hours (numeric)' },
   { key:'km',      label:'KM Travelled',         hint:'Distance travelled by employee for this ticket' },
@@ -1566,7 +1560,6 @@ function autoDetectCols2(headers) {
     rca:     f('rca','root cause'),
     emp:     f('emp name','employee','technician','emp'),
     close:   f('ticket close','close time','ticket_close','close date','date'),
-    open:    f('last heartbeat','receive time','open time','start time','ticket open','heartbeat'),
     res:     f('resolution hrs','res hrs','resolution','res_hrs'),
     km:      f('km','kms','distance','travel km','km travel','km travelled'),
     dmg:     f('damage list','damage','part','damaged'),
@@ -1735,7 +1728,6 @@ function parseS2withMap(csv) {
   const iCity    = colMap2.city    ?? -1;
   const iZone    = colMap2.zone    ?? -1;
   const iClose   = colMap2.close   ?? -1;
-  const iOpen    = colMap2.open    ?? -1;
   const iRes     = colMap2.res     ?? -1;
   const iEmp     = colMap2.emp     ?? -1;
   const iRemarks = colMap2.remarks ?? -1;
@@ -1769,7 +1761,6 @@ function parseS2withMap(csv) {
       zone:    iZone    >= 0 ? clean(c[iZone])    : '',
       closeRaw,
       date:    parseDate(closeRaw),
-      openDate: iOpen >= 0 ? parseDate(clean(c[iOpen])) : null,
       resHrs:  (resRaw === '' || resRaw.toLowerCase() === 'nan') ? null : safeNum(resRaw),
       emp:     iEmp     >= 0 ? clean(c[iEmp])     : '',
       remarks: iRemarks >= 0 ? clean(c[iRemarks]) : '',
@@ -3727,8 +3718,8 @@ function exportPresentation(exportRows, exportTickets, actSel, zoneSel) {
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'Segoe UI',Arial,sans-serif;background:${BG};color:${TEXT};padding:32px;}
   @media print{body{padding:0;}@page{margin:1cm;}}
-<\/style>
-<\/head>
+</style>
+</head>
 <body>
 
 <!-- COVER -->
@@ -3913,109 +3904,61 @@ ${slide(5, '📋 Executive Summary', '#1f7a3e', `
 // Points by resolution hours: lower hrs = more points
 // Night-gap bonus: closed after shift, restarted next day in shift
 // ══════════════════════════════════════════════════════════════════════
-const SHIFT_START_H = 8;   // 08:00 AM
-const SHIFT_END_H   = 20;  // 08:00 PM
+const SHIFT_START = 8;  // 8 AM
+const SHIFT_END   = 20; // 8 PM
 
-// ── calcEffectiveShiftHours ───────────────────────────────────────────
-// Given a ticket's open datetime and close datetime,
-// returns the total hours that fall within shift (08:00–20:00) only.
-//
-// Scenarios handled:
-//   1. Same-day, inside shift          → count exact window
-//   2. Overnight (close next-day AM)   → count shift portion each day
-//   3. Late-night entry (open after 8PM) → clock starts at 8AM next day
-//   4. Multi-day                       → sum shift hours each calendar day
-function calcEffectiveShiftHours(openDate, closeDate) {
-  if (!openDate || !closeDate) return null;
-  if (closeDate <= openDate) return 0;
-
-  let effectiveHrs = 0;
-
-  // Walk day-by-day from openDate to closeDate
-  let cursor = new Date(openDate);
-  // Clamp cursor start to shift start if before shift
-  let dayStart = new Date(cursor);
-  dayStart.setHours(SHIFT_START_H, 0, 0, 0);
-  let dayEnd   = new Date(cursor);
-  dayEnd.setHours(SHIFT_END_H, 0, 0, 0);
-
-  // Safety: max 30 iterations (30 days)
-  let iter = 0;
-  while (cursor < closeDate && iter < 30) {
-    iter++;
-    // Shift window for current day
-    const shiftS = new Date(cursor); shiftS.setHours(SHIFT_START_H, 0, 0, 0);
-    const shiftE = new Date(cursor); shiftE.setHours(SHIFT_END_H,   0, 0, 0);
-
-    // Intersection of [cursor, closeDate] with [shiftS, shiftE]
-    const segStart = new Date(Math.max(cursor.getTime(),     shiftS.getTime()));
-    const segEnd   = new Date(Math.min(closeDate.getTime(), shiftE.getTime()));
-
-    if (segEnd > segStart) {
-      effectiveHrs += (segEnd - segStart) / 3600000;
-    }
-
-    // Advance cursor to start of next day shift
-    cursor = new Date(shiftS);
-    cursor.setDate(cursor.getDate() + 1);
-    cursor.setHours(SHIFT_START_H, 0, 0, 0);
-  }
-
-  return Math.round(effectiveHrs * 100) / 100;
+function isInShift(date) {
+  if (!date) return false;
+  const h = date.getHours() + date.getMinutes()/60;
+  return h >= SHIFT_START && h <= SHIFT_END;
 }
 
-// ── effectiveHrsToPoints ──────────────────────────────────────────────
-// Points table based on EFFECTIVE (shift-only) hours
-function effectiveHrsToPoints(effHrs) {
-  if (effHrs === null || effHrs === undefined) return 5; // no timestamps = neutral
-  if (effHrs <= 0)   return 25; // instant resolution = max
-  if (effHrs <= 1)   return 25;
-  if (effHrs <= 2)   return 20;
-  if (effHrs <= 3)   return 17;
-  if (effHrs <= 4)   return 14;
-  if (effHrs <= 5)   return 11;
-  if (effHrs <= 6)   return 8;
-  if (effHrs <= 7)   return 5;
-  if (effHrs <= 8)   return 3;
-  if (effHrs <= 16)  return 1;   // slow but within 2 shifts
-  return -10;                     // Delayed Next Day (>16 eff hrs) = penalty
+function resHrsToPoints(hrs) {
+  // Lower hours = more points (efficient resolution)
+  if (hrs === null || hrs === undefined) return 5; // no data = neutral
+  if (hrs <= 1)  return 25;
+  if (hrs <= 2)  return 20;
+  if (hrs <= 3)  return 17;
+  if (hrs <= 4)  return 14;
+  if (hrs <= 5)  return 11;
+  if (hrs <= 6)  return 8;
+  if (hrs <= 7)  return 5;
+  if (hrs <= 8)  return 3;
+  return 1; // > 8 hrs = bad ticket
 }
 
-// ── calcTicketPoints ──────────────────────────────────────────────────
-// ticket needs: .openDate (parsed from "Last heartbeat" or "receive time")
-//               .date     (parsed close time)
-//               .resHrs   (fallback if no openDate)
 function calcTicketPoints(ticket) {
-  const closeDate = ticket.date;       // parsed close datetime
-  const openDate  = ticket.openDate;   // parsed open/receive datetime (may be null)
+  // Base points from resolution time
+  let pts = resHrsToPoints(ticket.resHrs !== null ? Number(ticket.resHrs) : null);
 
-  let effHrs = null;
-
-  if (openDate && closeDate && closeDate > openDate) {
-    // ── Best case: we have both timestamps → compute exact shift hours ──
-    effHrs = calcEffectiveShiftHours(openDate, closeDate);
-  } else if (ticket.resHrs !== null && ticket.resHrs !== undefined) {
-    // ── Fallback: use resHrs but adjust for overnight span ──
-    const raw = Number(ticket.resHrs);
-    if (closeDate) {
-      const openEst = new Date(closeDate.getTime() - raw * 3600000);
-      effHrs = calcEffectiveShiftHours(openEst, closeDate);
-    } else {
-      // No timestamps at all — use raw hours as approximation
-      effHrs = raw;
+  // Night-gap bonus detection:
+  // closeRaw is the "Ticket close time" — if close is after 8PM AND
+  // the re-open next day is in shift (i.e., resHrs span includes overnight)
+  // We detect this by: close after 8PM & resHrs > 0 but actual work was in-shift
+  // Approximation: if ticket.resHrs > 8 but the close time is 8AM–8PM next day
+  // → treat as shift-carried-over (not employee's fault for overnight gap)
+  const closeDate = ticket.date; // date is parsed from ticket close time
+  if (closeDate && isInShift(closeDate) && ticket.resHrs !== null && Number(ticket.resHrs) > 8) {
+    // Close time is in-shift but resolution was long → likely overnight gap
+    // Check if the gap includes non-shift hours (night time)
+    const hrs = Number(ticket.resHrs);
+    // Estimate actual work hours: subtract the non-shift gap (8PM to 8AM = 12 hrs)
+    // If total hrs > 12, it definitely spanned overnight
+    if (hrs > 12) {
+      // Give them benefit of doubt — recalculate with shift-hours only
+      const shiftHrs = hrs - 12; // subtract one overnight gap
+      pts = resHrsToPoints(shiftHrs);
+      pts += 15; // night-gap bonus
     }
   }
 
-  return effectiveHrsToPoints(effHrs);
+  return pts;
 }
-
-// Legacy alias
-function resHrsToPoints(hrs) { return effectiveHrsToPoints(hrs); }
 
 function calcEmpScore(empStats) {
+  // empStats has: tickets, resSum, resCnt, bad, shiftTickets, nightGapCount, pointsTotal
   return empStats.pointsTotal || 0;
 }
-
 
 // ══════════════════════════════════════════════════════════════
 // EMPLOYEE REPORT MODULE
@@ -4077,7 +4020,7 @@ function renderEmployeeReport() {
     m.pointsTotal += pts;
     // Count night-gap bonuses
     const closeDate = t.date;
-    if (closeDate && (closeDate.getHours() >= SHIFT_START_H && closeDate.getHours() < SHIFT_END_H) && t.resHrs !== null && Number(t.resHrs) > 12) m.nightGaps++;
+    if (closeDate && isInShift(closeDate) && t.resHrs !== null && Number(t.resHrs) > 12) m.nightGaps++;
   });
   const empList = Object.values(empMap).map(m => ({
     ...m,
@@ -4162,11 +4105,17 @@ Night-gap bonus: +15pts per overnight ticket">${e.score} pts</span>
 
   // Scoring legend
   const legendEl = document.getElementById('empScoreLegend');
-  if(legendEl){
-    const _pts=[[1,25],[2,20],[3,17],[4,14],[5,11],[6,8],[7,5],[8,3]];
-    const _p=_pts.map(function(x){return '<span style="font-size:11px;font-family:DM Mono,monospace;background:var(--surface2);border:1px solid var(--border);padding:3px 8px;border-radius:6px;color:var(--text2);">'+x[0]+'h=<b style="color:var(--green)">'+x[1]+'pts</b></span>';}).join(' ');
-    legendEl.innerHTML='<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;"><span style="font-size:12px;font-weight:600;color:var(--text2);">Score Formula (shift 8AM-8PM):</span>'+_p+'<span style="font-size:11px;background:var(--red-light);border:1px solid var(--red);padding:3px 8px;border-radius:6px;color:var(--red);">&gt;16h=-10pts</span><span style="font-size:11px;color:var(--text3);">Overnight excluded automatically</span></div>';
-  }
+  if (legendEl) legendEl.innerHTML = `
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+      <span style="font-size:12px;font-weight:600;color:var(--text2);">📊 Score Formula:</span>
+      ${[[1,'25'],[2,'20'],[3,'17'],[4,'14'],[5,'11'],[6,'8'],[7,'5'],[8,'3']].map(([h,p])=>
+        `<span style="font-size:11px;font-family:'DM Mono',monospace;background:var(--surface2);border:1px solid var(--border);padding:3px 8px;border-radius:6px;color:var(--text2);">${h}h = <strong style="color:var(--green)">${p}pts</strong></span>`
+      ).join('')}
+      <span style="font-size:11px;font-family:'DM Mono',monospace;background:var(--surface2);border:1px solid var(--border);padding:3px 8px;border-radius:6px;color:var(--text2);">&gt;8h = <strong style="color:var(--red)">1pt</strong></span>
+      <span style="font-size:11px;background:var(--blue-light);border:1px solid var(--blue);padding:3px 8px;border-radius:6px;color:var(--blue);font-weight:600;">🌙 Night gap bonus: +15pts</span>
+      <span style="font-size:11px;color:var(--text3);">(Shift: 8AM–8PM only)</span>
+    </div>`;
+}
 
 // ── TICKET BREAKUP ────────────────────────────────────────────
 function renderEmpTicketBreakup(empList) {
@@ -4578,8 +4527,6 @@ function toggleCitySort(col){
 // Also re-render city directory when global data refreshes
 function maybeRefreshCityDir(){
   if(activeMainTab==='citydir') renderCityDirectory();
-}
-
 }
 
 // PERSIST
