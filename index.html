@@ -3907,12 +3907,24 @@ ${slide(5, '📋 Executive Summary', '#1f7a3e', `
 // Algorithm: walk day-by-day, count ONLY hours inside shift window
 // Overnight gap (8PM→8AM = 12h) is EXCLUDED automatically
 // Points scale: ≤1h=25, ≤2h=20, ≤3h=17, ≤4h=14, ≤5h=11, ≤6h=8,
-//               ≤7h=5, ≤8h=3, ≤16h=1, >16h = -10pts (Delayed Next Day)
+//  1h=25  2h=20  3h=10  4h=0   5h=-10  6h=-20  7h=-30  8h=-40
+//  9h=-50 10h=-60 11h=-70 12h=-80 13h=-90 14h=-100  >14h=-100
+// ══════════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════
+// SHIFT-BASED SCORING SYSTEM
+// Working hours: 08:00 AM – 08:00 PM (12 hrs/day)
+// Time before 8AM or after 8PM is IGNORED
+// Overnight (8PM → 8AM) is automatically excluded
+//
+// Points Table:
+//  1h=25  2h=20  3h=10  4h=0   5h=-10  6h=-20
+//  7h=-30 8h=-40 9h=-50 10h=-60 11h=-70 12h=-80
+//  13h=-90 14h=-100  >14h=-100
 // ══════════════════════════════════════════════════════════════════════
 const SHIFT_START_H = 8;   // 08:00 AM
 const SHIFT_END_H   = 20;  // 08:00 PM
 
-// calcEffectiveShiftHours: total hours INSIDE shift across all spanned days
+// calcEffectiveShiftHours: total hours inside shift across all spanned days
 function calcEffectiveShiftHours(openDate, closeDate) {
   if (!openDate || !closeDate || closeDate <= openDate) return 0;
   let effectiveHrs = 0;
@@ -3922,10 +3934,10 @@ function calcEffectiveShiftHours(openDate, closeDate) {
     iter++;
     const shiftS = new Date(cursor); shiftS.setHours(SHIFT_START_H, 0, 0, 0);
     const shiftE = new Date(cursor); shiftE.setHours(SHIFT_END_H,   0, 0, 0);
-    const segStart = new Date(Math.max(cursor.getTime(),      shiftS.getTime()));
-    const segEnd   = new Date(Math.min(closeDate.getTime(),   shiftE.getTime()));
+    const segStart = new Date(Math.max(cursor.getTime(),    shiftS.getTime()));
+    const segEnd   = new Date(Math.min(closeDate.getTime(), shiftE.getTime()));
     if (segEnd > segStart) effectiveHrs += (segEnd - segStart) / 3600000;
-    // Advance cursor to start of next day's shift
+    // Advance cursor to start of next day shift
     cursor = new Date(shiftS);
     cursor.setDate(cursor.getDate() + 1);
     cursor.setHours(SHIFT_START_H, 0, 0, 0);
@@ -3933,38 +3945,36 @@ function calcEffectiveShiftHours(openDate, closeDate) {
   return Math.round(effectiveHrs * 100) / 100;
 }
 
-// effectiveHrsToPoints: points based on effective (shift-only) hours
+// effectiveHrsToPoints: exact points table as specified
 function effectiveHrsToPoints(effHrs) {
-  if (effHrs === null || effHrs === undefined) return 5; // no timestamp = neutral
-  if (effHrs <= 1)  return 25;
-  if (effHrs <= 2)  return 20;
-  if (effHrs <= 3)  return 17;
-  if (effHrs <= 4)  return 14;
-  if (effHrs <= 5)  return 11;
-  if (effHrs <= 6)  return 8;
-  if (effHrs <= 7)  return 5;
-  if (effHrs <= 8)  return 3;
-  if (effHrs <= 16) return 1;   // slow but within 2 shifts
-  return -10;                    // >16h effective = Delayed Next Day penalty
+  if (effHrs === null || effHrs === undefined) return 0;
+  const h = Math.ceil(effHrs); // round up to nearest hour
+  const table = {
+    1: 25, 2: 20, 3: 10, 4: 0,
+    5: -10, 6: -20, 7: -30, 8: -40,
+    9: -50, 10: -60, 11: -70, 12: -80,
+    13: -90, 14: -100
+  };
+  if (h <= 0)  return 25;                          // instant = max
+  if (h >= 14) return -100;                        // beyond 14h = max penalty
+  return table[h] !== undefined ? table[h] : -100;
 }
 
-// calcTicketPoints: main entry — uses timestamps if available, resHrs as fallback
+// calcTicketPoints: uses timestamps if available, resHrs as fallback
 function calcTicketPoints(ticket) {
   const closeDate = ticket.date;
   const openDate  = ticket.openDate || null;
   let effHrs = null;
 
   if (openDate && closeDate && closeDate > openDate) {
-    // Best: exact timestamps → compute real shift hours
     effHrs = calcEffectiveShiftHours(openDate, closeDate);
   } else if (ticket.resHrs !== null && ticket.resHrs !== undefined) {
     const raw = Number(ticket.resHrs);
     if (closeDate) {
-      // Estimate openDate from close - resHrs, then compute shift hours
       const openEst = new Date(closeDate.getTime() - raw * 3600000);
       effHrs = calcEffectiveShiftHours(openEst, closeDate);
     } else {
-      effHrs = raw; // last resort: treat resHrs as effective hours
+      effHrs = raw;
     }
   }
   return effectiveHrsToPoints(effHrs);
@@ -3974,13 +3984,14 @@ function calcTicketPoints(ticket) {
 function resHrsToPoints(hrs) { return effectiveHrsToPoints(hrs); }
 function isInShift(date) {
   if (!date) return false;
-  const h = date.getHours() + date.getMinutes()/60;
+  const h = date.getHours() + date.getMinutes() / 60;
   return h >= SHIFT_START_H && h < SHIFT_END_H;
 }
 
 function calcEmpScore(empStats) {
   return empStats.pointsTotal || 0;
 }
+
 
 
 // ══════════════════════════════════════════════════════════════
@@ -4126,18 +4137,18 @@ Night-gap bonus: +15pts per overnight ticket">${e.score} pts</span>
   // Scoring legend
   const legendEl = document.getElementById('empScoreLegend');
   if (legendEl) {
-    const _pts = [[1,25],[2,20],[3,17],[4,14],[5,11],[6,8],[7,5],[8,3]];
+    const _pts = [[1,25],[2,20],[3,10],[4,0],[5,-10],[6,-20],[7,-30],[8,-40],[9,-50],[10,-60],[11,-70],[12,-80],[13,-90],[14,-100]];
     const _pills = _pts.map(function(x){
-      return '<span style="font-size:11px;font-family:DM Mono,monospace;background:var(--surface2);'
-        +'border:1px solid var(--border);padding:3px 8px;border-radius:6px;color:var(--text2);">'
-        +x[0]+'h = <strong style="color:var(--green)">'+x[1]+'pts</strong></span>';
+      const col = x[1] > 0 ? 'var(--green)' : x[1] === 0 ? 'var(--text2)' : 'var(--red)';
+      const bg  = x[1] > 0 ? 'var(--green-light)' : x[1] === 0 ? 'var(--surface2)' : 'var(--red-light)';
+      return '<span style="font-size:11px;font-family:DM Mono,monospace;background:'+bg+';'
+        +'border:1px solid var(--border);padding:3px 7px;border-radius:6px;color:'+col+';font-weight:600;">'
+        +x[0]+'h=<strong>'+x[1]+'</strong></span>';
     }).join('');
-    legendEl.innerHTML = '<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">'
-      +'<span style="font-size:12px;font-weight:600;color:var(--text2);">Score Formula (Shift 8AM–8PM):</span>'
+    legendEl.innerHTML = '<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">'
+      +'<span style="font-size:12px;font-weight:600;color:var(--text2);white-space:nowrap;">⏱ Score (Shift 8AM–8PM):</span>'
       +_pills
-      +'<span style="font-size:11px;font-family:DM Mono,monospace;background:var(--surface2);border:1px solid var(--border);padding:3px 8px;border-radius:6px;color:var(--text2);">9–16h = <strong style="color:var(--amber)">1pt</strong></span>'
-      +'<span style="font-size:11px;background:var(--red-light);border:1px solid var(--red);padding:3px 8px;border-radius:6px;color:var(--red);font-weight:600;">&gt;16h = −10pts</span>'
-      +'<span style="font-size:11px;color:var(--text3);">Overnight hours excluded automatically</span>'
+      +'<span style="font-size:11px;color:var(--text3);white-space:nowrap;margin-left:4px;">&gt;14h = −100 · Overnight excluded automatically</span>'
       +'</div>';
   }
 }
