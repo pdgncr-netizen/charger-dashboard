@@ -385,22 +385,12 @@
         <option value="">All Zones</option>
       </select>
 
-      <!-- City filter -->
-      <select id="globalCityFilter" onchange="applyFilter()" style="font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;cursor:pointer;min-width:130px;">
-        <option value="">All Cities</option>
-      </select>
-
-      <!-- Activity / Type filter (Sheet 2 data) -->
+      <!-- Activity / Type filter -->
       <select id="globalActivityFilter" onchange="applyFilter()" style="font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;cursor:pointer;min-width:170px;">
         <option value="">All Activities</option>
         <option value="complaint">Daily Complaints</option>
         <option value="maintenance">Monthly Maintenance</option>
         <option value="replacement">Replacement</option>
-      </select>
-
-      <!-- RCA filter (Sheet 1 downtime RCA) -->
-      <select id="globalRcaFilter" onchange="applyFilter()" style="font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;cursor:pointer;min-width:160px;">
-        <option value="">All RCAs</option>
       </select>
 
       <button onclick="clearAllFilters()" style="font-size:12px;font-weight:600;color:var(--red);background:var(--red-light);border:1px solid rgba(192,57,43,0.2);padding:5px 12px;border-radius:var(--radius);cursor:pointer;">✕ Reset All</button>
@@ -1436,7 +1426,33 @@ function splitCSVLine(line){
   res.push(cur);return res;
 }
 function clean(s){return(s||'').replace(/"/g,'').trim();}
-function parseDate(s){if(!s)return null;const d=new Date(s);return isNaN(d.getTime())?null:d;}
+function parseDate(s){
+  if(!s) return null;
+  const str = String(s).trim().replace(/"/g,'');
+  if(!str) return null;
+  // Handle "M/D/YYYY H:MM" or "M/D/YYYY HH:MM" format (from Google Sheets)
+  // new Date("1/2/2026 10:00") is LOCAL in most browsers but can be UTC — be explicit
+  const m1 = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})/);
+  if(m1){
+    const [,mo,dy,yr,hr,mn] = m1.map(Number);
+    return new Date(yr, mo-1, dy, hr, mn, 0, 0);
+  }
+  // Handle "M/D/YYYY" (date only — no time)
+  const m2 = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m2){
+    const [,mo,dy,yr] = m2.map(Number);
+    return new Date(yr, mo-1, dy, 0, 0, 0, 0);
+  }
+  // Handle "YYYY-MM-DD" ISO format
+  const m3 = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(m3){
+    const [,yr,mo,dy] = m3.map(Number);
+    return new Date(yr, mo-1, dy, 0, 0, 0, 0);
+  }
+  // Fallback
+  const d = new Date(str);
+  return isNaN(d.getTime()) ? null : d;
+}
 
 // ══════════════════════════════════════════════════════
 // SAFE NUMBER — core fix preventing string concatenation
@@ -1567,8 +1583,9 @@ function applyColumnMap() {
     setPill(1,'ok',allRows.length+' events loaded ✓');
     const dates = allRows.map(r=>r.date).filter(Boolean);
     if (dates.length) {
-      document.getElementById('dateFrom').value = new Date(Math.min(...dates)).toISOString().slice(0,10);
-      document.getElementById('dateTo').value   = new Date(Math.max(...dates)).toISOString().slice(0,10);
+      const _toLocalStr = d => { const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0'); return y+'-'+m+'-'+dd; };
+      document.getElementById('dateFrom').value = _toLocalStr(new Date(Math.min(...dates)));
+      document.getElementById('dateTo').value   = _toLocalStr(new Date(Math.max(...dates)));
     }
     renderAll();
   }
@@ -1901,8 +1918,9 @@ async function loadAll(){
     setPill(1,'ok',allRows.length+' events loaded ✓');
     const dates=allRows.map(r=>r.date).filter(Boolean);
     if(dates.length){
-      document.getElementById('dateFrom').value=new Date(Math.min(...dates)).toISOString().slice(0,10);
-      document.getElementById('dateTo').value=new Date(Math.max(...dates)).toISOString().slice(0,10);
+      const _toLS2 = d => { const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0'); return y+'-'+m+'-'+dd; };
+      document.getElementById('dateFrom').value=_toLS2(new Date(Math.min(...dates)));
+      document.getElementById('dateTo').value=_toLS2(new Date(Math.max(...dates)));
     }
   }catch(e){setPill(1,'err','Sheet 1: '+e.message);btn.classList.remove('spinning');return;}
   allTickets=[];filteredTickets=[];
@@ -1933,11 +1951,7 @@ function populateGlobalFilters(){
     ...allRows.map(r=>r.zone||''),
     ...allTickets.map(t=>t.zone||czMap[(t.city||'').trim()]||'')
   ].filter(Boolean))].sort();
-  const cities = [...new Set([
-    ...allRows.map(r=>r.city||''),
-    ...allTickets.map(t=>t.city||'')
-  ].filter(Boolean))].sort();
-  const rcas = [...new Set(allRows.map(r=>r.rca||'').filter(Boolean))].sort();
+
   const populate = (id, arr) => {
     const sel = document.getElementById(id); if(!sel) return;
     const cur = sel.value;
@@ -1946,28 +1960,57 @@ function populateGlobalFilters(){
     sel.value = cur;
   };
   populate('globalZoneFilter', zones);
-  populate('globalCityFilter', cities);
-  populate('globalRcaFilter', rcas);
+
 }
 
 // ── Quick date presets ──
 let activePreset = '';
 function setDatePreset(preset){
   const now = new Date();
-  let from = new Date(), to = new Date();
-  if(preset==='today'){ /* defaults ok */ }
-  else if(preset==='yesterday'){ from.setDate(from.getDate()-1); to.setDate(to.getDate()-1); }
-  else if(preset==='last7'){ from.setDate(from.getDate()-6); }
-  else if(preset==='last30'){ from.setDate(from.getDate()-29); }
-  else if(preset==='thismonth'){ from = new Date(now.getFullYear(),now.getMonth(),1); }
-  else if(preset==='lastmonth'){ from=new Date(now.getFullYear(),now.getMonth()-1,1); to=new Date(now.getFullYear(),now.getMonth(),0); }
+  const yr  = now.getFullYear();
+  const mo  = now.getMonth();   // 0-indexed
+  const dy  = now.getDate();
+
+  // fmt: local date string YYYY-MM-DD (avoids UTC timezone shift)
+  const fmtLocal = d => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const dd= String(d.getDate()).padStart(2,'0');
+    return y+'-'+m+'-'+dd;
+  };
+
+  let fromStr='', toStr=fmtLocal(now);
+
+  if(preset==='today'){
+    fromStr = fmtLocal(now);
+  }
+  else if(preset==='yesterday'){
+    const y = new Date(yr,mo,dy-1);
+    fromStr = toStr = fmtLocal(y);
+  }
+  else if(preset==='last7'){
+    fromStr = fmtLocal(new Date(yr,mo,dy-6));
+  }
+  else if(preset==='last30'){
+    fromStr = fmtLocal(new Date(yr,mo,dy-29));
+  }
+  else if(preset==='thismonth'){
+    // First day of current month — local time, no UTC shift
+    fromStr = fmtLocal(new Date(yr,mo,1));
+    toStr   = fmtLocal(now);
+  }
+  else if(preset==='lastmonth'){
+    fromStr = fmtLocal(new Date(yr,mo-1,1));
+    toStr   = fmtLocal(new Date(yr,mo,0));   // last day of prev month
+  }
   else if(preset==='all'){
-    document.getElementById('dateFrom').value=''; document.getElementById('dateTo').value='';
+    document.getElementById('dateFrom').value='';
+    document.getElementById('dateTo').value='';
     activePreset='all'; updatePresetBtns(); applyFilter(); return;
   }
-  const fmt=d=>d.toISOString().slice(0,10);
-  document.getElementById('dateFrom').value=fmt(from);
-  document.getElementById('dateTo').value=fmt(to);
+
+  document.getElementById('dateFrom').value = fromStr;
+  document.getElementById('dateTo').value   = toStr;
   activePreset=preset; updatePresetBtns(); applyFilter();
 }
 function updatePresetBtns(){
@@ -1981,38 +2024,43 @@ function applyFilter(){
   const from = document.getElementById('dateFrom').value;
   const to   = document.getElementById('dateTo').value;
   const zoneF = (document.getElementById('globalZoneFilter')||{value:''}).value||'';
-  const cityF = (document.getElementById('globalCityFilter')||{value:''}).value||'';
   const actF  = (document.getElementById('globalActivityFilter')||{value:''}).value||'';
-  const rcaF  = (document.getElementById('globalRcaFilter')||{value:''}).value||'';
-  const fromD = from?new Date(from):null;
-  const toD   = to?new Date(to+'T23:59:59'):null;
+
+  // Parse date string as LOCAL midnight (not UTC) to avoid timezone shift
+  // e.g. "2026-06-01" → June 1 00:00:00 local, not May 31 18:30 UTC
+  const parseLocalDate = s => {
+    if(!s) return null;
+    const [y,m,d] = s.split('-').map(Number);
+    return new Date(y, m-1, d, 0, 0, 0, 0);
+  };
+  const fromD = parseLocalDate(from);
+  const toD   = from && to ? new Date(parseLocalDate(to).getTime() + 86399999) : null; // end of day
+
   const czMap = buildCityZoneMap();
 
   const passDate = r => {
-    if(!fromD&&!toD) return true;
-    if(!r.date) return true;
-    if(fromD&&r.date<fromD) return false;
-    if(toD&&r.date>toD) return false;
+    if(!fromD && !toD) return true;
+    if(!r.date) return false;  // no date = exclude when filter is active
+    if(fromD && r.date < fromD) return false;
+    if(toD   && r.date > toD)   return false;
     return true;
   };
 
   filteredRows = allRows.filter(r=>{
     if(!passDate(r)) return false;
     if(zoneF && (r.zone||'')!==zoneF) return false;
-    if(cityF && (r.city||'')!==cityF) return false;
-    if(rcaF  && (r.rca||'')!==rcaF)  return false;
+
     return true;
   });
   filteredTickets = allTickets.filter(t=>{
     if(!passDate(t)) return false;
     const tZone = t.zone||czMap[(t.city||'').trim()]||'';
     if(zoneF && tZone!==zoneF) return false;
-    if(cityF && (t.city||'')!==cityF) return false;
     if(actF  && t.type!==actF) return false;
     return true;
   });
 
-  const anyActive = from||to||zoneF||cityF||actF||rcaF;
+  const anyActive = from||to||zoneF||actF;
   const badge = document.getElementById('filterBadge');
   if(badge){
     badge.classList.toggle('hidden',!anyActive);
@@ -2020,9 +2068,7 @@ function applyFilter(){
       const parts=[];
       if(from||to) parts.push('Date');
       if(zoneF) parts.push(zoneF);
-      if(cityF) parts.push(cityF);
       if(actF)  parts.push(actF==='complaint'?'Complaints':actF==='maintenance'?'Maintenance':'Replacement');
-      if(rcaF)  parts.push('RCA');
       badge.textContent = parts.join(' · ');
     }
   }
@@ -2043,7 +2089,7 @@ function clearFilter(){
 }
 function clearAllFilters(){
   ['dateFrom','dateTo'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  ['globalZoneFilter','globalCityFilter','globalActivityFilter','globalRcaFilter'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['globalZoneFilter','globalActivityFilter'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   activePreset=''; updatePresetBtns();
   document.getElementById('filterBadge').classList.add('hidden');
   filteredRows=[...allRows]; filteredTickets=[...allTickets];
