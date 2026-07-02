@@ -376,24 +376,72 @@
       <span style="font-size:12px;color:var(--text3);margin-left:auto;" id="filterCount"></span>
     </div>
 
-    <!-- Row 2: Additional filters (Zone, Activity, City) -->
-    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--border);">
-      <label style="font-size:12px;font-weight:600;color:var(--text2);">🔽 Filter by</label>
+    <!-- Row 2: Common filters -->
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--border);">
+      <label style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;">🔽 Filter</label>
 
-      <!-- Zone filter -->
-      <select id="globalZoneFilter" onchange="applyFilter()" style="font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;cursor:pointer;min-width:130px;">
+      <select id="globalZoneFilter" onchange="applyFilter()" style="font-size:12px;padding:5px 8px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;cursor:pointer;">
         <option value="">All Zones</option>
       </select>
 
-      <!-- Activity / Type filter -->
-      <select id="globalActivityFilter" onchange="applyFilter()" style="font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;cursor:pointer;min-width:170px;">
+      <select id="globalActivityFilter" onchange="applyFilter()" style="font-size:12px;padding:5px 8px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;cursor:pointer;">
         <option value="">All Activities</option>
         <option value="complaint">Daily Complaints</option>
         <option value="maintenance">Monthly Maintenance</option>
         <option value="replacement">Replacement</option>
       </select>
 
-      <button onclick="clearAllFilters()" style="font-size:12px;font-weight:600;color:var(--red);background:var(--red-light);border:1px solid rgba(192,57,43,0.2);padding:5px 12px;border-radius:var(--radius);cursor:pointer;">✕ Reset All</button>
+      <button onclick="clearAllFilters()" style="font-size:12px;font-weight:600;color:var(--red);background:var(--red-light);border:1px solid rgba(192,57,43,0.2);padding:5px 12px;border-radius:var(--radius);cursor:pointer;white-space:nowrap;">✕ Reset All</button>
+    </div>
+
+    <!-- Row 3: Sheet 1 filters (Downtime) — text search inputs with funnel icon -->
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-top:8px;border-top:1px solid var(--border);margin-top:4px;">
+      <label style="font-size:10px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:0.06em;white-space:nowrap;border:1px solid var(--blue);border-radius:4px;padding:2px 7px;flex-shrink:0;">▼ Sheet 1</label>
+      <div style="position:relative;display:flex;align-items:center;">
+        <span style="position:absolute;left:8px;font-size:11px;color:var(--text3);pointer-events:none;">▼</span>
+        <input id="s1ChargerIdFilter" type="text" placeholder="Charger ID" oninput="applyFilter()"
+          style="font-size:12px;padding:5px 8px 5px 22px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;width:130px;" />
+      </div>
+      <div style="position:relative;display:flex;align-items:center;">
+        <span style="position:absolute;left:8px;font-size:11px;color:var(--text3);pointer-events:none;">▼</span>
+        <input id="s1ChargerNameFilter" type="text" placeholder="Charger Name" oninput="applyFilter()"
+          style="font-size:12px;padding:5px 8px 5px 22px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;width:140px;" />
+      </div>
+      <div style="position:relative;display:flex;align-items:center;">
+        <span style="position:absolute;left:8px;font-size:11px;color:var(--text3);pointer-events:none;">▼</span>
+        <input id="s1CityFilter" type="text" placeholder="City" oninput="applyFilter()"
+          style="font-size:12px;padding:5px 8px 5px 22px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;width:110px;" />
+      </div>
+      <div style="position:relative;display:flex;align-items:center;">
+        <span style="position:absolute;left:8px;font-size:11px;color:var(--text3);pointer-events:none;">▼</span>
+        <input id="s1RcaFilter" type="text" placeholder="RCA" oninput="applyFilter()"
+          style="font-size:12px;padding:5px 8px 5px 22px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;width:140px;" />
+      </div>
+    </div>
+
+    <!-- Row 4: Sheet 2 filters (Tickets) — text search inputs -->
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-top:8px;border-top:1px solid var(--border);margin-top:4px;">
+      <label style="font-size:10px;font-weight:700;color:#6c3fc4;text-transform:uppercase;letter-spacing:0.06em;white-space:nowrap;border:1px solid #6c3fc4;border-radius:4px;padding:2px 7px;flex-shrink:0;">▼ Sheet 2</label>
+      <div style="position:relative;display:flex;align-items:center;">
+        <span style="position:absolute;left:8px;font-size:11px;color:var(--text3);pointer-events:none;">▼</span>
+        <input id="s2ChargerNameFilter" type="text" placeholder="Charger Name" oninput="applyFilter()"
+          style="font-size:12px;padding:5px 8px 5px 22px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;width:140px;" />
+      </div>
+      <div style="position:relative;display:flex;align-items:center;">
+        <span style="position:absolute;left:8px;font-size:11px;color:var(--text3);pointer-events:none;">▼</span>
+        <input id="s2CityFilter" type="text" placeholder="City" oninput="applyFilter()"
+          style="font-size:12px;padding:5px 8px 5px 22px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;width:110px;" />
+      </div>
+      <div style="position:relative;display:flex;align-items:center;">
+        <span style="position:absolute;left:8px;font-size:11px;color:var(--text3);pointer-events:none;">▼</span>
+        <input id="s2RcaFilter" type="text" placeholder="RCA" oninput="applyFilter()"
+          style="font-size:12px;padding:5px 8px 5px 22px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;width:140px;" />
+      </div>
+      <div style="position:relative;display:flex;align-items:center;">
+        <span style="position:absolute;left:8px;font-size:11px;color:var(--text3);pointer-events:none;">▼</span>
+        <input id="s2EmpFilter" type="text" placeholder="Employee" oninput="applyFilter()"
+          style="font-size:12px;padding:5px 8px 5px 22px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;width:140px;" />
+      </div>
     </div>
 
     <!-- Row 3: Sheet config -->
@@ -1947,21 +1995,29 @@ async function loadAll(){
 // ── Populate global filter dropdowns from loaded data ──
 function populateGlobalFilters(){
   const czMap = buildCityZoneMap();
-  const zones = [...new Set([
-    ...allRows.map(r=>r.zone||''),
-    ...allTickets.map(t=>t.zone||czMap[(t.city||'').trim()]||'')
-  ].filter(Boolean))].sort();
 
   const populate = (id, arr) => {
     const sel = document.getElementById(id); if(!sel) return;
     const cur = sel.value;
     while(sel.options.length > 1) sel.remove(1);
-    arr.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;sel.appendChild(o);});
-    sel.value = cur;
+    arr.forEach(v=>{
+      const o=document.createElement('option');
+      o.value=v; o.textContent=(v.length>42?v.slice(0,40)+'…':v); o.title=v;
+      sel.appendChild(o);
+    });
+    if(arr.includes(cur)) sel.value=cur;
   };
+
+  // Common: zones (from both sheets)
+  const zones = [...new Set([
+    ...allRows.map(r=>r.zone||''),
+    ...allTickets.map(t=>t.zone||czMap[(t.city||'').trim()]||'')
+  ].filter(Boolean))].sort();
   populate('globalZoneFilter', zones);
 
+  // Sheet 1 & 2 filters are now text inputs — no population needed
 }
+
 
 // ── Quick date presets ──
 let activePreset = '';
@@ -2024,7 +2080,17 @@ function applyFilter(){
   const from = document.getElementById('dateFrom').value;
   const to   = document.getElementById('dateTo').value;
   const zoneF = (document.getElementById('globalZoneFilter')||{value:''}).value||'';
-  const actF  = (document.getElementById('globalActivityFilter')||{value:''}).value||'';
+  const actF      = (document.getElementById('globalActivityFilter')||{value:''}).value||'';
+  // Sheet 1 specific filters
+  const s1ChIdF   = (document.getElementById('s1ChargerIdFilter')||{value:''}).value||'';
+  const s1ChNameF = (document.getElementById('s1ChargerNameFilter')||{value:''}).value||'';
+  const s1CityF   = (document.getElementById('s1CityFilter')||{value:''}).value||'';
+  const s1RcaF    = (document.getElementById('s1RcaFilter')||{value:''}).value||'';
+  // Sheet 2 specific filters
+  const s2ChNameF = (document.getElementById('s2ChargerNameFilter')||{value:''}).value||'';
+  const s2CityF   = (document.getElementById('s2CityFilter')||{value:''}).value||'';
+  const s2RcaF    = (document.getElementById('s2RcaFilter')||{value:''}).value||'';
+  const s2EmpF    = (document.getElementById('s2EmpFilter')||{value:''}).value||'';
 
   // Parse date string as LOCAL midnight (not UTC) to avoid timezone shift
   // e.g. "2026-06-01" → June 1 00:00:00 local, not May 31 18:30 UTC
@@ -2048,19 +2114,26 @@ function applyFilter(){
 
   filteredRows = allRows.filter(r=>{
     if(!passDate(r)) return false;
-    if(zoneF && (r.zone||'')!==zoneF) return false;
-
+    if(zoneF     && (r.zone||'')    !==zoneF)    return false;
+    if(s1ChIdF   && !(r.charger||'').toLowerCase().includes(s1ChIdF.toLowerCase()))  return false;
+    if(s1ChNameF && !(r.site||'').toLowerCase().includes(s1ChNameF.toLowerCase()))    return false;
+    if(s1CityF   && !(r.city||'').toLowerCase().includes(s1CityF.toLowerCase()))      return false;
+    if(s1RcaF    && !(r.rca||'').toLowerCase().includes(s1RcaF.toLowerCase()))        return false;
     return true;
   });
   filteredTickets = allTickets.filter(t=>{
     if(!passDate(t)) return false;
     const tZone = t.zone||czMap[(t.city||'').trim()]||'';
-    if(zoneF && tZone!==zoneF) return false;
-    if(actF  && t.type!==actF) return false;
+    if(zoneF     && tZone!==zoneF)          return false;
+    if(actF      && t.type!==actF)           return false;
+    if(s2ChNameF && !(t.name||'').toLowerCase().includes(s2ChNameF.toLowerCase())) return false;
+    if(s2CityF   && !(t.city||'').toLowerCase().includes(s2CityF.toLowerCase()))   return false;
+    if(s2RcaF    && !(t.rca||'').toLowerCase().includes(s2RcaF.toLowerCase()))     return false;
+    if(s2EmpF    && !(t.emp||'').toLowerCase().includes(s2EmpF.toLowerCase()))     return false;
     return true;
   });
 
-  const anyActive = from||to||zoneF||actF;
+  const anyActive = from||to||zoneF||actF||s1ChIdF||s1ChNameF||s1CityF||s1RcaF||s2ChNameF||s2CityF||s2RcaF||s2EmpF;
   const badge = document.getElementById('filterBadge');
   if(badge){
     badge.classList.toggle('hidden',!anyActive);
@@ -2068,7 +2141,15 @@ function applyFilter(){
       const parts=[];
       if(from||to) parts.push('Date');
       if(zoneF) parts.push(zoneF);
-      if(actF)  parts.push(actF==='complaint'?'Complaints':actF==='maintenance'?'Maintenance':'Replacement');
+      if(actF)       parts.push(actF==='complaint'?'Complaints':actF==='maintenance'?'Maintenance':'Replacement');
+      if(s1ChIdF)    parts.push('ID:'+s1ChIdF.slice(0,12));
+      if(s1ChNameF)  parts.push(s1ChNameF.slice(0,15));
+      if(s1CityF)    parts.push('S1:'+s1CityF);
+      if(s1RcaF)     parts.push('RCA:'+s1RcaF.slice(0,12));
+      if(s2ChNameF)  parts.push(s2ChNameF.slice(0,15));
+      if(s2CityF)    parts.push('S2:'+s2CityF);
+      if(s2RcaF)     parts.push('RCA2:'+s2RcaF.slice(0,10));
+      if(s2EmpF)     parts.push(s2EmpF.split(' ')[0]);
       badge.textContent = parts.join(' · ');
     }
   }
@@ -2089,7 +2170,7 @@ function clearFilter(){
 }
 function clearAllFilters(){
   ['dateFrom','dateTo'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  ['globalZoneFilter','globalActivityFilter'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['globalZoneFilter','globalActivityFilter','s1ChargerIdFilter','s1ChargerNameFilter','s1CityFilter','s1RcaFilter','s2ChargerNameFilter','s2CityFilter','s2RcaFilter','s2EmpFilter'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   activePreset=''; updatePresetBtns();
   document.getElementById('filterBadge').classList.add('hidden');
   filteredRows=[...allRows]; filteredTickets=[...allTickets];
@@ -3915,8 +3996,157 @@ ${slide(4, '🔧 Monthly Maintenance', '#c0392b', `
   </div>
 `)}
 
-<!-- SLIDE 5: SUMMARY -->
-${slide(5, '📋 Executive Summary', '#1f7a3e', `
+<!-- SLIDE 5: REPLACEMENT -->
+${slide(5, '🔄 Replacement Analysis', '#c05621', `
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+    ${kpiBox('Total Replacements', replacements.length.toLocaleString(), '#c05621')}
+    ${kpiBox('Chargers Affected', new Set(replacements.map(t=>t.name)).size.toLocaleString(), '#c0392b')}
+    ${kpiBox('Unique Parts', new Set(replacements.map(t=>t.damage).filter(Boolean)).size.toLocaleString(), '#d4820a')}
+    ${kpiBox('Avg Res Time', (()=>{const rr=replacements.filter(t=>t.resHrs!==null);return rr.length?(rr.reduce((s,t)=>s+Number(t.resHrs),0)/rr.length).toFixed(1):'---';})()+' h', '#6c3fc4')}
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+    <div>
+      <div style="font-size:13px;font-weight:600;color:${TEXT2};text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">Top Parts Replaced</div>
+      ${topParts.map(([p,cnt])=>barRow(p,cnt,topParts[0]?topParts[0][1]:1,'#c05621','')).join('') || '<div style="color:'+TEXT2+'">No data</div>'}
+    </div>
+    <div>
+      <div style="font-size:13px;font-weight:600;color:${TEXT2};text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">Replacements by Zone</div>
+      ${(()=>{const bz={};replacements.forEach(t=>{const z=t.zone||czMap[t.city]||'?';bz[z]=(bz[z]||0)+1;});const arr=Object.entries(bz).sort((a,b)=>b[1]-a[1]);return arr.length?arr.map(([z,c])=>barRow(z,c,arr[0][1],'#d4820a','')).join(''):'<div style="color:'+TEXT2+'">No data</div>';})()}
+    </div>
+  </div>
+`)}
+
+<!-- SLIDE 6: ZONE BREAKDOWN -->
+${slide(6, '🗺️ Zone Performance Breakdown', '#0f7a7a', `
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px;">
+    ${(()=>{
+      const zones=['North','West','East','South','Central'];
+      const zColors={'North':'#1a6ef5','West':'#6c3fc4','East':'#d4820a','South':'#1f7a3e','Central':'#888780'};
+      return zones.map(z=>{
+        const zR=R.filter(r=>(r.zone||'')=== z);
+        const zT=enriched.filter(t=>(t.zone||czMap[t.city]||'')=== z);
+        const zHrs=zR.reduce((s,r)=>s+Number(r.hours||0),0);
+        const zC=zT.filter(t=>t.type==='complaint').length;
+        return '<div style="background:'+SURF2+';border-radius:10px;padding:12px;border-top:3px solid '+(zColors[z]||'#888')+';">'
+          +'<div style="font-size:11px;font-weight:700;color:'+(zColors[z]||TEXT2)+';margin-bottom:8px;text-transform:uppercase;">'+z+'</div>'
+          +'<div style="font-size:10px;color:'+TEXT2+';">DT Events</div><div style="font-size:18px;font-weight:700;font-family:monospace;color:'+TEXT+';">'+zR.length+'</div>'
+          +'<div style="font-size:10px;color:'+TEXT2+';margin-top:4px;">Downtime Hrs</div><div style="font-size:14px;font-weight:600;font-family:monospace;color:#c0392b;">'+zHrs.toFixed(0)+'</div>'
+          +'<div style="font-size:10px;color:'+TEXT2+';margin-top:4px;">Complaints</div><div style="font-size:14px;font-weight:600;font-family:monospace;color:#6c3fc4;">'+zC+'</div>'
+          +'</div>';
+      }).join('');
+    })()}
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+    <div>
+      <div style="font-size:13px;font-weight:600;color:${TEXT2};text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">Downtime Hours by Zone</div>
+      ${(()=>{const bz={};R.forEach(r=>{const z=r.zone||'?';bz[z]=(bz[z]||0)+Number(r.hours||0);});const arr=Object.entries(bz).sort((a,b)=>b[1]-a[1]);return arr.map(([z,h])=>barRow(z,h,arr[0][1],'#1a6ef5',' hrs')).join('');})()}
+    </div>
+    <div>
+      <div style="font-size:13px;font-weight:600;color:${TEXT2};text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">Maintenance by Zone</div>
+      ${(()=>{const bz={};maintenance.forEach(t=>{const z=t.zone||czMap[t.city]||'?';bz[z]=(bz[z]||0)+1;});const arr=Object.entries(bz).sort((a,b)=>b[1]-a[1]);return arr.length?arr.map(([z,c])=>barRow(z,c,arr[0][1],'#0f7a7a','')).join(''):'<div style="color:'+TEXT2+'">No data</div>';})()}
+    </div>
+  </div>
+`)}
+
+<!-- SLIDE 7: CITY ANALYSIS -->
+${slide(7, '🏙️ City-wise Analysis', '#d4820a', `
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">
+    <div>
+      <div style="font-size:13px;font-weight:600;color:${TEXT2};text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">Top Cities — Downtime Hours</div>
+      ${(()=>{const bc={};R.forEach(r=>{bc[r.city||'?']=(bc[r.city||'?']||0)+Number(r.hours||0);});const arr=Object.entries(bc).sort((a,b)=>b[1]-a[1]).slice(0,8);return arr.map(([c,h])=>barRow(c,h,arr[0][1],'#1a6ef5',' hrs')).join('');})()}
+    </div>
+    <div>
+      <div style="font-size:13px;font-weight:600;color:${TEXT2};text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">Top Cities — Complaints</div>
+      ${topCityC.map(([city,cnt])=>barRow(city,cnt,topCityC[0]?topCityC[0][1]:1,'#6c3fc4','')).join('')}
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+    <div>
+      <div style="font-size:13px;font-weight:600;color:${TEXT2};text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">Top Cities — Maintenance</div>
+      ${(()=>{const bc={};maintenance.forEach(t=>{bc[t.city||'?']=(bc[t.city||'?']||0)+1;});const arr=Object.entries(bc).sort((a,b)=>b[1]-a[1]).slice(0,6);return arr.length?arr.map(([c,cnt])=>barRow(c,cnt,arr[0][1],'#0f7a7a','')).join(''):'<div style="color:'+TEXT2+'">No data</div>';})()}
+    </div>
+    <div>
+      <div style="font-size:13px;font-weight:600;color:${TEXT2};text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">Top Cities — DT Events Count</div>
+      ${(()=>{const bc={};R.forEach(r=>{bc[r.city||'?']=(bc[r.city||'?']||0)+1;});const arr=Object.entries(bc).sort((a,b)=>b[1]-a[1]).slice(0,6);return arr.map(([c,cnt])=>barRow(c,cnt,arr[0][1],'#c0392b','')).join('');})()}
+    </div>
+  </div>
+`)}
+
+<!-- SLIDE 8: REPEAT OFFENDERS -->
+${slide(8, '🔁 Repeat Offenders — Problem Chargers', '#c0392b', `
+  <div style="font-size:12px;color:${TEXT2};margin-bottom:14px;">Chargers with 3+ complaints of same RCA — highest risk units requiring immediate attention</div>
+  <table style="width:100%;border-collapse:collapse;font-size:12px;">
+    <thead><tr style="background:${SURF2};">
+      <th style="padding:8px 10px;text-align:left;color:${TEXT2};font-size:10px;text-transform:uppercase;">#</th>
+      <th style="padding:8px 10px;text-align:left;color:${TEXT2};font-size:10px;text-transform:uppercase;">Charger Name</th>
+      <th style="padding:8px 10px;text-align:left;color:${TEXT2};font-size:10px;text-transform:uppercase;">City</th>
+      <th style="padding:8px 10px;text-align:left;color:${TEXT2};font-size:10px;text-transform:uppercase;">Top RCA</th>
+      <th style="padding:8px 10px;text-align:right;color:${TEXT2};font-size:10px;text-transform:uppercase;">Visits</th>
+      <th style="padding:8px 10px;text-align:right;color:${TEXT2};font-size:10px;text-transform:uppercase;">Avg Res Hrs</th>
+    </tr></thead>
+    <tbody>${(()=>{
+      const map={};
+      complaints.forEach(t=>{
+        const k=t.name+'||'+(t.rca||'?');
+        if(!map[k])map[k]={name:t.name,city:t.city||'---',rca:t.rca||'?',visits:0,resSum:0,resCnt:0};
+        map[k].visits++;
+        if(t.resHrs!==null){map[k].resSum+=Number(t.resHrs);map[k].resCnt++;}
+      });
+      const rows=Object.values(map).filter(m=>m.visits>=3).sort((a,b)=>b.visits-a.visits).slice(0,12);
+      return rows.length ? rows.map((m,i)=>'<tr style="border-bottom:1px solid '+BORDER+';">'
+        +'<td style="padding:7px 10px;color:'+TEXT2+';">'+(i+1)+'</td>'
+        +'<td style="padding:7px 10px;font-weight:600;">'+m.name+'</td>'
+        +'<td style="padding:7px 10px;color:'+TEXT2+';">'+m.city+'</td>'
+        +'<td style="padding:7px 10px;"><span style="background:rgba(192,57,43,0.12);color:#c0392b;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">'+m.rca+'</span></td>'
+        +'<td style="padding:7px 10px;text-align:right;font-family:monospace;font-weight:700;color:#c0392b;">'+m.visits+'</td>'
+        +'<td style="padding:7px 10px;text-align:right;font-family:monospace;">'+(m.resCnt?(m.resSum/m.resCnt).toFixed(1):'---')+'</td>'
+        +'</tr>').join('')
+        : '<tr><td colspan="6" style="padding:14px;text-align:center;color:'+TEXT2+';">No repeat offenders in this period</td></tr>';
+    })()}</tbody>
+  </table>
+`)}
+
+<!-- SLIDE 9: EMPLOYEE PERFORMANCE -->
+${slide(9, '👷 Employee Performance Summary', '#1f7a3e', `
+  <div style="font-size:12px;color:${TEXT2};margin-bottom:14px;">Scoring: effective shift hours (8AM-8PM only). 1h=25pts, 2h=20pts ... 8h=-40pts. Overnight excluded.</div>
+  <table style="width:100%;border-collapse:collapse;font-size:12px;">
+    <thead><tr style="background:${SURF2};">
+      <th style="padding:8px 10px;text-align:left;color:${TEXT2};font-size:10px;text-transform:uppercase;">#</th>
+      <th style="padding:8px 10px;text-align:left;color:${TEXT2};font-size:10px;text-transform:uppercase;">Employee</th>
+      <th style="padding:8px 10px;text-align:right;color:${TEXT2};font-size:10px;text-transform:uppercase;">Tickets</th>
+      <th style="padding:8px 10px;text-align:right;color:${TEXT2};font-size:10px;text-transform:uppercase;">Avg Res Hrs</th>
+      <th style="padding:8px 10px;text-align:right;color:${TEXT2};font-size:10px;text-transform:uppercase;">Bad Tickets</th>
+      <th style="padding:8px 10px;text-align:right;color:${TEXT2};font-size:10px;text-transform:uppercase;">Score</th>
+    </tr></thead>
+    <tbody>${(()=>{
+      const empMap={};
+      enriched.forEach(t=>{
+        if(!t.emp) return;
+        if(!empMap[t.emp])empMap[t.emp]={emp:t.emp,tickets:0,resSum:0,resCnt:0,bad:0,pts:0};
+        empMap[t.emp].tickets++;
+        if(t.resHrs!==null){empMap[t.emp].resSum+=Number(t.resHrs);empMap[t.emp].resCnt++;if(Number(t.resHrs)>8)empMap[t.emp].bad++;}
+        empMap[t.emp].pts+=calcTicketPoints(t);
+      });
+      const rows=Object.values(empMap).sort((a,b)=>b.tickets-a.tickets).slice(0,15);
+      return rows.length ? rows.map((e,i)=>{
+        const avg=e.resCnt?(e.resSum/e.resCnt).toFixed(1):'---';
+        const sc=e.pts;
+        const scCol=sc>0?'#1f7a3e':sc<0?'#c0392b':'#888';
+        return '<tr style="border-bottom:1px solid '+BORDER+';">'
+          +'<td style="padding:7px 10px;color:'+TEXT2+';">'+(i<3?['🥇','🥈','🥉'][i]:i+1)+'</td>'
+          +'<td style="padding:7px 10px;font-weight:600;">'+e.emp+'</td>'
+          +'<td style="padding:7px 10px;text-align:right;font-family:monospace;">'+e.tickets+'</td>'
+          +'<td style="padding:7px 10px;text-align:right;font-family:monospace;">'+avg+'</td>'
+          +'<td style="padding:7px 10px;text-align:right;font-family:monospace;color:#c0392b;">'+(e.bad||'---')+'</td>'
+          +'<td style="padding:7px 10px;text-align:right;font-family:monospace;font-weight:700;color:'+scCol+';">'+sc+' pts</td>'
+          +'</tr>';
+      }).join('') : '<tr><td colspan="6" style="padding:14px;text-align:center;color:'+TEXT2+';">No employee data</td></tr>';
+    })()}</tbody>
+  </table>
+`)}
+
+<!-- SLIDE 10: EXECUTIVE SUMMARY -->
+${slide(10, '📋 Executive Summary', '#1f7a3e', `
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
     <div>
       <div style="font-size:14px;font-weight:700;color:${TEXT};margin-bottom:14px;">Key Findings</div>
@@ -3944,15 +4174,16 @@ ${slide(5, '📋 Executive Summary', '#1f7a3e', `
       <table style="width:100%;border-collapse:collapse;font-size:13px;">
         ${[
           ['Date Range', dateLabel],
-          ['Days in Period', days||'—'],
+          ['Days in Period', days||'---'],
           ['Power Cut Events', R.length.toLocaleString()],
           ['Total Downtime Hrs', totalHrs.toFixed(1)],
-          ['Avg/Charger/Day', avgPerDay+' hrs'],
+          ['Avg / Charger / Day', avgPerDay+' hrs'],
           ['Daily Complaints', complaints.length.toLocaleString()],
           ['Avg Resolution Time', avgRes+' hrs'],
           ['Maintenance Activities', maintenance.length.toLocaleString()],
           ['Replacement Events', replacements.length.toLocaleString()],
-        ].map(([l,v])=>`<tr style="border-bottom:1px solid ${BORDER};"><td style="padding:7px 10px;color:${TEXT2};">${l}</td><td style="padding:7px 10px;font-weight:600;font-family:monospace;text-align:right;">${v}</td></tr>`).join('')}
+          ['Generated', now],
+        ].map(([l,v])=>'<tr style="border-bottom:1px solid '+BORDER+';"><td style="padding:7px 10px;color:'+TEXT2+';">'+l+'</td><td style="padding:7px 10px;font-weight:600;font-family:monospace;text-align:right;">'+v+'</td></tr>').join('')}
       </table>
     </div>
   </div>
@@ -3962,11 +4193,10 @@ ${slide(5, '📋 Executive Summary', '#1f7a3e', `
 `)}
 
 </body>
-</html>`;
-
+<\/html>`;
     // ─── Download the file ─────────────────────────────────────────
     toastTitle.textContent = 'Downloading…';
-    toastSub.textContent = '5 slides generated';
+    toastSub.textContent = '10 slides generated';
     const blob = new Blob([html], {type:'text/html'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
