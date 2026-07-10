@@ -201,13 +201,34 @@ function doPost(e) {
 
   var cidCol = findCol(['charger id', 'charger code']);
   var nameCol = findCol(['charger name', 'charging station name', 'station name']);
+  var cityCol = findCol(['city name', 'city']);
   var resolveCol = findCol(['resolve date', 'resolve time']);
   var remarksCol = findCol(['remarks', 'remark']);
+  var attendedCol = findCol(['complaint attended by', 'attended by']);
 
   if (cidCol === -1 || resolveCol === -1 || remarksCol === -1) {
     return ContentService.createTextOutput(JSON.stringify({error: 'Missing required column(s) in sheet header row'}))
       .setMimeType(ContentService.MimeType.JSON);
   }
+
+  var ATTENDED_BY = {
+    'jaipur': 'Ankit/Pooran', 'pune': 'Surander/Mukesh', 'bhubaneswar': 'Bismay', 'delhi': 'Vivek/Manish',
+    'cuttack': 'Bismay', 'aurangabad': 'Sanjay More', 'bhilwara': 'Abhishek', 'kolhapur': 'Sangram',
+    'nashik': 'Samadhan', 'indore': 'Santosh', 'lucknow': 'Vinay', 'noida': 'Vivek/Manish', 'raipur': 'Gandhi',
+    'solapur': 'Rakesh', 'jodhpur': 'Karan', 'dehradun': 'Manoj', 'gurgaon': 'Vivek/Manish',
+    'ludhiana': 'Vivek/Manish', 'ahmednagar': 'Surander/Mukesh', 'aligarh': 'Vivek/Manish',
+    'ghaziabad': 'Vivek/Manish', 'jabalpur': 'Ram', 'udaipur': 'Abhishek', 'varanasi': 'Vinay',
+    'agra': 'Vivek/Manish', 'banswara': 'Abhishek', 'bikaner': 'Karan', 'chittorgarh': 'Abhishek',
+    'gwalior': 'Vivek/Manish', 'jamshedpur': 'Bismay', 'ujjain': 'Santosh', 'ambala': 'Vivek/Manish',
+    'bhopal': 'Santosh', 'bilaspur': 'Gandhi', 'byasanagar': 'Bismay', 'chattarpur': 'Ram',
+    'chhindwara': 'Ram', 'dewas': 'Santosh', 'dhar': 'Santosh', 'dhule': 'Samadhan', 'etawah': 'Vivek/Manish',
+    'harda': 'Santosh', 'jalgaon': 'Sanjay More', 'jalna': 'Sanjay More', 'khopoli': 'Surander/Mukesh',
+    'khordha': 'Santosh', 'koraput': 'Bismay', 'kota': 'Abhishek', 'malegaon': 'Samadhan',
+    'mandsaur': 'Abhishek', 'mangaon': 'Vinayak', 'mathura': 'Vivek/Manish', 'miraj': 'Sangram',
+    'nanded-waghala': 'Sanjay More', 'nanded waghala': 'Sanjay More', 'prayagraj': 'Vinay',
+    'rajsamand': 'Abhishek', 'ranchi': 'Bismay', 'ratlam': 'Santosh', 'ratnagiri': 'Sangram',
+    'rayagada': 'Bismay', 'sagar': 'Ram', 'satara': 'Ram', 'sonepur': 'Bismay'
+  };
 
   function key(id, name) {
     return String(id).trim().toLowerCase() + '|' + String(name || '').trim().toLowerCase();
@@ -230,6 +251,13 @@ function doPost(e) {
     if (updateMap[k]) {
       sheet.getRange(r + 1, resolveCol + 1).setValue(updateMap[k].resolveDateTime);
       sheet.getRange(r + 1, remarksCol + 1).setValue('Resolved');
+      if (attendedCol !== -1 && cityCol !== -1) {
+        var cityKey = String(row[cityCol]).trim().toLowerCase();
+        var attendedBy = ATTENDED_BY[cityKey];
+        if (attendedBy) {
+          sheet.getRange(r + 1, attendedCol + 1).setValue(attendedBy);
+        }
+      }
       resolvedCount++;
     }
   }
@@ -242,14 +270,34 @@ document.getElementById("scriptCode").textContent = APPS_SCRIPT;
 const MASTER_ALIASES = {
   charger_id: ["charger id","chargerid","charger code","charger no","charger number"],
   charger_name: ["charger name","charging station name","station name"],
+  city_name: ["city name","city"],
   resolve_dt: ["resolve date time","complaint resolve date time","resolved on","resolve time","resolved date"],
   remarks: ["remarks","remark","comments","notes"]
+};
+const ATTENDED_BY = {
+  "jaipur":"Ankit/Pooran","pune":"Surander/Mukesh","bhubaneswar":"Bismay","delhi":"Vivek/Manish",
+  "cuttack":"Bismay","aurangabad":"Sanjay More","bhilwara":"Abhishek","kolhapur":"Sangram",
+  "nashik":"Samadhan","indore":"Santosh","lucknow":"Vinay","noida":"Vivek/Manish","raipur":"Gandhi",
+  "solapur":"Rakesh","jodhpur":"Karan","dehradun":"Manoj","gurgaon":"Vivek/Manish",
+  "ludhiana":"Vivek/Manish","ahmednagar":"Surander/Mukesh","aligarh":"Vivek/Manish",
+  "ghaziabad":"Vivek/Manish","jabalpur":"Ram","udaipur":"Abhishek","varanasi":"Vinay",
+  "agra":"Vivek/Manish","banswara":"Abhishek","bikaner":"Karan","chittorgarh":"Abhishek",
+  "gwalior":"Vivek/Manish","jamshedpur":"Bismay","ujjain":"Santosh","ambala":"Vivek/Manish",
+  "bhopal":"Santosh","bilaspur":"Gandhi","byasanagar":"Bismay","chattarpur":"Ram",
+  "chhindwara":"Ram","dewas":"Santosh","dhar":"Santosh","dhule":"Samadhan","etawah":"Vivek/Manish",
+  "harda":"Santosh","jalgaon":"Sanjay More","jalna":"Sanjay More","khopoli":"Surander/Mukesh",
+  "khordha":"Santosh","koraput":"Bismay","kota":"Abhishek","malegaon":"Samadhan",
+  "mandsaur":"Abhishek","mangaon":"Vinayak","mathura":"Vivek/Manish","miraj":"Sangram",
+  "nanded-waghala":"Sanjay More","nanded waghala":"Sanjay More","prayagraj":"Vinay",
+  "rajsamand":"Abhishek","ranchi":"Bismay","ratlam":"Santosh","ratnagiri":"Sangram",
+  "rayagada":"Bismay","sagar":"Ram","satara":"Ram","sonepur":"Bismay"
 };
 const CMS_ALIASES = {
   charger_id: ["charger code","charger id","chargerid"],
   charger_name: ["charging station name","charger name","station name"],
   connector: ["connector status"],
-  heartbeat: ["last heartbeat","heartbeat"]
+  heartbeat: ["last heartbeat","heartbeat"],
+  city: ["city name","city"]
 };
 
 function norm(s){ return String(s??"").trim().toLowerCase().replace(/[^a-z0-9]+/g," ").trim(); }
@@ -418,9 +466,12 @@ document.getElementById("runBtn").addEventListener("click", async () => {
       const connectorStatus = norm(match[cCols.connector]);
       if(connectorStatus === "active"){
         const heartbeat = match[cCols.heartbeat];
+        const cityRaw = mCols.city_name ? row[mCols.city_name] : (cCols.city ? match[cCols.city] : "");
+        const cityKey = norm(cityRaw);
+        const attendedBy = ATTENDED_BY[cityKey] || "";
         updates.push({ chargerId: row[mCols.charger_id], chargerName: row[mCols.charger_name], resolveDateTime: heartbeat });
         ledStates.push("resolved");
-        log.push({id: row[mCols.charger_id], name: row[mCols.charger_name], result:"resolved", detail:`Connector Active — heartbeat ${heartbeat}`});
+        log.push({id: row[mCols.charger_id], name: row[mCols.charger_name], result:"resolved", detail:`Connector Active — heartbeat ${heartbeat}${attendedBy ? " — Attended By: " + attendedBy : (cityRaw ? " — no mapping for city \"" + cityRaw + "\"" : "")}`});
       } else {
         ledStates.push("open");
         log.push({id: row[mCols.charger_id], name: row[mCols.charger_name], result:"stillopen", detail:`Connector Status: ${match[cCols.connector]}`});
