@@ -471,6 +471,30 @@ document.getElementById("testConnBtn").addEventListener("click", async () => {
   }
 });
 
+const fillDot = document.getElementById("fillDot");
+const fillText = document.getElementById("fillText");
+const fillRow = document.getElementById("fillStatusRow");
+document.getElementById("fillAttendedBtn").addEventListener("click", async () => {
+  const url = document.getElementById("appsScriptUrl").value.trim();
+  fillRow.style.display = "flex";
+  if(!url){ fillDot.className="dot err"; fillText.textContent="Paste your Apps Script URL first."; return; }
+  fillDot.className = "dot"; fillText.textContent = "Filling Attended By across the sheet…";
+  try{
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ fillAttendedByOnly: true })
+    });
+    const result = await res.json();
+    if(result.error) throw new Error(result.error);
+    fillDot.className = "dot ok";
+    fillText.textContent = `Filled ${result.filled} row(s)` + (result.noMapping ? `, ${result.noMapping} row(s) had a city not in the list` : "");
+  }catch(err){
+    fillDot.className = "dot err";
+    fillText.textContent = "Failed — " + err.message;
+  }
+});
+
 document.getElementById("runBtn").addEventListener("click", async () => {
   const errorBox = document.getElementById("errorBox");
   const runStatus = document.getElementById("runStatus");
