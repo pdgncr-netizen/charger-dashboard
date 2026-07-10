@@ -136,6 +136,10 @@
     </details>
     <div class="link-row" style="margin-top:14px;">
       <input type="text" id="appsScriptUrl" placeholder="Paste your Apps Script Web App URL here (ends in /exec)">
+      <button class="fetch" id="testConnBtn">Test Connection</button>
+    </div>
+    <div class="live-status" id="connStatusRow" style="display:none;">
+      <span class="dot" id="connDot"></span><span id="connText"></span>
     </div>
   </div>
 
@@ -173,7 +177,12 @@
 </div>
 
 <script>
-const APPS_SCRIPT = `function doPost(e) {
+const APPS_SCRIPT = `function doGet(e) {
+  return ContentService.createTextOutput(JSON.stringify({status: 'ok'}))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
   var payload = JSON.parse(e.postData.contents);
   var updates = payload.updates || []; // [{chargerId, chargerName, resolveDateTime}]
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
@@ -340,6 +349,35 @@ function handleCms(file){ cmsFile = file; nameCms.textContent = file.name; dropC
 
 function checkReady(){ document.getElementById("runBtn").disabled = !(masterRows && cmsFile); }
 
+const connDot = document.getElementById("connDot");
+const connText = document.getElementById("connText");
+const connRow = document.getElementById("connStatusRow");
+document.getElementById("testConnBtn").addEventListener("click", async () => {
+  const url = document.getElementById("appsScriptUrl").value.trim();
+  connRow.style.display = "flex";
+  if(!url){ connDot.className="dot err"; connText.textContent="Paste your Apps Script URL first."; return; }
+  connDot.className = "dot"; connText.textContent = "Testing…";
+  try{
+    const res = await fetch(url, {method:"GET", cache:"no-store"});
+    if(res.redirected && res.url.includes("accounts.google.com")){
+      throw new Error("Redirected to a Google login page — your deployment's access is not set to \"Anyone\". Edit the deployment and set access to Anyone.");
+    }
+    const text = await res.text();
+    let json;
+    try{ json = JSON.parse(text); }catch(_){ throw new Error("Got a response, but it wasn't JSON — deployment may be pointing at an old/unsaved version. Response started with: " + text.slice(0,80)); }
+    if(json.status === "ok"){
+      connDot.className = "dot ok";
+      connText.textContent = "Connected — Apps Script is reachable and responding correctly.";
+    } else {
+      connDot.className = "dot err";
+      connText.textContent = "Reached the script but got an unexpected response: " + text.slice(0,150);
+    }
+  }catch(err){
+    connDot.className = "dot err";
+    connText.textContent = "Connection failed — " + err.message + ". Common fixes: redeploy after any code change (Deploy → Manage deployments → Edit → New version), and confirm access is set to \"Anyone\".";
+  }
+});
+
 document.getElementById("runBtn").addEventListener("click", async () => {
   const errorBox = document.getElementById("errorBox");
   const runStatus = document.getElementById("runStatus");
@@ -411,12 +449,19 @@ document.getElementById("runBtn").addEventListener("click", async () => {
     }
 
     runStatus.textContent = "Pushing resolved tickets to Google Sheet…";
-    const res = await fetch(scriptUrl, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ updates })
-    });
-    const result = await res.json();
+    let res;
+    try{
+      res = await fetch(scriptUrl, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ updates })
+      });
+    }catch(fetchErr){
+      throw new Error("Could not reach the Apps Script URL. Click \"Test Connection\" above to diagnose — usually this means the deployment needs a new version, or access isn't set to \"Anyone\".");
+    }
+    let result;
+    try{ result = await res.json(); }
+    catch(_){ throw new Error("Apps Script responded but not with JSON — it likely redirected to a login page. Set deployment access to \"Anyone\" and redeploy."); }
     if(result.error) throw new Error(result.error);
     runStatus.textContent = `Pushed to sheet — ${result.resolved} ticket(s) marked Resolved`;
   }catch(err){
