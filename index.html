@@ -141,6 +141,12 @@
     <div class="live-status" id="connStatusRow" style="display:none;">
       <span class="dot" id="connDot"></span><span id="connText"></span>
     </div>
+    <div class="link-row" style="margin-top:14px;">
+      <button class="fetch" id="fillAttendedBtn">Fill Attended By (all rows, by City)</button>
+    </div>
+    <div class="live-status" id="fillStatusRow" style="display:none;">
+      <span class="dot" id="fillDot"></span><span id="fillText"></span>
+    </div>
   </div>
 
   <div class="run-row">
@@ -234,6 +240,35 @@ function doPost(e) {
     return String(id).trim().toLowerCase() + '|' + String(name || '').trim().toLowerCase();
   }
 
+  function isBadAttended(v) {
+    var s = String(v == null ? '' : v).trim();
+    return s === '' || s.indexOf('#REF') !== -1 || s.indexOf('#N/A') !== -1 || s.indexOf('#ERROR') !== -1;
+  }
+
+  // Standalone action: just fill Attended By across every row by City, no resolving.
+  if (payload.fillAttendedByOnly) {
+    if (attendedCol === -1 || cityCol === -1) {
+      return ContentService.createTextOutput(JSON.stringify({error: 'Sheet is missing a City Name or Complaint Attended By column'}))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    var filledCount = 0, noMapCount = 0;
+    for (var rr = 1; rr < data.length; rr++) {
+      var rrow = data[rr];
+      if (!rrow[cidCol]) continue;
+      if (!isBadAttended(rrow[attendedCol])) continue;
+      var cKey = String(rrow[cityCol]).trim().toLowerCase();
+      var name = ATTENDED_BY[cKey];
+      if (name) {
+        sheet.getRange(rr + 1, attendedCol + 1).setValue(name);
+        filledCount++;
+      } else {
+        noMapCount++;
+      }
+    }
+    return ContentService.createTextOutput(JSON.stringify({filled: filledCount, noMapping: noMapCount}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
   var updateMap = {};
   updates.forEach(function (u) {
     updateMap[key(u.chargerId, u.chargerName)] = u;
@@ -245,6 +280,16 @@ function doPost(e) {
     var cid = row[cidCol];
     var cname = nameCol !== -1 ? row[nameCol] : '';
     if (!cid) continue;
+
+    // Fill/fix Attended By for EVERY row (not just ones resolved this run) whenever it's blank or errored.
+    if (attendedCol !== -1 && cityCol !== -1 && isBadAttended(row[attendedCol])) {
+      var cityKeyAll = String(row[cityCol]).trim().toLowerCase();
+      var attendedByAll = ATTENDED_BY[cityKeyAll];
+      if (attendedByAll) {
+        sheet.getRange(r + 1, attendedCol + 1).setValue(attendedByAll);
+      }
+    }
+
     var alreadyResolved = row[resolveCol] && String(row[resolveCol]).trim() !== '';
     if (alreadyResolved) continue;
     var k = key(cid, cname);
