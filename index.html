@@ -6,6 +6,7 @@
 <title>Complaint Auto-Resolver · charger-dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
   :root{
     --bg:#0A1310; --panel:#101B18; --panel-2:#15211D; --line:#20302A; --text:#E7F0EB; --muted:#7C948C;
@@ -204,6 +205,63 @@
     .hiw-row{flex-direction:column; gap:18px;}
     .hiw-arrow{display:none;}
   }
+
+  /* ===== Light theme override ===== */
+  [data-theme="light"]{
+    --bg:#F2F6F3; --panel:#FFFFFF; --panel-2:#EFF4F1; --line:#DCE6E1; --text:#16231D; --muted:#5E7268;
+  }
+  [data-theme="light"] pre{ background:#0E1613; color:#8CE8BE; }
+  [data-theme="light"] .lock-overlay{ background:rgba(242,246,243,.96); }
+
+  /* ===== Nav rail ===== */
+  .navrail{
+    width:84px; background:var(--panel); border-right:1px solid var(--line);
+    display:flex; flex-direction:column; align-items:center; padding:22px 0; gap:8px;
+    position:sticky; top:62px; height:calc(100vh - 62px); flex:none;
+  }
+  .nav-logo{font-size:18px; margin-bottom:10px;}
+  .navitem{
+    width:66px; display:flex; flex-direction:column; align-items:center; gap:5px; padding:11px 4px;
+    border-radius:10px; background:none; border:none; color:var(--muted); cursor:pointer;
+    font-family:var(--mono); font-size:9.5px; letter-spacing:.01em; transition:.15s all;
+  }
+  .navitem .ni{font-size:18px;}
+  .navitem:hover{background:var(--panel-2); color:var(--text);}
+  .navitem.active{background:rgba(95,182,232,.15); color:var(--blue); box-shadow:inset 2px 0 0 var(--blue);}
+
+  /* ===== Page visibility ===== */
+  .app-shell{grid-template-columns:84px var(--sidebar-w) 1fr;}
+  .app-shell.no-sidebar{grid-template-columns:84px 1fr;}
+  .app-shell.no-sidebar .sidebar{display:none;}
+  .page{display:none;}
+  .page.active{display:block;}
+  .page-header{margin-bottom:22px;}
+  .page-header h2{font-family:var(--display); font-size:24px; margin:0 0 6px;}
+  .page-header p{color:var(--muted); font-size:13px; margin:0; max-width:640px; line-height:1.5;}
+
+  .panel-wide{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:22px 26px; margin-bottom:20px;}
+  .toolbar-row{display:flex; align-items:center; gap:12px; flex-wrap:wrap;}
+  .muted-note{font-family:var(--mono); font-size:11.5px; color:var(--muted);}
+  .field-label{font-family:var(--mono); font-size:11px; color:var(--muted); display:flex; align-items:center; gap:8px;}
+  .field-label input{background:var(--panel-2); border:1px solid var(--line); color:var(--text); border-radius:7px; padding:8px 10px; font-family:var(--mono); font-size:11.5px;}
+  .select-field{background:var(--panel-2); border:1px solid var(--line); color:var(--text); border-radius:7px; padding:9px 12px; font-family:var(--mono); font-size:11.5px;}
+  input[type=password]{background:var(--panel-2); border:1px solid var(--line); color:var(--text); font-family:var(--mono); font-size:12px; padding:11px 13px; border-radius:8px;}
+
+  .theme-btn{
+    font-family:var(--mono); font-size:12px; background:var(--panel-2); border:1px solid var(--line); color:var(--muted);
+    padding:11px 18px; border-radius:8px; cursor:pointer; transition:.15s all;
+  }
+  .theme-btn.active{border-color:var(--teal); color:var(--teal); background:rgba(79,216,196,.08);}
+  .checkbox-row{display:flex; align-items:center; gap:10px; font-size:13px; color:var(--text); cursor:pointer;}
+  .checkbox-row input{width:16px; height:16px; accent-color:var(--blue);}
+
+  /* ===== Lock overlay ===== */
+  .lock-overlay{position:fixed; inset:0; background:rgba(10,19,16,.97); z-index:200; display:none; align-items:center; justify-content:center;}
+  .lock-box{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:36px 40px; width:300px; text-align:center;}
+  .lock-box .lockicon{font-size:32px; margin-bottom:14px;}
+  .lock-box input{width:100%; margin:16px 0 10px;}
+  .lock-box button{width:100%;}
+  .lock-error{color:var(--red); font-family:var(--mono); font-size:11.5px; margin-top:10px; display:none;}
 </style>
 </head>
 <body>
@@ -225,6 +283,15 @@
 </div>
 
 <div class="app-shell">
+
+  <div class="navrail">
+    <div class="nav-logo">⚡</div>
+    <button class="navitem active" data-page="dashboard"><span class="ni">▦</span>Dashboard</button>
+    <button class="navitem" data-page="tickets"><span class="ni">🎫</span>Tickets</button>
+    <button class="navitem" data-page="history"><span class="ni">🕘</span>History</button>
+    <button class="navitem" data-page="reports"><span class="ni">📊</span>Reports</button>
+    <button class="navitem" data-page="settings"><span class="ni">⚙️</span>Settings</button>
+  </div>
 
   <div class="sidebar">
     <p class="sb-title">Setup &amp; Connections</p>
@@ -276,6 +343,8 @@
 
   <div class="main">
     <div class="main-inner">
+
+    <section id="page-dashboard" class="page active">
 
       <div class="topstats">
         <div class="tcard c-green">
@@ -356,12 +425,158 @@
         </div>
       </div>
 
+
+    </section>
+
+    <section id="page-tickets" class="page">
+      <div class="page-header">
+        <h2>Tickets</h2>
+        <p>Every ticket currently in your Main Tracker. Load the sheet on Dashboard first.</p>
+      </div>
+      <div class="panel-wide">
+        <div class="toolbar-row">
+          <input type="text" id="ticketSearch" placeholder="Search by Charger ID, Name, or City…" style="max-width:340px;">
+          <span class="muted-note" id="ticketsCount"></span>
+        </div>
+        <div class="log-wrap" style="max-height:640px;">
+          <table>
+            <thead><tr><th>Charger ID</th><th>Charger Name</th><th>City</th><th>Resolve Date &amp; Time</th><th>Attended By</th><th>Status</th></tr></thead>
+            <tbody id="ticketsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-history" class="page">
+      <div class="page-header">
+        <h2>History</h2>
+        <p>Every automation run you've done from this browser — filter by date range. This log lives only in this browser's local storage, it isn't synced anywhere.</p>
+      </div>
+      <div class="panel-wide">
+        <div class="toolbar-row">
+          <label class="field-label">From <input type="date" id="histFrom"></label>
+          <label class="field-label">To <input type="date" id="histTo"></label>
+          <button class="fetch btn-blue" id="exportHistoryBtn" style="width:auto;">Export CSV</button>
+          <button class="fetch" id="clearHistoryBtn" style="width:auto; border-color:var(--red); color:var(--red);">Clear History</button>
+        </div>
+        <div class="topstats" style="grid-template-columns:repeat(3,1fr); margin:20px 0;">
+          <div class="tcard c-blue"><div class="ic">📤</div><div><div class="lbl">Uploads / Runs</div><div class="num" id="histUploads">0</div></div></div>
+          <div class="tcard c-green"><div class="ic">✅</div><div><div class="lbl">Tickets Resolved</div><div class="num" id="histResolved">0</div></div></div>
+          <div class="tcard c-amber"><div class="ic">🔎</div><div><div class="lbl">Tickets Checked</div><div class="num" id="histChecked">0</div></div></div>
+        </div>
+        <div class="log-wrap" style="max-height:520px;">
+          <table>
+            <thead><tr><th>Date / Time</th><th>CMS File</th><th>Checked</th><th>Resolved</th><th>Still Open</th><th>Not Found</th></tr></thead>
+            <tbody id="historyBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-reports" class="page">
+      <div class="page-header">
+        <h2>Reports</h2>
+        <p>Resolution trends and city-wise totals, computed live from your loaded Main Tracker.</p>
+      </div>
+      <div class="panel-wide" id="reportsEmpty">
+        <p class="muted-note">Load your Main Tracker sheet on the Dashboard first — reports are computed from it directly.</p>
+      </div>
+      <div id="reportsContent" style="display:none;">
+        <div class="topstats" style="grid-template-columns:repeat(3,1fr); margin-bottom:20px;">
+          <div class="tcard c-blue"><div class="ic">📋</div><div><div class="lbl">Total Tickets</div><div class="num" id="repTotalTickets">0</div></div></div>
+          <div class="tcard c-green"><div class="ic">✅</div><div><div class="lbl">Resolved</div><div class="num" id="repResolved">0</div></div></div>
+          <div class="tcard c-amber"><div class="ic">⏳</div><div><div class="lbl">Still Open</div><div class="num" id="repOpen">0</div></div></div>
+        </div>
+        <div class="panel-wide">
+          <div class="toolbar-row">
+            <b style="font-size:14px;">Resolved Tickets Over Time</b>
+            <select id="reportPeriod" class="select-field">
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly" selected>Monthly</option>
+            </select>
+          </div>
+          <p class="muted-note" id="repUnparsedNote" style="margin-top:8px;"></p>
+          <div style="height:280px; margin-top:16px;"><canvas id="trendChart"></canvas></div>
+        </div>
+        <div class="panel-wide" style="margin-top:20px;">
+          <b style="font-size:14px;">City-wise Breakdown</b>
+          <div class="log-wrap" style="max-height:420px; margin-top:14px;">
+            <table>
+              <thead><tr><th>City</th><th>Total</th><th>Resolved</th><th>Still Open</th></tr></thead>
+              <tbody id="cityReportBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-settings" class="page">
+      <div class="page-header">
+        <h2>Settings</h2>
+        <p>Appearance, matching preferences, and on-device access control.</p>
+      </div>
+
+      <div class="panel-wide">
+        <b style="font-size:14px;">Appearance</b>
+        <div class="toolbar-row" style="margin-top:14px;">
+          <button class="theme-btn active" data-theme="dark">🌙 Dark Mode</button>
+          <button class="theme-btn" data-theme="light">☀️ Light Mode</button>
+        </div>
+      </div>
+
+      <div class="panel-wide">
+        <b style="font-size:14px;">Matching Preference</b>
+        <label class="checkbox-row" style="margin-top:14px;">
+          <input type="checkbox" id="occupiedToggle">
+          Also treat Charger Availability = <b>Occupied</b> as resolved (in addition to Available)
+        </label>
+        <p class="muted-note">By default only "Available" resolves a ticket. Turn this on if a charger actively in use (Occupied) should also count as healthy.</p>
+      </div>
+
+      <div class="panel-wide">
+        <b style="font-size:14px;">App Lock</b>
+        <p class="muted-note">⚠️ This is a basic on-device lock for casual privacy on a shared computer. It is <b>not real security</b> — anyone who views this page's source code or browser storage can bypass it. Don't rely on it to protect sensitive data.</p>
+        <label class="checkbox-row" style="margin-top:10px;">
+          <input type="checkbox" id="lockEnableToggle">
+          Require a password to view this dashboard
+        </label>
+        <div class="toolbar-row" style="margin-top:12px;">
+          <input type="password" id="lockPassInput" placeholder="Set / change password" style="max-width:280px;">
+          <button class="fetch btn-pink" id="saveLockBtn" style="width:auto;">Save</button>
+        </div>
+        <p class="muted-note" id="lockSavedNote" style="display:none; color:var(--green);">Saved.</p>
+      </div>
+
+      <div class="panel-wide">
+        <b style="font-size:14px;">City → Attended By Reference</b>
+        <p class="muted-note">This is the list currently built into the app and your Apps Script. To add or change a city, just tell me directly and I'll update both.</p>
+        <div class="log-wrap" style="max-height:280px; margin-top:12px;">
+          <table>
+            <thead><tr><th>City</th><th>Attended By</th></tr></thead>
+            <tbody id="cityRefBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
       <footer>CMS file stays in your browser &nbsp;·&nbsp; Sheet writes go directly through your own Apps Script deployment &nbsp;·&nbsp; <span class="ok">● all systems operational</span></footer>
     </div>
   </div>
 </div>
 
+<div class="lock-overlay" id="lockOverlay">
+  <div class="lock-box">
+    <div class="lockicon">🔒</div>
+    <b style="font-size:15px;">Dashboard Locked</b>
+    <input type="password" id="unlockInput" placeholder="Enter password">
+    <button class="fetch btn-blue" id="unlockBtn">Unlock</button>
+    <p class="lock-error" id="lockError">Incorrect password.</p>
+  </div>
+</div>
+
 <script>
+
 
 const APPS_SCRIPT = `function doGet(e) {
   return ContentService.createTextOutput(JSON.stringify({status: 'ok'}))
@@ -497,7 +712,8 @@ const MASTER_ALIASES = {
   charger_name: ["charger name","charging station name","station name"],
   city_name: ["city name","city"],
   resolve_dt: ["resolve date time","complaint resolve date time","resolved on","resolve time","resolved date"],
-  remarks: ["remarks","remark","comments","notes"]
+  remarks: ["remarks","remark","comments","notes"],
+  attended_by: ["complaint attended by","attended by"]
 };
 const ATTENDED_BY = {
   "jaipur":"Ankit/Pooran","pune":"Surander/Mukesh","bhubaneswar":"Bismay","delhi":"Vivek/Manish",
@@ -602,6 +818,7 @@ setInterval(updateClock, 1000*30);
 
 let masterRows = null;
 let cmsFile = null;
+let reportCols = null;
 
 const liveDot = document.getElementById("liveDot");
 const liveText = document.getElementById("liveText");
@@ -621,6 +838,11 @@ document.getElementById("fetchBtn").addEventListener("click", async () => {
       document.getElementById("topOpenTickets").textContent = openCount;
       document.getElementById("topOpenDelta").textContent = `of ${rows.length} total tickets`;
     }catch(_){ /* non-fatal, header stat just stays blank */ }
+    try{
+      reportCols = detectColumns(Object.keys(rows[0]), MASTER_ALIASES, ["charger_id","resolve_dt"]);
+    }catch(_){ reportCols = null; }
+    if(typeof renderTicketsPage === "function") renderTicketsPage();
+    if(typeof renderReportsPage === "function") renderReportsPage();
   }catch(err){
     masterRows = null;
     liveDot.className = "dot err";
@@ -731,7 +953,7 @@ document.getElementById("runBtn").addEventListener("click", async () => {
         return;
       }
       const availabilityStatus = norm(match[cCols.availability]);
-      if(availabilityStatus === "available"){
+      if(getHealthyAvailabilitySet().includes(availabilityStatus)){
         const heartbeat = match[cCols.heartbeat];
         const cityRaw = mCols.city_name ? row[mCols.city_name] : (cCols.city ? match[cCols.city] : "");
         const cityKey = norm(cityRaw);
@@ -755,6 +977,16 @@ document.getElementById("runBtn").addEventListener("click", async () => {
     updateDonut(resolvedCount, openCount, notFoundCount, totalChecked);
     renderLog(log);
     document.getElementById("results").style.display = "block";
+    saveHistoryEntry({
+      ts: Date.now(),
+      dateLabel: now,
+      cmsFileName: cmsFile ? cmsFile.name : "unknown",
+      checked: totalChecked,
+      resolved: resolvedCount,
+      stillOpen: openCount,
+      notFound: notFoundCount
+    });
+    if(typeof renderHistoryPage === "function") renderHistoryPage();
 
     const scriptUrl = document.getElementById("appsScriptUrl").value.trim();
     if(!scriptUrl){
@@ -837,6 +1069,311 @@ document.getElementById("detailsBtn").addEventListener("click", () => {
   const w = document.getElementById("logWrap");
   w.style.display = w.style.display === "none" ? "block" : "none";
 });
+
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+const navItems = document.querySelectorAll(".navitem");
+const pages = document.querySelectorAll(".page");
+const appShell = document.querySelector(".app-shell");
+function showPage(name){
+  pages.forEach(p => p.classList.toggle("active", p.id === "page-" + name));
+  navItems.forEach(n => n.classList.toggle("active", n.dataset.page === name));
+  appShell.classList.toggle("no-sidebar", name !== "dashboard");
+  if(name === "tickets") renderTicketsPage();
+  if(name === "history") renderHistoryPage();
+  if(name === "reports") renderReportsPage();
+}
+navItems.forEach(n => n.addEventListener("click", () => showPage(n.dataset.page)));
+
+// ============================================================
+// THEME (Dark / Light)
+// ============================================================
+function applyTheme(theme){
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem("cta_theme", theme);
+  document.querySelectorAll(".theme-btn").forEach(b => b.classList.toggle("active", b.dataset.theme === theme));
+}
+(function initTheme(){
+  const saved = localStorage.getItem("cta_theme") || "dark";
+  applyTheme(saved);
+})();
+document.querySelectorAll(".theme-btn").forEach(b => {
+  b.addEventListener("click", () => applyTheme(b.dataset.theme));
+});
+
+// ============================================================
+// AVAILABILITY PREFERENCE (treat Occupied as resolved too)
+// ============================================================
+function getHealthyAvailabilitySet(){
+  const includeOccupied = localStorage.getItem("cta_include_occupied") === "1";
+  return includeOccupied ? ["available","occupied"] : ["available"];
+}
+const occupiedToggle = document.getElementById("occupiedToggle");
+if(occupiedToggle){
+  occupiedToggle.checked = localStorage.getItem("cta_include_occupied") === "1";
+  occupiedToggle.addEventListener("change", () => {
+    localStorage.setItem("cta_include_occupied", occupiedToggle.checked ? "1" : "0");
+  });
+}
+
+// ============================================================
+// APP LOCK (on-device only — NOT real security, see disclaimer in UI)
+// ============================================================
+const LOCK_ENABLED_KEY = "cta_lock_enabled";
+const LOCK_PASS_KEY = "cta_lock_pass";
+function checkLockOnLoad(){
+  const enabled = localStorage.getItem(LOCK_ENABLED_KEY) === "1";
+  if(enabled){ document.getElementById("lockOverlay").style.display = "flex"; }
+  const lockEnableToggle = document.getElementById("lockEnableToggle");
+  if(lockEnableToggle) lockEnableToggle.checked = enabled;
+}
+checkLockOnLoad();
+const unlockBtn = document.getElementById("unlockBtn");
+if(unlockBtn){
+  unlockBtn.addEventListener("click", () => {
+    const entered = document.getElementById("unlockInput").value;
+    const real = localStorage.getItem(LOCK_PASS_KEY) || "";
+    if(entered !== "" && entered === real){
+      document.getElementById("lockOverlay").style.display = "none";
+      document.getElementById("lockError").style.display = "none";
+    } else {
+      document.getElementById("lockError").style.display = "block";
+    }
+  });
+}
+const saveLockBtn = document.getElementById("saveLockBtn");
+if(saveLockBtn){
+  saveLockBtn.addEventListener("click", () => {
+    const enable = document.getElementById("lockEnableToggle").checked;
+    const pass = document.getElementById("lockPassInput").value;
+    if(enable && !pass && !localStorage.getItem(LOCK_PASS_KEY)){
+      alert("Set a password before enabling the lock.");
+      return;
+    }
+    localStorage.setItem(LOCK_ENABLED_KEY, enable ? "1" : "0");
+    if(pass) localStorage.setItem(LOCK_PASS_KEY, pass);
+    document.getElementById("lockSavedNote").style.display = "block";
+    setTimeout(() => { document.getElementById("lockSavedNote").style.display = "none"; }, 2500);
+  });
+}
+
+// ============================================================
+// TICKETS PAGE
+// ============================================================
+function renderTicketsPage(){
+  const body = document.getElementById("ticketsBody");
+  const countEl = document.getElementById("ticketsCount");
+  if(!body) return;
+  if(!masterRows || !reportCols){
+    body.innerHTML = '<tr><td colspan="6" style="color:var(--muted)">Load your Main Tracker sheet first (Dashboard → Load Sheet).</td></tr>';
+    countEl.textContent = "";
+    return;
+  }
+  const q = (document.getElementById("ticketSearch").value || "").trim().toLowerCase();
+  const filtered = masterRows.filter(r => {
+    if(!q) return true;
+    const idv = String(r[reportCols.charger_id] || "").toLowerCase();
+    const namev = reportCols.charger_name ? String(r[reportCols.charger_name] || "").toLowerCase() : "";
+    const cityv = reportCols.city_name ? String(r[reportCols.city_name] || "").toLowerCase() : "";
+    return idv.includes(q) || namev.includes(q) || cityv.includes(q);
+  });
+  const capped = filtered.slice(0, 500);
+  body.innerHTML = capped.map(r => {
+    const resolved = !isBlank(r[reportCols.resolve_dt]);
+    return `<tr>
+      <td>${r[reportCols.charger_id] || ""}</td>
+      <td>${reportCols.charger_name ? (r[reportCols.charger_name] || "") : ""}</td>
+      <td>${reportCols.city_name ? (r[reportCols.city_name] || "") : ""}</td>
+      <td>${r[reportCols.resolve_dt] || ""}</td>
+      <td>${reportCols.attended_by ? (r[reportCols.attended_by] || "") : ""}</td>
+      <td><span class="tag ${resolved ? "resolved" : "stillopen"}">${resolved ? "resolved" : "open"}</span></td>
+    </tr>`;
+  }).join("");
+  countEl.textContent = `Showing ${capped.length} of ${filtered.length} ticket(s)` + (filtered.length > 500 ? " — capped at 500, refine your search to narrow it down" : "");
+}
+const ticketSearchEl = document.getElementById("ticketSearch");
+if(ticketSearchEl) ticketSearchEl.addEventListener("input", renderTicketsPage);
+
+// ============================================================
+// HISTORY PAGE (stored locally in this browser only)
+// ============================================================
+const HISTORY_KEY = "cta_run_history";
+function loadHistory(){
+  try{ return JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]"); }catch(_){ return []; }
+}
+function saveHistoryEntry(entry){
+  const hist = loadHistory();
+  hist.unshift(entry);
+  if(hist.length > 500) hist.length = 500;
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(hist));
+}
+function renderHistoryPage(){
+  const body = document.getElementById("historyBody");
+  if(!body) return;
+  const hist = loadHistory();
+  const fromV = document.getElementById("histFrom").value;
+  const toV = document.getElementById("histTo").value;
+  const fromT = fromV ? new Date(fromV + "T00:00:00").getTime() : -Infinity;
+  const toT = toV ? new Date(toV + "T23:59:59").getTime() : Infinity;
+  const filtered = hist.filter(h => h.ts >= fromT && h.ts <= toT);
+  document.getElementById("histUploads").textContent = filtered.length;
+  document.getElementById("histResolved").textContent = filtered.reduce((s,h) => s + h.resolved, 0);
+  document.getElementById("histChecked").textContent = filtered.reduce((s,h) => s + h.checked, 0);
+  if(!filtered.length){
+    body.innerHTML = '<tr><td colspan="6" style="color:var(--muted)">No runs recorded in this range yet — this log only tracks runs made from this browser.</td></tr>';
+    return;
+  }
+  body.innerHTML = filtered.map(h => `<tr>
+    <td>${h.dateLabel}</td>
+    <td>${h.cmsFileName}</td>
+    <td>${h.checked}</td>
+    <td><span class="tag resolved">${h.resolved}</span></td>
+    <td><span class="tag stillopen">${h.stillOpen}</span></td>
+    <td><span class="tag notfound">${h.notFound}</span></td>
+  </tr>`).join("");
+}
+const histFromEl = document.getElementById("histFrom");
+const histToEl = document.getElementById("histTo");
+if(histFromEl) histFromEl.addEventListener("change", renderHistoryPage);
+if(histToEl) histToEl.addEventListener("change", renderHistoryPage);
+const clearHistoryBtn = document.getElementById("clearHistoryBtn");
+if(clearHistoryBtn){
+  clearHistoryBtn.addEventListener("click", () => {
+    if(confirm("Clear all locally saved run history on this browser? This cannot be undone.")){
+      localStorage.removeItem(HISTORY_KEY);
+      renderHistoryPage();
+    }
+  });
+}
+const exportHistoryBtn = document.getElementById("exportHistoryBtn");
+if(exportHistoryBtn){
+  exportHistoryBtn.addEventListener("click", () => {
+    const hist = loadHistory();
+    const header = "Date,CMS File,Checked,Resolved,StillOpen,NotFound\n";
+    const rows = hist.map(h => [h.dateLabel,h.cmsFileName,h.checked,h.resolved,h.stillOpen,h.notFound]
+      .map(v => `"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
+    const blob = new Blob([header + rows], {type:"text/csv"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = "run_history.csv"; a.click();
+  });
+}
+
+// ============================================================
+// REPORTS PAGE (Daily / Weekly / Monthly + City-wise)
+// ============================================================
+function parseFlexibleDate(v){
+  if(!v) return null;
+  const s = String(v).trim();
+  let d = new Date(s);
+  if(!isNaN(d.getTime())) return d;
+  let m = s.match(/^(\d{1,2})-([A-Za-z]{3})-(\d{4})\s+(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
+  if(m){
+    const months = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+    let hh = parseInt(m[4],10);
+    if(m[6]){ const ap = m[6].toUpperCase(); if(ap==="PM" && hh<12) hh+=12; if(ap==="AM" && hh===12) hh=0; }
+    d = new Date(parseInt(m[3],10), months[m[2].toLowerCase()], parseInt(m[1],10), hh, parseInt(m[5],10));
+    if(!isNaN(d.getTime())) return d;
+  }
+  m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})[ T](\d{1,2}):(\d{2})(:(\d{2}))?/);
+  if(m){
+    d = new Date(parseInt(m[3],10), parseInt(m[2],10)-1, parseInt(m[1],10), parseInt(m[4],10), parseInt(m[5],10), m[7]?parseInt(m[7],10):0);
+    if(!isNaN(d.getTime())) return d;
+  }
+  return null;
+}
+
+let trendChartInstance = null;
+function computeReports(period){
+  const buckets = {};
+  let unparsed = 0, totalResolved = 0, totalOpen = 0;
+  const cityStats = {};
+  masterRows.forEach(row => {
+    const resolvedVal = row[reportCols.resolve_dt];
+    const isResolved = !isBlank(resolvedVal);
+    const city = reportCols.city_name ? (row[reportCols.city_name] || "Unknown") : "Unknown";
+    if(!cityStats[city]) cityStats[city] = {total:0, resolved:0, open:0};
+    cityStats[city].total++;
+    if(isResolved){ cityStats[city].resolved++; totalResolved++; } else { cityStats[city].open++; totalOpen++; }
+    if(isResolved){
+      const d = parseFlexibleDate(resolvedVal);
+      if(!d){ unparsed++; return; }
+      let key;
+      if(period === "daily"){ key = d.toISOString().slice(0,10); }
+      else if(period === "weekly"){
+        const day = d.getDay();
+        const diff = (day === 0 ? -6 : 1) - day;
+        const monday = new Date(d); monday.setDate(d.getDate() + diff);
+        key = monday.toISOString().slice(0,10);
+      } else {
+        key = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0");
+      }
+      buckets[key] = (buckets[key] || 0) + 1;
+    }
+  });
+  return {buckets, unparsed, totalResolved, totalOpen, cityStats};
+}
+
+function renderReportsPage(){
+  const empty = document.getElementById("reportsEmpty");
+  const content = document.getElementById("reportsContent");
+  if(!empty || !content) return;
+  if(!masterRows || !reportCols){
+    empty.style.display = "block";
+    content.style.display = "none";
+    return;
+  }
+  empty.style.display = "none";
+  content.style.display = "block";
+
+  const period = document.getElementById("reportPeriod").value;
+  const r = computeReports(period);
+
+  document.getElementById("repTotalTickets").textContent = masterRows.length;
+  document.getElementById("repResolved").textContent = r.totalResolved;
+  document.getElementById("repOpen").textContent = r.totalOpen;
+  document.getElementById("repUnparsedNote").textContent = r.unparsed
+    ? `${r.unparsed} row(s) had a Resolve Date we couldn't parse and were excluded from the trend chart below.`
+    : "All resolve dates parsed successfully for the trend chart below.";
+
+  const sortedKeys = Object.keys(r.buckets).sort();
+  const labels = sortedKeys;
+  const values = sortedKeys.map(k => r.buckets[k]);
+
+  const ctx = document.getElementById("trendChart").getContext("2d");
+  if(trendChartInstance) trendChartInstance.destroy();
+  trendChartInstance = new Chart(ctx, {
+    type: "bar",
+    data: { labels, datasets: [{ label: "Resolved", data: values, backgroundColor: "#3ECF8E", borderRadius: 4, maxBarThickness: 42 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: "#7C948C", font: { family: "IBM Plex Mono", size: 10 } }, grid: { color: "rgba(32,48,42,.6)" } },
+        y: { ticks: { color: "#7C948C", font: { family: "IBM Plex Mono", size: 10 } }, grid: { color: "rgba(32,48,42,.6)" }, beginAtZero: true, precision: 0 }
+      }
+    }
+  });
+
+  const cityRows = Object.entries(r.cityStats).sort((a,b) => b[1].total - a[1].total);
+  document.getElementById("cityReportBody").innerHTML = cityRows.map(([city,s]) => `<tr>
+    <td>${city}</td><td>${s.total}</td><td><span class="tag resolved">${s.resolved}</span></td><td><span class="tag stillopen">${s.open}</span></td>
+  </tr>`).join("");
+}
+const reportPeriodEl = document.getElementById("reportPeriod");
+if(reportPeriodEl) reportPeriodEl.addEventListener("change", renderReportsPage);
+
+// Render History on load so the range fields work immediately
+renderHistoryPage();
+
+// Populate the read-only City -> Attended By reference table in Settings
+(function populateCityRef(){
+  const body = document.getElementById("cityRefBody");
+  if(!body) return;
+  const rows = Object.entries(ATTENDED_BY).sort((a,b) => a[0].localeCompare(b[0]));
+  body.innerHTML = rows.map(([city,name]) => `<tr><td style="text-transform:capitalize">${city}</td><td>${name}</td></tr>`).join("");
+})();
 
 </script>
 </body>
