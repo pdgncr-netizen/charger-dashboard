@@ -10,6 +10,7 @@
   :root{
     --bg:#0A1310; --panel:#101B18; --panel-2:#15211D; --line:#20302A; --text:#E7F0EB; --muted:#7C948C;
     --amber:#F2A93B; --green:#3ECF8E; --blue:#5FB6E8; --red:#E2645A; --gray:#33443C; --teal:#4FD8C4;
+    --violet:#B98CE0; --pink:#F0729B; --cyan:#5FD6E8;
     --display:'Space Grotesk','Segoe UI',sans-serif; --body:'Inter','Segoe UI',sans-serif; --mono:'IBM Plex Mono','Consolas',monospace;
   }
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
@@ -45,7 +46,7 @@
 
   .eyebrow{font-family:var(--mono); font-size:12px; letter-spacing:.14em; color:var(--amber); text-transform:uppercase; margin:0 0 14px; display:flex; align-items:center; gap:10px;}
   .eyebrow::before{content:""; width:8px; height:8px; border-radius:50%; background:var(--amber); box-shadow:0 0 8px var(--amber);}
-  h1{font-family:var(--display); font-weight:700; font-size:clamp(30px,4.2vw,42px); margin:0 0 10px; letter-spacing:-0.015em; background:linear-gradient(135deg, var(--text) 40%, var(--teal)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;}
+  h1{font-family:var(--display); font-weight:700; font-size:clamp(30px,4.2vw,42px); margin:0 0 10px; letter-spacing:-0.015em; background:linear-gradient(100deg, var(--amber) 0%, var(--text) 35%, var(--teal) 70%, var(--violet) 100%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;}
   .sub{color:var(--muted); font-size:15px; max-width:640px; line-height:1.6; margin:0 0 30px;}
 
   .steps{
@@ -67,6 +68,18 @@
   }
   .panel::before{content:""; position:absolute; top:0; left:16px; right:16px; height:1px; background:linear-gradient(90deg, transparent, rgba(79,216,196,.5), transparent);}
   .panel:hover{border-color:#2C4038;}
+  .panel.accent-blue{border-left:2px solid var(--blue);}
+  .panel.accent-blue::before{background:linear-gradient(90deg, transparent, var(--blue), transparent);}
+  .panel.accent-blue:hover{border-color:var(--line); border-left-color:var(--blue); box-shadow:-2px 0 20px -8px rgba(95,182,232,.35);}
+  .panel.accent-violet{border-left:2px solid var(--violet);}
+  .panel.accent-violet::before{background:linear-gradient(90deg, transparent, var(--violet), transparent);}
+  .panel.accent-violet:hover{border-color:var(--line); border-left-color:var(--violet); box-shadow:-2px 0 20px -8px rgba(185,140,224,.35);}
+  .panel.accent-pink{border-left:2px solid var(--pink);}
+  .panel.accent-pink::before{background:linear-gradient(90deg, transparent, var(--pink), transparent);}
+  .panel.accent-pink:hover{border-color:var(--line); border-left-color:var(--pink); box-shadow:-2px 0 20px -8px rgba(240,114,155,.35);}
+  .n.n-blue{color:var(--blue); background:rgba(95,182,232,.12); border-color:rgba(95,182,232,.3);}
+  .n.n-violet{color:var(--violet); background:rgba(185,140,224,.12); border-color:rgba(185,140,224,.3);}
+  .n.n-pink{color:var(--pink); background:rgba(240,114,155,.12); border-color:rgba(240,114,155,.3);}
 
   .drop{background:var(--panel-2); border:1.5px dashed var(--line); border-radius:10px; padding:22px; cursor:pointer; transition:.15s all; position:relative;}
   .drop:hover, .drop.drag{border-color:var(--amber); background:#182420;}
@@ -88,6 +101,9 @@
     border:1px solid var(--line); color:var(--text); padding:13px 18px; border-radius:8px; cursor:pointer; white-space:nowrap; transition:.15s all;
   }
   button.fetch:hover{border-color:var(--blue); color:var(--blue); background:#152128;}
+  button.fetch.btn-blue:hover{border-color:var(--blue); color:var(--blue); background:rgba(95,182,232,.08);}
+  button.fetch.btn-violet:hover{border-color:var(--violet); color:var(--violet); background:rgba(185,140,224,.08);}
+  button.fetch.btn-pink:hover{border-color:var(--pink); color:var(--pink); background:rgba(240,114,155,.08);}
 
   .live-status{font-family:var(--mono); font-size:12px; color:var(--muted); margin-top:12px; display:flex; align-items:center; gap:8px;}
   .dot{width:8px; height:8px; border-radius:50%; background:var(--gray); flex:none;}
@@ -204,17 +220,17 @@
     </ol>
   </div>
 
-  <div class="panel">
-    <p class="section-title"><span class="n">01</span> Main Tracker — Google Sheet (live)</p>
+  <div class="panel accent-blue">
+    <p class="section-title"><span class="n n-blue">01</span> Main Tracker — Google Sheet (live)</p>
     <div class="link-row">
       <input type="text" id="sheetUrl" value="https://docs.google.com/spreadsheets/d/e/2PACX-1vTfaMRyY0qiXva7UmOwV7z9H21aGJlOMlPnm1SrkXrZoVWEqLAQnhV-7w3ZWDt4TXdGMIc686mQDUpR/pub?gid=0&single=true&output=csv">
-      <button class="fetch" id="fetchBtn">Load Sheet</button>
+      <button class="fetch btn-blue" id="fetchBtn">Load Sheet</button>
     </div>
     <div class="live-status"><span class="dot" id="liveDot"></span><span id="liveText">Not loaded yet</span></div>
   </div>
 
-  <div class="panel">
-    <p class="section-title"><span class="n">02</span> CMS Dump — upload today's export (.xlsx / .csv)</p>
+  <div class="panel accent-violet">
+    <p class="section-title"><span class="n n-violet">02</span> CMS Dump — upload today's export (.xlsx / .csv)</p>
     <label class="drop" id="dropCms">
       <span class="check">✓</span>
       <span class="drop-name" id="nameCms">Click or drop file</span>
@@ -223,8 +239,8 @@
     </label>
   </div>
 
-  <div class="panel">
-    <p class="section-title"><span class="n">03</span> Push updates into the Google Sheet</p>
+  <div class="panel accent-pink">
+    <p class="section-title"><span class="n n-pink">03</span> Push updates into the Google Sheet</p>
     <p class="helptext">
       A published link can only be <em>read</em>, not written to. To let this page auto-fill your sheet,
       paste this one-time script into your sheet (<code>Extensions → Apps Script</code>), deploy it as a
@@ -236,13 +252,13 @@
     </details>
     <div class="link-row" style="margin-top:14px;">
       <input type="text" id="appsScriptUrl" value="https://script.google.com/macros/s/AKfycbzRpNAAClcu0Qg7lE2qDAPjg1GWVzZ11FxpiDVRJFX8PEAIkP_L8aOxKjgGsq8QDsZVgA/exec" placeholder="Paste your Apps Script Web App URL here (ends in /exec)">
-      <button class="fetch" id="testConnBtn">Test Connection</button>
+      <button class="fetch btn-violet" id="testConnBtn">Test Connection</button>
     </div>
     <div class="live-status" id="connStatusRow" style="display:none;">
       <span class="dot" id="connDot"></span><span id="connText"></span>
     </div>
     <div class="link-row" style="margin-top:14px;">
-      <button class="fetch" id="fillAttendedBtn">Fill Attended By (all rows, by City)</button>
+      <button class="fetch btn-pink" id="fillAttendedBtn">Fill Attended By (all rows, by City)</button>
     </div>
     <div class="live-status" id="fillStatusRow" style="display:none;">
       <span class="dot" id="fillDot"></span><span id="fillText"></span>
