@@ -230,9 +230,15 @@
   .navitem.active{background:rgba(95,182,232,.15); color:var(--blue); box-shadow:inset 2px 0 0 var(--blue);}
 
   /* ===== Page visibility ===== */
-  .app-shell{grid-template-columns:84px var(--sidebar-w) 1fr;}
-  .app-shell.no-sidebar{grid-template-columns:84px 1fr;}
-  .app-shell.no-sidebar .sidebar{display:none;}
+  .app-shell{grid-template-columns:84px 1fr;}
+  .setup-row{display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin-bottom:24px;}
+  .setup-row .panel{margin-bottom:0;}
+  .hiw-title-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:22px;}
+  .hiw-title-row .hiw-title{margin:0;}
+  .hiw-toggle{font-family:var(--mono); font-size:10.5px; letter-spacing:.04em; text-transform:uppercase; background:var(--panel-2); border:1px solid var(--line); color:var(--muted); padding:6px 12px; border-radius:7px; cursor:pointer; transition:.15s all;}
+  .hiw-toggle:hover{border-color:var(--teal); color:var(--teal);}
+  .hiw-row.hidden{display:none;}
+  @media(max-width:1200px){ .setup-row{grid-template-columns:1fr;} }
   .page{display:none;}
   .page.active{display:block;}
   .page-header{margin-bottom:22px;}
@@ -293,54 +299,6 @@
     <button class="navitem" data-page="settings"><span class="ni">⚙️</span>Settings</button>
   </div>
 
-  <div class="sidebar">
-    <p class="sb-title">Setup &amp; Connections</p>
-
-    <div class="panel accent-blue">
-      <div class="panel-head"><div class="ic ic-blue">📄</div><b>Main Tracker — Google Sheet</b></div>
-      <div class="link-row">
-        <input type="text" id="sheetUrl" value="https://docs.google.com/spreadsheets/d/e/2PACX-1vTfaMRyY0qiXva7UmOwV7z9H21aGJlOMlPnm1SrkXrZoVWEqLAQnhV-7w3ZWDt4TXdGMIc686mQDUpR/pub?gid=0&single=true&output=csv">
-      </div>
-      <button class="fetch btn-blue" id="fetchBtn">Load Sheet</button>
-      <div class="live-status"><span class="dot" id="liveDot"></span><span id="liveText">Not loaded yet</span></div>
-    </div>
-
-    <div class="panel accent-violet">
-      <div class="panel-head"><div class="ic ic-violet">☁️</div><b>CMS Dump Upload</b></div>
-      <label class="drop" id="dropCms">
-        <span class="check">✓</span>
-        <div class="dropicon">📤</div>
-        <span class="drop-name" id="nameCms">Click or drop file</span>
-        <span class="drop-hint">Needs: Charger ID/Code, Charging Station Name, Charger Availability, Last Heartbeat</span>
-        <input type="file" id="fileCms" accept=".xlsx,.xls,.csv">
-      </label>
-    </div>
-
-    <div class="panel accent-pink">
-      <div class="panel-head"><div class="ic ic-pink">🔗</div><b>Push Updates Into Sheet</b></div>
-      <p class="helptext">
-        A published link can only be <em>read</em>. Paste this one-time script into your sheet
-        (<code>Extensions → Apps Script</code>), deploy as a <strong>Web App</strong>
-        (Execute as: Me · Access: Anyone), then paste the URL below.
-      </p>
-      <details>
-        <summary>Show Apps Script code to paste in</summary>
-        <pre id="scriptCode"></pre>
-      </details>
-      <div class="link-row" style="margin-top:12px;">
-        <input type="text" id="appsScriptUrl" value="https://script.google.com/macros/s/AKfycbzRpNAAClcu0Qg7lE2qDAPjg1GWVzZ11FxpiDVRJFX8PEAIkP_L8aOxKjgGsq8QDsZVgA/exec" placeholder="Paste your Apps Script Web App URL (ends in /exec)">
-      </div>
-      <button class="fetch btn-violet" id="testConnBtn">Test Connection</button>
-      <div class="live-status" id="connStatusRow" style="display:none;">
-        <span class="dot" id="connDot"></span><span id="connText"></span>
-      </div>
-      <button class="fetch btn-pink" id="fillAttendedBtn">Fill Attended By (all rows, by City)</button>
-      <div class="live-status" id="fillStatusRow" style="display:none;">
-        <span class="dot" id="fillDot"></span><span id="fillText"></span>
-      </div>
-    </div>
-  </div>
-
   <div class="main">
     <div class="main-inner">
 
@@ -366,8 +324,11 @@
       </div>
 
       <div class="howitworks">
-        <div class="hiw-title">How It Works</div>
-        <div class="hiw-row">
+        <div class="hiw-title-row">
+          <div class="hiw-title">How It Works</div>
+          <button class="hiw-toggle" id="hiwToggleBtn">Hide</button>
+        </div>
+        <div class="hiw-row" id="hiwRow">
           <div class="hiw-step s1"><div class="circ">📋</div><b>1&nbsp; Open Ticket</b><small>Fetch from Main Tracker</small></div>
           <div class="hiw-arrow">→</div>
           <div class="hiw-step s2"><div class="circ">🔎</div><b>2&nbsp; Match in CMS</b><small>By Charger ID &amp; Name</small></div>
@@ -375,6 +336,48 @@
           <div class="hiw-step s3"><div class="circ">⚡</div><b>3&nbsp; Check Availability</b><small>Charger Availability = Available</small></div>
           <div class="hiw-arrow">→</div>
           <div class="hiw-step s4"><div class="circ">✔️</div><b>4&nbsp; Resolve &amp; Close</b><small>Heartbeat time + Remarks</small></div>
+        </div>
+      </div>
+
+      <div class="setup-row">
+        <div class="panel accent-blue">
+          <div class="panel-head"><div class="ic ic-blue">📄</div><b>Main Tracker — Google Sheet</b></div>
+          <div class="link-row">
+            <input type="text" id="sheetUrl" value="https://docs.google.com/spreadsheets/d/e/2PACX-1vTfaMRyY0qiXva7UmOwV7z9H21aGJlOMlPnm1SrkXrZoVWEqLAQnhV-7w3ZWDt4TXdGMIc686mQDUpR/pub?gid=0&single=true&output=csv">
+          </div>
+          <button class="fetch btn-blue" id="fetchBtn">Load Sheet</button>
+          <div class="live-status"><span class="dot" id="liveDot"></span><span id="liveText">Not loaded yet</span></div>
+        </div>
+
+        <div class="panel accent-violet">
+          <div class="panel-head"><div class="ic ic-violet">☁️</div><b>CMS Dump Upload</b></div>
+          <label class="drop" id="dropCms">
+            <span class="check">✓</span>
+            <div class="dropicon">📤</div>
+            <span class="drop-name" id="nameCms">Click or drop file</span>
+            <span class="drop-hint">Needs: Charger ID/Code, Charging Station Name, Charger Availability, Last Heartbeat</span>
+            <input type="file" id="fileCms" accept=".xlsx,.xls,.csv">
+          </label>
+        </div>
+
+        <div class="panel accent-pink">
+          <div class="panel-head"><div class="ic ic-pink">🔗</div><b>Push Updates Into Sheet</b></div>
+          <p class="helptext">
+            A published link can only be <em>read</em>. Paste this one-time script into your sheet
+            (<code>Extensions → Apps Script</code>), deploy as a <strong>Web App</strong>
+            (Execute as: Me · Access: Anyone), then paste the URL below.
+          </p>
+          <details>
+            <summary>Show Apps Script code to paste in</summary>
+            <pre id="scriptCode"></pre>
+          </details>
+          <div class="link-row" style="margin-top:12px;">
+            <input type="text" id="appsScriptUrl" value="https://script.google.com/macros/s/AKfycbzRpNAAClcu0Qg7lE2qDAPjg1GWVzZ11FxpiDVRJFX8PEAIkP_L8aOxKjgGsq8QDsZVgA/exec" placeholder="Paste your Apps Script Web App URL (ends in /exec)">
+          </div>
+          <button class="fetch btn-violet" id="testConnBtn">Test Connection</button>
+          <div class="live-status" id="connStatusRow" style="display:none;">
+            <span class="dot" id="connDot"></span><span id="connText"></span>
+          </div>
         </div>
       </div>
 
@@ -891,30 +894,6 @@ document.getElementById("testConnBtn").addEventListener("click", async () => {
   }
 });
 
-const fillDot = document.getElementById("fillDot");
-const fillText = document.getElementById("fillText");
-const fillRow = document.getElementById("fillStatusRow");
-document.getElementById("fillAttendedBtn").addEventListener("click", async () => {
-  const url = document.getElementById("appsScriptUrl").value.trim();
-  fillRow.style.display = "flex";
-  if(!url){ fillDot.className="dot err"; fillText.textContent="Paste your Apps Script URL first."; return; }
-  fillDot.className = "dot"; fillText.textContent = "Filling Attended By across the sheet…";
-  try{
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ fillAttendedByOnly: true })
-    });
-    const result = await res.json();
-    if(result.error) throw new Error(result.error);
-    fillDot.className = "dot ok";
-    fillText.textContent = `Filled ${result.filled} row(s)` + (result.noMapping ? `, ${result.noMapping} row(s) had a city not in the list` : "");
-  }catch(err){
-    fillDot.className = "dot err";
-    fillText.textContent = "Failed — " + err.message;
-  }
-});
-
 document.getElementById("runBtn").addEventListener("click", async () => {
   const errorBox = document.getElementById("errorBox");
   const runStatus = document.getElementById("runStatus");
@@ -1363,6 +1342,24 @@ function renderReportsPage(){
 }
 const reportPeriodEl = document.getElementById("reportPeriod");
 if(reportPeriodEl) reportPeriodEl.addEventListener("change", renderReportsPage);
+
+// ============================================================
+// HOW IT WORKS — collapse/expand toggle (persisted)
+// ============================================================
+(function initHiwToggle(){
+  const btn = document.getElementById("hiwToggleBtn");
+  const row = document.getElementById("hiwRow");
+  if(!btn || !row) return;
+  function apply(hidden){
+    row.classList.toggle("hidden", hidden);
+    btn.textContent = hidden ? "Show" : "Hide";
+    localStorage.setItem("cta_hiw_hidden", hidden ? "1" : "0");
+  }
+  apply(localStorage.getItem("cta_hiw_hidden") === "1");
+  btn.addEventListener("click", () => {
+    apply(!row.classList.contains("hidden"));
+  });
+})();
 
 // Render History on load so the range fields work immediately
 renderHistoryPage();
