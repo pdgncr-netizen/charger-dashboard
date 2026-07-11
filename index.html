@@ -193,14 +193,14 @@
 <div class="wrap">
   <p class="eyebrow">charger-dashboard · complaint ops</p>
   <h1>Complaint Auto-Resolver</h1>
-  <p class="sub">Follows your exact workflow: find open tickets, match them in the CMS dump by Charger ID + Name, and if the Connector is Active, close them out using its Last Heartbeat time.</p>
+  <p class="sub">Follows your exact workflow: find open tickets, match them in the CMS dump by Charger ID + Name, and if the Charger Availability is Available, close them out using its Last Heartbeat time.</p>
 
   <div class="steps">
     <ol>
       <li><b>Open ticket</b> = Complaint Resolve Date &amp; Time is blank in the Main Tracker.</li>
       <li>Match that ticket in the CMS Dump by <b>Charger ID</b> and <b>Charger Name</b>.</li>
-      <li>Check its <b>Connector Status</b>.</li>
-      <li>If <b>Active</b> → copy <b>Last Heartbeat</b> into Resolve Date &amp; Time, set Remarks = <b>"Resolved"</b>.</li>
+      <li>Check its <b>Charger Availability</b>.</li>
+      <li>If <b>Available</b> → copy <b>Last Heartbeat</b> into Resolve Date &amp; Time, set Remarks = <b>"Resolved"</b>.</li>
     </ol>
   </div>
 
@@ -218,7 +218,7 @@
     <label class="drop" id="dropCms">
       <span class="check">✓</span>
       <span class="drop-name" id="nameCms">Click or drop file</span>
-      <span class="drop-hint">Needs: Charger ID/Code, Charging Station Name, Connector Status, Last Heartbeat</span>
+      <span class="drop-hint">Needs: Charger ID/Code, Charging Station Name, Charger Availability, Last Heartbeat</span>
       <input type="file" id="fileCms" accept=".xlsx,.xls,.csv">
     </label>
   </div>
@@ -259,7 +259,7 @@
       <div class="rail-title">Status rail — one LED per open ticket checked</div>
       <div class="rail" id="rail"></div>
       <div class="legend">
-        <span><i style="background:var(--amber)"></i>still open (connector not active)</span>
+        <span><i style="background:var(--amber)"></i>still open (charger not available)</span>
         <span><i style="background:var(--green)"></i>resolved via heartbeat</span>
         <span><i style="background:var(--red)"></i>not found in CMS dump</span>
         <span><i style="background:var(--gray)"></i>already closed</span>
@@ -440,7 +440,7 @@ const ATTENDED_BY = {
 const CMS_ALIASES = {
   charger_id: ["charger code","charger id","chargerid"],
   charger_name: ["charging station name","charger name","station name"],
-  connector: ["connector status"],
+  availability: ["charger availability","availability"],
   heartbeat: ["last heartbeat","heartbeat"],
   city: ["city name","city"]
 };
@@ -609,7 +609,7 @@ document.getElementById("runBtn").addEventListener("click", async () => {
     const masterHeaders = Object.keys(masterRows[0]);
     const cmsHeaders = Object.keys(cmsRows[0]);
     const mCols = detectColumns(masterHeaders, MASTER_ALIASES, ["charger_id","charger_name","resolve_dt","remarks"]);
-    const cCols = detectColumns(cmsHeaders, CMS_ALIASES, ["charger_id","charger_name","connector","heartbeat"]);
+    const cCols = detectColumns(cmsHeaders, CMS_ALIASES, ["charger_id","charger_name","availability","heartbeat"]);
 
     // Index CMS dump by Charger ID + Charger Name
     const cmsIndex = new Map();
@@ -632,18 +632,18 @@ document.getElementById("runBtn").addEventListener("click", async () => {
         log.push({id: row[mCols.charger_id], name: row[mCols.charger_name], result:"notfound", detail:"No matching Charger ID + Name in CMS dump"});
         return;
       }
-      const connectorStatus = norm(match[cCols.connector]);
-      if(connectorStatus === "active"){
+      const availabilityStatus = norm(match[cCols.availability]);
+      if(availabilityStatus === "available"){
         const heartbeat = match[cCols.heartbeat];
         const cityRaw = mCols.city_name ? row[mCols.city_name] : (cCols.city ? match[cCols.city] : "");
         const cityKey = norm(cityRaw);
         const attendedBy = ATTENDED_BY[cityKey] || "";
         updates.push({ chargerId: row[mCols.charger_id], chargerName: row[mCols.charger_name], resolveDateTime: heartbeat });
         ledStates.push("resolved");
-        log.push({id: row[mCols.charger_id], name: row[mCols.charger_name], result:"resolved", detail:`Connector Active — heartbeat ${heartbeat}${attendedBy ? " — Attended By: " + attendedBy : (cityRaw ? " — no mapping for city \"" + cityRaw + "\"" : "")}`});
+        log.push({id: row[mCols.charger_id], name: row[mCols.charger_name], result:"resolved", detail:`Charger Available — heartbeat ${heartbeat}${attendedBy ? " — Attended By: " + attendedBy : (cityRaw ? " — no mapping for city \"" + cityRaw + "\"" : "")}`});
       } else {
         ledStates.push("open");
-        log.push({id: row[mCols.charger_id], name: row[mCols.charger_name], result:"stillopen", detail:`Connector Status: ${match[cCols.connector]}`});
+        log.push({id: row[mCols.charger_id], name: row[mCols.charger_name], result:"stillopen", detail:`Charger Availability: ${match[cCols.availability]}`});
       }
     });
 
