@@ -267,7 +267,20 @@
   .lock-box .lockicon{font-size:32px; margin-bottom:14px;}
   .lock-box input{width:100%; margin:16px 0 10px;}
   .lock-box button{width:100%;}
-  .lock-error{color:var(--red); font-family:var(--mono); font-size:11.5px; margin-top:10px; display:none;}
+  .lock-error{color:var(--red); font-family:var(--mono); font-size:11.5px; margin-top:10px; display:none;}  /* ===== AI Assistant chat ===== */
+  .chat-panel{display:flex; flex-direction:column; padding:0; overflow:hidden;}
+  .chat-window{flex:1; min-height:420px; max-height:520px; overflow-y:auto; padding:22px 24px; display:flex; flex-direction:column; gap:14px;}
+  .msg{max-width:78%; padding:12px 15px; border-radius:12px; font-size:13px; line-height:1.6; white-space:pre-wrap;}
+  .msg.assistant{align-self:flex-start; background:var(--panel-2); border:1px solid var(--line); border-top-left-radius:3px;}
+  .msg.user{align-self:flex-end; background:linear-gradient(100deg, rgba(79,216,196,.18), rgba(95,182,232,.18)); border:1px solid rgba(95,182,232,.3); border-top-right-radius:3px; color:var(--text);}
+  .msg b{color:var(--teal);}
+  .msg .msg-meta{display:block; font-family:var(--mono); font-size:9.5px; color:var(--muted); margin-top:6px;}
+  .chip-row{display:flex; flex-wrap:wrap; gap:8px; padding:14px 24px; border-top:1px solid var(--line); background:var(--panel-2);}
+  .chip{font-family:var(--mono); font-size:11px; background:var(--panel); border:1px solid var(--line); color:var(--muted); padding:8px 13px; border-radius:20px; cursor:pointer; transition:.15s all;}
+  .chip:hover{border-color:var(--teal); color:var(--teal);}
+  .chat-input-row{display:flex; gap:10px; padding:16px 24px; border-top:1px solid var(--line);}
+  .chat-input-row textarea{flex:1; resize:none; background:var(--panel-2); border:1px solid var(--line); color:var(--text); font-family:var(--body); font-size:13px; padding:12px 14px; border-radius:10px; max-height:120px;}
+  .chat-input-row textarea:focus{outline:none; border-color:var(--teal);}
 </style>
 </head>
 <body>
@@ -297,6 +310,7 @@
     <button class="navitem" data-page="history"><span class="ni">🕘</span>History</button>
     <button class="navitem" data-page="reports"><span class="ni">📊</span>Reports</button>
     <button class="navitem" data-page="settings"><span class="ni">⚙️</span>Settings</button>
+    <button class="navitem" data-page="assistant"><span class="ni">🤖</span>AI Assistant</button>
   </div>
 
   <div class="main">
@@ -563,6 +577,46 @@
       </div>
     </section>
 
+    <section id="page-assistant" class="page">
+      <div class="page-header">
+        <h2>AI Assistant</h2>
+        <p>Ask questions about your loaded dashboard data in plain language, or request a summary. This assistant answers directly from your Main Tracker and run history — it's not a general chatbot, so it's most reliable for questions about tickets, cities, resolution rates, and summaries.</p>
+      </div>
+
+      <div class="panel-wide" id="aiModePanel">
+        <div class="toolbar-row" style="justify-content:space-between;">
+          <label class="checkbox-row">
+            <input type="checkbox" id="aiModeToggle">
+            🧠 Use real AI (Gemini) for open-ended questions instead of the built-in engine
+          </label>
+          <span class="muted-note" id="aiModeStatus"></span>
+        </div>
+        <p class="helptext" style="margin-top:12px;">
+          One-time setup: get a free API key at <code>aistudio.google.com/apikey</code>, then in your sheet's
+          <code>Extensions → Apps Script</code>, open <code>Project Settings</code> (gear icon) → <code>Script Properties</code>
+          → add a property named <code>GEMINI_API_KEY</code> with your key as the value. No key ever touches this page —
+          it stays inside your own Apps Script project. Since the script code changed to support this, you'll also need to
+          redeploy (<code>Deploy → Manage deployments → ✏️ → New version → Deploy</code>).
+        </p>
+      </div>
+
+      <div class="panel-wide chat-panel">
+        <div class="chat-window" id="chatWindow"></div>
+        <div class="chip-row" id="chipRow">
+          <button class="chip" data-q="How many open tickets are there?">How many open tickets?</button>
+          <button class="chip" data-q="Which city has the highest number of complaints?">Which city has the most complaints?</button>
+          <button class="chip" data-q="Show me chargers that are still offline">Show offline chargers</button>
+          <button class="chip" data-q="What is today's resolution rate?">Today's resolution rate</button>
+          <button class="chip" data-q="Give me today's summary">Today's summary</button>
+          <button class="chip" data-q="Summarize this week's performance">This week's summary</button>
+        </div>
+        <div class="chat-input-row">
+          <textarea id="chatInput" rows="1" placeholder="Ask about your tickets, cities, or ask for a summary…"></textarea>
+          <button id="chatSendBtn" class="fetch btn-blue" style="width:auto;">Send</button>
+        </div>
+      </div>
+    </section>
+
       <footer>CMS file stays in your browser &nbsp;·&nbsp; Sheet writes go directly through your own Apps Script deployment &nbsp;·&nbsp; <span class="ok">● all systems operational</span></footer>
     </div>
   </div>
@@ -588,6 +642,47 @@ const APPS_SCRIPT = `function doGet(e) {
 
 function doPost(e) {
   var payload = JSON.parse(e.postData.contents);
+
+  // ---- Real AI (Gemini) branch — handled first, no sheet access needed ----
+  if (payload.askAI) {
+    var apiKey = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');
+    if (!apiKey) {
+      return ContentService.createTextOutput(JSON.stringify({
+        error: 'No Gemini API key configured. In Apps Script: Project Settings (gear icon) → Script Properties → Add property → name it GEMINI_API_KEY with your key as the value.'
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    try {
+      var systemPrompt = 'You are a helpful assistant embedded in an EV charger complaint-tracking dashboard. ' +
+        'Answer the question using ONLY the JSON data summary provided below — do not invent numbers or facts not present in it. ' +
+        'If the data summary does not contain enough information to answer, say so plainly. Keep answers concise and use plain text (no markdown tables).\\n\\n' +
+        'DATA SUMMARY:\\n' + JSON.stringify(payload.dataContext || {}) +
+        '\\n\\nUSER QUESTION: ' + payload.question;
+
+      var geminiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey;
+      var geminiRes = UrlFetchApp.fetch(geminiUrl, {
+        method: 'post',
+        contentType: 'application/json',
+        muteHttpExceptions: true,
+        payload: JSON.stringify({
+          contents: [{ parts: [{ text: systemPrompt }] }]
+        })
+      });
+      var geminiJson = JSON.parse(geminiRes.getContentText());
+      if (geminiJson.error) {
+        return ContentService.createTextOutput(JSON.stringify({ error: 'Gemini API error: ' + geminiJson.error.message }))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+      var answerText = geminiJson.candidates && geminiJson.candidates[0] && geminiJson.candidates[0].content
+        ? geminiJson.candidates[0].content.parts.map(function(p){ return p.text; }).join('')
+        : 'No response from Gemini.';
+      return ContentService.createTextOutput(JSON.stringify({ answer: answerText }))
+        .setMimeType(ContentService.MimeType.JSON);
+    } catch (err) {
+      return ContentService.createTextOutput(JSON.stringify({ error: 'Gemini request failed: ' + err.message }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+  }
+
   var updates = payload.updates || []; // [{chargerId, chargerName, resolveDateTime}]
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
   var data = sheet.getDataRange().getValues();
@@ -1371,6 +1466,350 @@ renderHistoryPage();
   const rows = Object.entries(ATTENDED_BY).sort((a,b) => a[0].localeCompare(b[0]));
   body.innerHTML = rows.map(([city,name]) => `<tr><td style="text-transform:capitalize">${city}</td><td>${name}</td></tr>`).join("");
 })();
+
+
+// ============================================================
+// AI ASSISTANT — rule-based data analyst over the loaded dashboard
+// (Not a general-purpose chatbot: it answers from your Main Tracker
+//  data + run history using pattern matching, not a language model.)
+// ============================================================
+function escapeHtml(s){
+  return String(s == null ? "" : s)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+function buildCityStats(){
+  const stats = {};
+  masterRows.forEach(row => {
+    const city = reportCols.city_name ? (row[reportCols.city_name] || "Unknown") : "Unknown";
+    if(!stats[city]) stats[city] = {total:0, resolved:0, open:0};
+    stats[city].total++;
+    if(isBlank(row[reportCols.resolve_dt])) stats[city].open++;
+    else stats[city].resolved++;
+  });
+  return stats;
+}
+
+function isSameDay(d, ref){
+  return d.getFullYear()===ref.getFullYear() && d.getMonth()===ref.getMonth() && d.getDate()===ref.getDate();
+}
+
+function findMentionedCity(qLower){
+  if(!reportCols || !reportCols.city_name) return null;
+  const cities = new Set();
+  masterRows.forEach(r => { const c = r[reportCols.city_name]; if(c) cities.add(String(c).trim()); });
+  for(const city of cities){
+    if(city && qLower.includes(city.toLowerCase())) return city;
+  }
+  return null;
+}
+
+function answerQuestion(raw){
+  const q = raw.trim();
+  const ql = q.toLowerCase();
+
+  if(!masterRows || !reportCols){
+    return "I don't have any data loaded yet — go to the Dashboard and click \"Load Sheet\" first, then come back and ask me anything about your tickets.";
+  }
+
+  const total = masterRows.length;
+  const openRows = masterRows.filter(r => isBlank(r[reportCols.resolve_dt]));
+  const resolvedRows = masterRows.filter(r => !isBlank(r[reportCols.resolve_dt]));
+  const openCount = openRows.length;
+  const resolvedCount = resolvedRows.length;
+  const cityStats = buildCityStats();
+  const now = new Date();
+
+  // ---- specific city mention (e.g. "how many tickets in Jaipur") ----
+  const mentionedCity = findMentionedCity(ql);
+  if(mentionedCity && /(ticket|complaint|charger|status|how many|open|resolve)/.test(ql)){
+    const s = cityStats[mentionedCity];
+    return `**${mentionedCity}**: ${s.total} total ticket(s) — ${s.resolved} resolved, ${s.open} still open.`;
+  }
+
+  // ---- summaries ----
+  if(/today.?s? summary|summarize today|daily summary/.test(ql)){
+    return buildSummary("today");
+  }
+  if(/this week|weekly summary|week.?s performance/.test(ql)){
+    return buildSummary("week");
+  }
+  if(/this month|monthly summary/.test(ql)){
+    return buildSummary("month");
+  }
+  if(/summary|summarize|overview/.test(ql)){
+    return buildSummary("all");
+  }
+
+  // ---- open tickets count ----
+  if(/(how many|number of|count).*(open|pending|unresolved)/.test(ql) || /open ticket/.test(ql)){
+    return `There are **${openCount}** open ticket(s) out of ${total} total (${((openCount/total)*100).toFixed(1)}% still pending).`;
+  }
+
+  // ---- resolved count ----
+  if(/(how many|number of|count).*resolved/.test(ql) || /resolved ticket/.test(ql)){
+    return `**${resolvedCount}** ticket(s) have been resolved out of ${total} total (${((resolvedCount/total)*100).toFixed(1)}%).`;
+  }
+
+  // ---- total tickets ----
+  if(/(how many|total).*(ticket|complaint)s?\b/.test(ql) && !/open|resolved|city/.test(ql)){
+    return `Your Main Tracker currently has **${total}** ticket(s) in total — ${resolvedCount} resolved, ${openCount} still open.`;
+  }
+
+  // ---- top city / city with most complaints ----
+  if(/(which city|top city|city with the (highest|most)|most complaints|highest number of complaints)/.test(ql)){
+    const sorted = Object.entries(cityStats).sort((a,b) => b[1].total - a[1].total);
+    if(!sorted.length) return "I don't see any city data in your tracker.";
+    const [city, s] = sorted[0];
+    let msg = `**${city}** has the most tickets — ${s.total} total (${s.open} still open, ${s.resolved} resolved).`;
+    if(sorted.length > 1){
+      msg += "\n\nTop 5 cities by ticket volume:\n" + sorted.slice(0,5).map(([c,st],i) => `${i+1}. ${c} — ${st.total} total (${st.open} open)`).join("\n");
+    }
+    return msg;
+  }
+
+  // ---- city breakdown ----
+  if(/city.?wise|breakdown by city|list.*cit(y|ies)/.test(ql)){
+    const sorted = Object.entries(cityStats).sort((a,b) => b[1].total - a[1].total).slice(0,15);
+    return "City-wise breakdown (top 15 by volume):\n" + sorted.map(([c,s]) => `• ${c} — ${s.total} total, ${s.resolved} resolved, ${s.open} open`).join("\n");
+  }
+
+  // ---- show offline / still open chargers ----
+  if(/(show|list).*(offline|still open|open charger|open ticket)/.test(ql) || /offline charger/.test(ql)){
+    if(!openRows.length) return "No open tickets right now — everything is resolved. 🎉";
+    const sample = openRows.slice(0, 20);
+    const lines = sample.map(r => {
+      const id = r[reportCols.charger_id] || "?";
+      const name = reportCols.charger_name ? (r[reportCols.charger_name] || "") : "";
+      const city = reportCols.city_name ? (r[reportCols.city_name] || "") : "";
+      return `• ${id} — ${name}${city ? " (" + city + ")" : ""}`;
+    }).join("\n");
+    return `${openCount} charger(s) still open. Showing ${sample.length}:\n${lines}` + (openCount > 20 ? `\n\n…and ${openCount-20} more. Check the Tickets page for the full list.` : "");
+  }
+
+  // ---- resolution rate today ----
+  if(/today.?s? resolution rate|resolution rate today/.test(ql)){
+    const resolvedToday = resolvedRows.filter(r => { const d = parseFlexibleDate(r[reportCols.resolve_dt]); return d && isSameDay(d, now); }).length;
+    const denom = resolvedToday + openCount;
+    const rate = denom ? ((resolvedToday/denom)*100).toFixed(1) : "0.0";
+    return `**Today's resolution rate: ${rate}%**\n(${resolvedToday} ticket(s) resolved today, out of ${denom} that needed attention today — resolved-today + currently-open.)`;
+  }
+
+  // ---- overall resolution rate ----
+  if(/resolution rate|resolve rate|success rate/.test(ql)){
+    const rate = total ? ((resolvedCount/total)*100).toFixed(1) : "0.0";
+    return `Overall resolution rate: **${rate}%** (${resolvedCount} of ${total} tickets resolved).`;
+  }
+
+  // ---- not found in CMS (from run history, most recent run) ----
+  if(/not found|not in cms|missing from cms/.test(ql)){
+    const hist = loadHistory();
+    if(!hist.length) return "I don't have any automation run history yet to check \"not found\" counts — run the automation from the Dashboard first.";
+    const latest = hist[0];
+    return `In your most recent run (${latest.dateLabel}, file: ${latest.cmsFileName}): ${latest.notFound} ticket(s) were not found in that CMS dump.`;
+  }
+
+  // ---- who is attending / attended by ----
+  if(/who.*(attend|handle|assign)|attended by/.test(ql)){
+    const cityFound = findMentionedCity(ql);
+    if(cityFound){
+      const person = ATTENDED_BY[cityFound.trim().toLowerCase()];
+      return person ? `**${cityFound}** is handled by **${person}**.` : `I don't have an Attended By mapping for "${cityFound}" yet.`;
+    }
+    return "Tell me which city you're asking about, e.g. \"Who attends tickets in Jaipur?\"";
+  }
+
+  // ---- last run stats ----
+  if(/last run|latest run|last upload|most recent (run|upload)/.test(ql)){
+    const hist = loadHistory();
+    if(!hist.length) return "No automation runs recorded yet on this browser.";
+    const h = hist[0];
+    return `Last run: **${h.dateLabel}**\nFile: ${h.cmsFileName}\nChecked: ${h.checked} • Resolved: ${h.resolved} • Still open: ${h.stillOpen} • Not found: ${h.notFound}`;
+  }
+
+  // ---- fallback ----
+  return `I couldn't quite match that to something I know how to answer yet. I'm best at questions like:\n\n• "How many open tickets are there?"\n• "Which city has the highest number of complaints?"\n• "Show me chargers that are still offline"\n• "What is today's resolution rate?"\n• "Give me today's summary" / "Summarize this week"\n• "Who attends tickets in <city>?"\n\nTry rephrasing along those lines.`;
+}
+
+function buildSummary(period){
+  const total = masterRows.length;
+  const openRows = masterRows.filter(r => isBlank(r[reportCols.resolve_dt]));
+  const resolvedRows = masterRows.filter(r => !isBlank(r[reportCols.resolve_dt]));
+  const now = new Date();
+
+  let periodResolved = [];
+  let periodLabel = "";
+  if(period === "today"){
+    periodLabel = "Today";
+    periodResolved = resolvedRows.filter(r => { const d = parseFlexibleDate(r[reportCols.resolve_dt]); return d && isSameDay(d, now); });
+  } else if(period === "week"){
+    periodLabel = "This Week (last 7 days)";
+    const cutoff = new Date(now); cutoff.setDate(now.getDate()-7);
+    periodResolved = resolvedRows.filter(r => { const d = parseFlexibleDate(r[reportCols.resolve_dt]); return d && d >= cutoff && d <= now; });
+  } else if(period === "month"){
+    periodLabel = "This Month";
+    periodResolved = resolvedRows.filter(r => { const d = parseFlexibleDate(r[reportCols.resolve_dt]); return d && d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth(); });
+  } else {
+    periodLabel = "All-Time";
+    periodResolved = resolvedRows;
+  }
+
+  const cityStats = buildCityStats();
+  const topCities = Object.entries(cityStats).sort((a,b) => b[1].open - a[1].open).slice(0,3);
+  const hist = loadHistory();
+  const periodRuns = period === "today"
+    ? hist.filter(h => isSameDay(new Date(h.ts), now))
+    : hist;
+
+  let out = `**${periodLabel} Summary**\n\n`;
+  out += `📋 Total tickets in tracker: ${total}\n`;
+  out += `✅ Resolved in this period: ${periodResolved.length}\n`;
+  out += `⏳ Currently still open: ${openRows.length}\n`;
+  out += `🎯 Overall resolution rate: ${total ? ((resolvedRows.length/total)*100).toFixed(1) : "0.0"}%\n\n`;
+
+  if(topCities.length){
+    out += `**Cities with the most open tickets:**\n`;
+    out += topCities.map(([c,s]) => `• ${c} — ${s.open} open (${s.total} total)`).join("\n") + "\n\n";
+  }
+
+  if(period === "today" && periodRuns.length){
+    const totalResolvedRuns = periodRuns.reduce((s,h)=>s+h.resolved,0);
+    out += `**Automation activity today:** ${periodRuns.length} run(s), ${totalResolvedRuns} ticket(s) auto-resolved via CMS matching.\n\n`;
+  } else if(period !== "today" && hist.length){
+    out += `**Automation activity (all recorded runs):** ${hist.length} run(s) total, most recent on ${hist[0].dateLabel}.\n\n`;
+  }
+
+  out += openRows.length === 0
+    ? `Everything is currently resolved — no pending issues. 🎉`
+    : `⚠️ ${openRows.length} ticket(s) still need attention. Check the Tickets page or ask me "show offline chargers" for the list.`;
+
+  return out;
+}
+
+// ---- Chat UI wiring ----
+const CHAT_KEY = "cta_chat_history";
+function loadChat(){
+  try{ return JSON.parse(localStorage.getItem(CHAT_KEY) || "[]"); }catch(_){ return []; }
+}
+function saveChat(msgs){
+  try{ localStorage.setItem(CHAT_KEY, JSON.stringify(msgs.slice(-100))); }catch(_){}
+}
+let chatMessages = loadChat();
+
+function buildAIDataContext(){
+  if(!masterRows || !reportCols) return { note: "No sheet loaded yet." };
+  const openRows = masterRows.filter(r => isBlank(r[reportCols.resolve_dt]));
+  const resolvedRows = masterRows.filter(r => !isBlank(r[reportCols.resolve_dt]));
+  const cityStats = buildCityStats();
+  const cityArr = Object.entries(cityStats).sort((a,b)=>b[1].total-a[1].total).slice(0,25)
+    .map(([city,s]) => ({city, total:s.total, resolved:s.resolved, open:s.open}));
+  const hist = loadHistory().slice(0,10).map(h => ({
+    date:h.dateLabel, cmsFile:h.cmsFileName, checked:h.checked, resolved:h.resolved, stillOpen:h.stillOpen, notFound:h.notFound
+  }));
+  const sampleOpen = openRows.slice(0,15).map(r => ({
+    chargerId: r[reportCols.charger_id], name: reportCols.charger_name ? r[reportCols.charger_name] : "", city: reportCols.city_name ? r[reportCols.city_name] : ""
+  }));
+  return {
+    totalTickets: masterRows.length,
+    resolvedTickets: resolvedRows.length,
+    openTickets: openRows.length,
+    cityBreakdown: cityArr,
+    recentAutomationRuns: hist,
+    sampleOfOpenTickets: sampleOpen
+  };
+}
+
+async function askGeminiAI(question){
+  const scriptUrl = document.getElementById("appsScriptUrl").value.trim();
+  if(!scriptUrl){
+    return "I need your Apps Script URL to reach Gemini — paste it in the setup panel on the Dashboard first.";
+  }
+  const dataContext = buildAIDataContext();
+  try{
+    const res = await fetch(scriptUrl, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ askAI: true, question, dataContext })
+    });
+    const result = await res.json();
+    if(result.error) return "⚠ " + result.error;
+    return result.answer || "Gemini didn't return an answer.";
+  }catch(err){
+    return "⚠ Couldn't reach Apps Script — " + err.message;
+  }
+}
+
+function renderChat(){
+  const win = document.getElementById("chatWindow");
+  if(!win) return;
+  if(!chatMessages.length){
+    win.innerHTML = `<div class="msg assistant">Hi! I'm your dashboard assistant. Load your Main Tracker sheet on the Dashboard, then ask me things like "how many open tickets" or "give me today's summary". I answer directly from your real data.</div>`;
+    return;
+  }
+  win.innerHTML = chatMessages.map(m => {
+    const cls = m.role === "user" ? "user" : "assistant";
+    const textHtml = escapeHtml(m.text).replace(/\*\*(.*?)\*\*/g, "<b>$1</b>").replace(/\n/g, "<br>");
+    return `<div class="msg ${cls}">${textHtml}</div>`;
+  }).join("");
+  win.scrollTop = win.scrollHeight;
+}
+renderChat();
+
+async function sendChatMessage(text){
+  const t = text.trim();
+  if(!t) return;
+  chatMessages.push({role:"user", text:t});
+  renderChat();
+
+  const useGemini = document.getElementById("aiModeToggle") && document.getElementById("aiModeToggle").checked;
+  if(useGemini){
+    chatMessages.push({role:"assistant", text:"Thinking…"});
+    renderChat();
+    const answer = await askGeminiAI(t);
+    chatMessages[chatMessages.length-1] = {role:"assistant", text:answer};
+  } else {
+    const answer = answerQuestion(t);
+    chatMessages.push({role:"assistant", text:answer});
+  }
+  saveChat(chatMessages);
+  renderChat();
+}
+
+const aiModeToggle = document.getElementById("aiModeToggle");
+const aiModeStatus = document.getElementById("aiModeStatus");
+if(aiModeToggle){
+  aiModeToggle.checked = localStorage.getItem("cta_ai_mode") === "1";
+  if(aiModeStatus) aiModeStatus.textContent = aiModeToggle.checked ? "Gemini mode ON" : "Built-in engine (free, instant)";
+  aiModeToggle.addEventListener("change", () => {
+    localStorage.setItem("cta_ai_mode", aiModeToggle.checked ? "1" : "0");
+    if(aiModeStatus) aiModeStatus.textContent = aiModeToggle.checked ? "Gemini mode ON" : "Built-in engine (free, instant)";
+  });
+}
+
+const chatInput = document.getElementById("chatInput");
+const chatSendBtn = document.getElementById("chatSendBtn");
+if(chatSendBtn){
+  chatSendBtn.addEventListener("click", () => {
+    sendChatMessage(chatInput.value);
+    chatInput.value = "";
+    chatInput.style.height = "auto";
+  });
+}
+if(chatInput){
+  chatInput.addEventListener("keydown", e => {
+    if(e.key === "Enter" && !e.shiftKey){
+      e.preventDefault();
+      chatSendBtn.click();
+    }
+  });
+  chatInput.addEventListener("input", () => {
+    chatInput.style.height = "auto";
+    chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + "px";
+  });
+}
+document.querySelectorAll(".chip").forEach(chip => {
+  chip.addEventListener("click", () => sendChatMessage(chip.dataset.q));
+});
 
 </script>
 </body>
