@@ -548,7 +548,7 @@
           <input type="checkbox" id="occupiedToggle">
           Also treat Charger Availability = <b>Occupied</b> as resolved (in addition to Available)
         </label>
-        <p class="muted-note">By default only "Available" resolves a ticket. Turn this on if a charger actively in use (Occupied) should also count as healthy.</p>
+        <p class="muted-note">On by default — chargers that are Occupied (actively in use) count as healthy, same as Available. Turn this off if you only want "Available" to resolve a ticket.</p>
       </div>
 
       <div class="panel-wide">
@@ -1051,6 +1051,7 @@ document.getElementById("runBtn").addEventListener("click", async () => {
     updateDonut(resolvedCount, openCount, notFoundCount, totalChecked);
     renderLog(log);
     document.getElementById("results").style.display = "block";
+    const now = fmtNow();
     saveHistoryEntry({
       ts: Date.now(),
       dateLabel: now,
@@ -1179,14 +1180,20 @@ document.querySelectorAll(".theme-btn").forEach(b => {
 
 // ============================================================
 // AVAILABILITY PREFERENCE (treat Occupied as resolved too)
+// Default: ON for first-time visitors. Once someone explicitly
+// toggles it, their choice (on or off) is remembered from then on.
 // ============================================================
+function includeOccupiedIsOn(){
+  const stored = localStorage.getItem("cta_include_occupied");
+  if(stored === null) return true; // never set yet — default ON
+  return stored === "1";
+}
 function getHealthyAvailabilitySet(){
-  const includeOccupied = localStorage.getItem("cta_include_occupied") === "1";
-  return includeOccupied ? ["available","occupied"] : ["available"];
+  return includeOccupiedIsOn() ? ["available","occupied"] : ["available"];
 }
 const occupiedToggle = document.getElementById("occupiedToggle");
 if(occupiedToggle){
-  occupiedToggle.checked = localStorage.getItem("cta_include_occupied") === "1";
+  occupiedToggle.checked = includeOccupiedIsOn();
   occupiedToggle.addEventListener("change", () => {
     localStorage.setItem("cta_include_occupied", occupiedToggle.checked ? "1" : "0");
   });
